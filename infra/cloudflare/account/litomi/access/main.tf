@@ -71,8 +71,8 @@ resource "cloudflare_zero_trust_access_application" "internal_apps" {
   type = "self_hosted"
 
   destinations = [
-    { uri = local.selfhost_argocd_hostname },
-    { uri = local.selfhost_grafana_hostname },
+    # { uri = local.selfhost_argocd_hostname },
+    # { uri = local.selfhost_grafana_hostname },
     { uri = local.selfhost_stg_hostname },
   ]
 
