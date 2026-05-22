@@ -257,7 +257,7 @@ resource "cloudflare_dns_record" "vercel_verification_txt" {
   zone_id = var.zone_id
   name    = "_vercel"
   type    = "TXT"
-  content = "vc-domain-verify=vercel2.${var.domain},4c27109d593e9215186d"
+  content = "\"vc-domain-verify=vercel2.${var.domain},4c27109d593e9215186d\""
   ttl     = 3600
   proxied = false
 }
@@ -266,7 +266,7 @@ resource "cloudflare_dns_record" "vercel_stg_verification_txt" {
   zone_id = var.zone_id
   name    = "_vercel"
   type    = "TXT"
-  content = "vc-domain-verify=vercel2-stg.${var.domain},4856999ad01d6e1721c6"
+  content = "\"vc-domain-verify=vercel2-stg.${var.domain},4856999ad01d6e1721c6\""
   ttl     = 3600
   proxied = false
 }
