@@ -4,7 +4,7 @@ terraform {
 
     workspaces {
       project = "cloudflare"
-      name    = "litomi-cloudflare-account-selfhost-tunnel"
+      name    = "account-selfhost-tunnel"
     }
   }
 
