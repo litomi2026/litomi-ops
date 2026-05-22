@@ -108,7 +108,7 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "selfhost" {
 }
 
 output "selfhost_tunnel_id" {
-  description = "Cloudflare Tunnel ID for the self-hosted Litomi ingress."
+  description = "Cloudflare Tunnel ID for the self-hosted Litomi ingress.."
   value       = cloudflare_zero_trust_tunnel_cloudflared.selfhost.id
 }
 
