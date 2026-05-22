@@ -7,15 +7,15 @@ Terraform immediately.
 
 ## Workspaces
 
-| Repository path                                       | HCP Terraform workspace                                   | Scope                               |
-| ----------------------------------------------------- | --------------------------------------------------------- | ----------------------------------- |
-| `infra/cloudflare/account/litomi/selfhost-tunnel`     | `account-selfhost-tunnel`                | Account-level Cloudflare Tunnel     |
-| `infra/cloudflare/account/litomi/access`              | `account-access`                         | Account-level Access app and policy |
-| `infra/cloudflare/zone/litomi.in/dns`                 | `zone-litomi-in-dns`                     | Zone DNS records                    |
-| `infra/cloudflare/zone/litomi.in/rulesets/cache`      | `zone-litomi-in-cache`                   | Cache Rules phase                   |
-| `infra/cloudflare/zone/litomi.in/rulesets/rate-limit` | `zone-litomi-in-rate-limit`              | Rate limiting phase                 |
-| `infra/cloudflare/zone/litomi.in/rulesets/redirects`  | `zone-litomi-in-redirects`               | Dynamic redirects phase             |
-| `infra/cloudflare/zone/litomi.in/managed-transforms`  | `zone-litomi-in-managed-transforms`      | Managed transforms                  |
+| Repository path                        | HCP Terraform workspace             | Scope                               |
+| -------------------------------------- | ----------------------------------- | ----------------------------------- |
+| `./account/litomi/selfhost-tunnel`     | `account-selfhost-tunnel`           | Account-level Cloudflare Tunnel     |
+| `./account/litomi/access`              | `account-access`                    | Account-level Access app and policy |
+| `./zone/litomi.in/dns`                 | `zone-litomi-in-dns`                | Zone DNS records                    |
+| `./zone/litomi.in/rulesets/cache`      | `zone-litomi-in-cache`              | Cache Rules phase                   |
+| `./zone/litomi.in/rulesets/rate-limit` | `zone-litomi-in-rate-limit`         | Rate limiting phase                 |
+| `./zone/litomi.in/rulesets/redirects`  | `zone-litomi-in-redirects`          | Dynamic redirects phase             |
+| `./zone/litomi.in/managed-transforms`  | `zone-litomi-in-managed-transforms` | Managed transforms                  |
 
 Each workspace should use VCS-driven runs with manual apply. Pull requests
 should produce speculative plans; merges to the production branch should require
@@ -31,15 +31,24 @@ Create a project-level variable set for provider credentials:
 
 Create a workspace-scoped variable set for account-level workspaces:
 
-| Category  | Key          | Sensitive | Notes                                             |
-| --------- | ------------ | --------- | ------------------------------------------------- |
+| Category  | Key          | Sensitive | Notes                           |
+| --------- | ------------ | --------- | ------------------------------- |
 | Terraform | `account_id` | No        | Apply to `account-*` workspaces |
 
 Create a workspace-scoped variable set for the `litomi.in` zone workspaces:
 
-| Category  | Key       | Sensitive | Notes                                                    |
-| --------- | --------- | --------- | -------------------------------------------------------- |
+| Category  | Key       | Sensitive | Notes                                  |
+| --------- | --------- | --------- | -------------------------------------- |
 | Terraform | `zone_id` | No        | Apply to `zone-litomi-in-*` workspaces |
+
+Set these workspace-specific Terraform variables on `zone-litomi-in-rate-limit`.
+Mark all three as sensitive:
+
+| Category  | Key                   | Sensitive | Notes                                     |
+| --------- | --------------------- | --------- | ----------------------------------------- |
+| Terraform | `rate_limit_period`   | Yes       | Rate limiting period in seconds           |
+| Terraform | `rate_limit_requests` | Yes       | Maximum requests allowed per period       |
+| Terraform | `rate_limit_timeout`  | Yes       | Mitigation timeout after the limit is hit |
 
 Set `access_allowed_emails` as a workspace-specific Terraform variable on
 `account-access`. It must be a non-empty HCL list, for example:

@@ -26,10 +26,25 @@ variable "zone_id" {
   nullable    = false
 }
 
-locals {
-  rate_limit_period   = 10000
-  rate_limit_requests = 10000
-  rate_limit_timeout  = 10000
+variable "rate_limit_period" {
+  description = "Rate limiting period in seconds."
+  type        = number
+  nullable    = false
+  sensitive   = true
+}
+
+variable "rate_limit_requests" {
+  description = "Maximum requests allowed per rate limiting period."
+  type        = number
+  nullable    = false
+  sensitive   = true
+}
+
+variable "rate_limit_timeout" {
+  description = "Mitigation timeout in seconds when the rate limit is exceeded."
+  type        = number
+  nullable    = false
+  sensitive   = true
 }
 
 resource "cloudflare_ruleset" "rate_limiting" {
@@ -48,9 +63,9 @@ resource "cloudflare_ruleset" "rate_limiting" {
 
       ratelimit = {
         characteristics     = ["cf.colo.id", "ip.src"]
-        period              = local.rate_limit_period
-        requests_per_period = local.rate_limit_requests
-        mitigation_timeout  = local.rate_limit_timeout
+        period              = var.rate_limit_period
+        requests_per_period = var.rate_limit_requests
+        mitigation_timeout  = var.rate_limit_timeout
       }
     }
   ]
