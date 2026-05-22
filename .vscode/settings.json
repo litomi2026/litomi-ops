@@ -1,0 +1,15 @@
+{
+  "editor.codeActionsOnSave": { "source.fixAll": "explicit" },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.insertSpaces": true,
+  "editor.tabSize": 2,
+  "files.autoSave": "onFocusChange",
+  "files.eol": "\n",
+  "search.exclude": {
+    "**/.git": true,
+    "**/out": true
+  },
+  "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[terraform]": { "editor.defaultFormatter": "hashicorp.terraform" }
+}
