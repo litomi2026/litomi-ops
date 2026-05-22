@@ -105,6 +105,7 @@ locals {
   bypass_cache_hostnames = [
     "grafana.${var.domain}",
     "argocd.${var.domain}",
+    "stg.${var.domain}",
   ]
 
   respect_origin_conditions = join(" or ", [
