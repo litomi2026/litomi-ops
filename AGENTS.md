@@ -11,6 +11,12 @@
 - 이 repo는 Cloudflare Terraform, Kubernetes manifests, GitOps(Argo CD) 설정을 관리한다.
 - 앱 소스 코드는 sibling repo `../litomi`에 있다.
 
+## Repo Rules
+
+- 이 repository는 public repo다.
+- 커밋되는 모든 파일은 공개될 수 있다고 가정한다.
+- secret, token, private key, credential, 계정 정보, 민감한 운영 정보는 커밋하지 않는다.
+
 ## Cloudflare
 
 - Cloudflare는 Free plan을 사용한다.

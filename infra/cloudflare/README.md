@@ -67,17 +67,6 @@ Allow the DNS workspace to read the tunnel workspace state outputs in HCP
 Terraform before planning DNS. Prefer granting this to the DNS workspace only,
 not global remote-state access.
 
-## Initial Cutover
-
-Do not apply an empty HCP Terraform workspace against existing Cloudflare
-resources. Import the current Cloudflare resources into the matching workspace
-state first, then run a plan and confirm it is either empty or intentionally
-small before approval.
-
-Temporary `imports.tf` files are checked in during cutover. They should be
-removed after the matching workspace successfully imports its resources and the
-follow-up plan is clean.
-
 ## Operating Rules
 
 - Do not run Cloudflare changes from local `.tfvars` or `.env` files.
