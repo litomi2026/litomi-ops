@@ -4,7 +4,7 @@ terraform {
 
     workspaces {
       project = "cloudflare"
-      name    = "zone-litomi-in-rate-limit"
+      name    = "litomi-cloudflare-zone-litomi-in-rulesets-rate-limiting"
     }
   }
 

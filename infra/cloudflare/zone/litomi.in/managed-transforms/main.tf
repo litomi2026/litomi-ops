@@ -4,7 +4,7 @@ terraform {
 
     workspaces {
       project = "cloudflare"
-      name    = "zone-litomi-in-managed-transforms"
+      name    = "litomi-cloudflare-zone-litomi-in-managed-transforms"
     }
   }
 

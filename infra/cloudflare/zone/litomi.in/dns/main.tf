@@ -4,7 +4,7 @@ terraform {
 
     workspaces {
       project = "cloudflare"
-      name    = "zone-litomi-in-dns"
+      name    = "litomi-cloudflare-zone-litomi-in-dns"
     }
   }
 
@@ -40,7 +40,7 @@ data "terraform_remote_state" "selfhost_tunnel" {
     organization = "litomi"
 
     workspaces = {
-      name = "account-selfhost-tunnel"
+      name = "litomi-cloudflare-account-selfhost-tunnel"
     }
   }
 }

@@ -4,7 +4,7 @@ terraform {
 
     workspaces {
       project = "cloudflare"
-      name    = "account-access"
+      name    = "litomi-cloudflare-account-access"
     }
   }
 

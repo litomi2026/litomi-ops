@@ -4,7 +4,7 @@ terraform {
 
     workspaces {
       project = "cloudflare"
-      name    = "zone-litomi-in-cache"
+      name    = "litomi-cloudflare-zone-litomi-in-rulesets-cache"
     }
   }
 
