@@ -26,11 +26,6 @@ variable "zone_id" {
   nullable    = false
 }
 
-import {
-  to = cloudflare_ruleset.waf_custom
-  id = "zones/${var.zone_id}/f9abc12964d64798ad9d1a3db9c1583b"
-}
-
 locals {
   leaked_credential_check_expression = "(cf.waf.credential_check.password_leaked)"
 
