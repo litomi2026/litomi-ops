@@ -29,8 +29,12 @@ variable "zone_id" {
 resource "cloudflare_bot_management" "default" {
   zone_id = var.zone_id
 
-  ai_bots_protection = "block"
-  fight_mode         = true
+  ai_bots_protection      = "block"
+  content_bots_protection = "disabled"
+  crawler_protection      = "enabled"
+  enable_js               = true
+  fight_mode              = true
+  is_robots_txt_managed   = true
 }
 
 output "bot_management_ai_bots_protection" {
