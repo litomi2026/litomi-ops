@@ -55,6 +55,75 @@ locals {
     ")",
   ])
 
+  automated_user_agent_keywords = [
+    "acunetix",
+    "aiohttp",
+    "axios/",
+    "curl/",
+    "dirbuster",
+    "ffuf",
+    "go-http-client",
+    "gobuster",
+    "guzzlehttp",
+    "headless",
+    "headlesschrome",
+    "httpie",
+    "httpclient",
+    "httpx",
+    "hydra",
+    "java/",
+    "libcurl",
+    "libwww-perl",
+    "masscan",
+    "mechanize",
+    "nessus",
+    "nikto",
+    "node-fetch",
+    "nuclei",
+    "phantomjs",
+    "playwright",
+    "puppeteer",
+    "python-requests",
+    "python-urllib",
+    "scraper",
+    "scrapy",
+    "selenium",
+    "slimerjs",
+    "sqlmap",
+    "undici",
+    "urllib3",
+    "webdriver",
+    "wget",
+    "wpscan",
+    "zgrab",
+  ]
+
+  unverified_bot_user_agent_keywords = [
+    "bot",
+    "crawl",
+    "spider",
+  ]
+
+  automated_user_agent_expression = join(" ", [
+    "(",
+    "http.user_agent eq \"\"",
+    "or",
+    join(" or ", [
+      for keyword in local.automated_user_agent_keywords :
+      format("lower(http.user_agent) contains \"%s\"", keyword)
+    ]),
+    "or (",
+    "not cf.client.bot",
+    "and (",
+    join(" or ", [
+      for keyword in local.unverified_bot_user_agent_keywords :
+      format("lower(http.user_agent) contains \"%s\"", keyword)
+    ]),
+    ")",
+    ")",
+    ")",
+  ])
+
   malformed_next_action_expression = join(" ", [
     "(",
     "len(http.request.headers[\"next-action\"]) >= 0",
@@ -64,6 +133,12 @@ locals {
     "or any(len(http.request.headers[\"next-action\"][*])[*] gt 128)",
     ")",
     ")",
+  ])
+
+  automated_or_malformed_request_expression = join(" ", [
+    local.automated_user_agent_expression,
+    "or",
+    local.malformed_next_action_expression,
   ])
 }
 
@@ -90,10 +165,10 @@ resource "cloudflare_ruleset" "waf_custom" {
       action      = "block"
     },
     {
-      ref         = "block_malformed_next_action"
+      ref         = "block_automated_or_malformed_requests"
       enabled     = true
-      description = "Block malformed Next.js Server Action requests"
-      expression  = local.malformed_next_action_expression
+      description = "Block automated user agents and malformed header requests"
+      expression  = local.automated_or_malformed_request_expression
       action      = "block"
     }
   ]
