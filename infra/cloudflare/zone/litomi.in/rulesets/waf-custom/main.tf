@@ -58,6 +58,7 @@ locals {
     "aiohttp",
     "axios/",
     "curl/",
+    "dart/",
     "dirbuster",
     "ffuf",
     "go-http-client",
