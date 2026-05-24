@@ -45,15 +45,13 @@ locals {
     "Terracotta",
   ]
 
-  ai_crawl_control_expression = join(" ", [
-    "(http.request.uri.path ne \"/robots.txt\")",
-    "and (",
+  ai_crawl_control_expression = format(
+    "(http.request.uri.path ne \"/robots.txt\") and (%s)",
     join(" or ", [
       for user_agent in local.ai_crawl_control_user_agents :
-      format("http.user_agent contains \"%s\"", user_agent)
+      format("(http.user_agent contains \"%s\")", user_agent)
     ]),
-    ")",
-  ])
+  )
 
   automated_user_agent_keywords = [
     "acunetix",
