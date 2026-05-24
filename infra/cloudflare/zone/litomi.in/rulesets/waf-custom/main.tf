@@ -29,7 +29,31 @@ variable "zone_id" {
 locals {
   leaked_credential_check_expression = "(cf.waf.credential_check.password_leaked)"
 
-  ai_crawl_control_expression = "(http.request.uri.path ne \"/robots.txt\") and ((http.user_agent contains \"bingbot\"))"
+  ai_crawl_control_user_agents = [
+    "Applebot",
+    "archive.org_bot",
+    "Arquivo-web-crawler",
+    "ChatGPT-User",
+    "DuckAssistBot",
+    "Manus-User",
+    "meta-externalfetcher",
+    "MistralAI-User",
+    "OAI-SearchBot",
+    "Perplexity-User",
+    "PerplexityBot",
+    "ProRataInc",
+    "Terracotta",
+  ]
+
+  ai_crawl_control_expression = join(" ", [
+    "(http.request.uri.path ne \"/robots.txt\")",
+    "and (",
+    join(" or ", [
+      for user_agent in local.ai_crawl_control_user_agents :
+      format("http.user_agent contains \"%s\"", user_agent)
+    ]),
+    ")",
+  ])
 
   malformed_next_action_expression = join(" ", [
     "(",
