@@ -12,6 +12,7 @@ Terraform immediately.
 | `./account/litomi/selfhost-tunnel`     | `account-selfhost-tunnel`           | Account-level Cloudflare Tunnel     |
 | `./account/litomi/access`              | `account-access`                    | Account-level Access app and policy |
 | `./zone/litomi.in/dns`                 | `zone-litomi-in-dns`                | Zone DNS records                    |
+| `./zone/litomi.in/bot-management`      | `zone-litomi-in-bot-management`     | Bot Management settings             |
 | `./zone/litomi.in/rulesets/cache`      | `zone-litomi-in-cache`              | Cache Rules phase                   |
 | `./zone/litomi.in/rulesets/rate-limit` | `zone-litomi-in-rate-limit`         | Rate limiting phase                 |
 | `./zone/litomi.in/rulesets/redirects`  | `zone-litomi-in-redirects`          | Dynamic redirects phase             |
