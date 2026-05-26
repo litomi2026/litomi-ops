@@ -134,10 +134,101 @@ locals {
     ")",
   ])
 
+  api_hosts = [
+    "api.litomi.in",
+    "api-stg.litomi.in",
+  ]
+
+  image_hosts = [
+    "img.litomi.in",
+    "img-stg.litomi.in",
+  ]
+
+  mutating_methods = [
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+  ]
+
+  api_host_expression_set = format("{%s}", join(" ", [
+    for host in local.api_hosts :
+    format("\"%s\"", host)
+  ]))
+
+  image_host_expression_set = format("{%s}", join(" ", [
+    for host in local.image_hosts :
+    format("\"%s\"", host)
+  ]))
+
+  mutating_method_expression_set = format("{%s}", join(" ", [
+    for method in local.mutating_methods :
+    format("\"%s\"", method)
+  ]))
+
+  api_host_request_expression = join(" ", [
+    "(",
+    format("http.host in %s", local.api_host_expression_set),
+    ")",
+  ])
+
+  image_host_request_expression = join(" ", [
+    "(",
+    format("http.host in %s", local.image_host_expression_set),
+    ")",
+  ])
+
+  cross_site_sec_fetch_expression = join(" ", [
+    "(",
+    "has_key(http.request.headers, \"sec-fetch-site\")",
+    "and any(lower(http.request.headers[\"sec-fetch-site\"][*])[*] eq \"cross-site\")",
+    ")",
+  ])
+
+  cross_site_mutating_sec_fetch_expression = join(" ", [
+    "(",
+    local.cross_site_sec_fetch_expression,
+    "and",
+    format("http.request.method in %s", local.mutating_method_expression_set),
+    ")",
+  ])
+
+  non_same_site_sec_fetch_expression = join(" ", [
+    "(",
+    "has_key(http.request.headers, \"sec-fetch-site\")",
+    "and not any(lower(http.request.headers[\"sec-fetch-site\"][*])[*] in {\"same-site\" \"same-origin\"})",
+    ")",
+  ])
+
+  non_same_site_api_sec_fetch_expression = join(" ", [
+    "(",
+    local.api_host_request_expression,
+    "and",
+    local.non_same_site_sec_fetch_expression,
+    ")",
+  ])
+
+  non_same_site_image_proxy_sec_fetch_expression = join(" ", [
+    "(",
+    local.image_host_request_expression,
+    "and (",
+    "not has_key(http.request.headers, \"sec-fetch-site\")",
+    "or",
+    "not any(lower(http.request.headers[\"sec-fetch-site\"][*])[*] in {\"same-site\" \"same-origin\"})",
+    ")",
+    ")",
+  ])
+
   automated_or_malformed_request_expression = join(" ", [
     local.automated_user_agent_expression,
     "or",
     local.malformed_next_action_expression,
+    "or",
+    local.cross_site_mutating_sec_fetch_expression,
+    "or",
+    local.non_same_site_api_sec_fetch_expression,
+    "or",
+    local.non_same_site_image_proxy_sec_fetch_expression,
   ])
 }
 
@@ -166,7 +257,7 @@ resource "cloudflare_ruleset" "waf_custom" {
     {
       ref         = "block_automated_or_malformed_requests"
       enabled     = true
-      description = "Block automated user agents and malformed header requests"
+      description = "Block automated, malformed, or cross-site requests"
       expression  = local.automated_or_malformed_request_expression
       action      = "block"
     }
