@@ -139,9 +139,13 @@ locals {
     "api-stg.litomi.in",
   ]
 
-  image_hosts = [
+  browser_resource_hosts = [
     "img.litomi.in",
     "img-stg.litomi.in",
+    "vercel.litomi.in",
+    "vercel-stg.litomi.in",
+    "vercel2.litomi.in",
+    "vercel2-stg.litomi.in",
   ]
 
   mutating_methods = [
@@ -156,8 +160,8 @@ locals {
     format("\"%s\"", host)
   ]))
 
-  image_host_expression_set = format("{%s}", join(" ", [
-    for host in local.image_hosts :
+  browser_resource_host_expression_set = format("{%s}", join(" ", [
+    for host in local.browser_resource_hosts :
     format("\"%s\"", host)
   ]))
 
@@ -166,8 +170,8 @@ locals {
     format("\"%s\"", method)
   ]))
 
-  api_host_request_expression   = format("(http.host in %s)", local.api_host_expression_set)
-  image_host_request_expression = format("(http.host in %s)", local.image_host_expression_set)
+  api_host_request_expression      = format("(http.host in %s)", local.api_host_expression_set)
+  browser_resource_host_expression = format("(http.host in %s)", local.browser_resource_host_expression_set)
 
   sec_fetch_site_present_expression = "has_key(http.request.headers, \"sec-fetch-site\")"
   sec_fetch_site_values_expression  = "lower(http.request.headers[\"sec-fetch-site\"][*])[*]"
@@ -207,9 +211,9 @@ locals {
     local.untrusted_sec_fetch_site_expression,
   )
 
-  image_missing_or_untrusted_sec_fetch_expression = format(
+  browser_resource_untrusted_sec_fetch_expression = format(
     "(%s and %s)",
-    local.image_host_request_expression,
+    local.browser_resource_host_expression,
     local.missing_or_untrusted_sec_fetch_site_expression,
   )
 
@@ -222,7 +226,7 @@ locals {
     "or",
     local.api_untrusted_sec_fetch_expression,
     "or",
-    local.image_missing_or_untrusted_sec_fetch_expression,
+    local.browser_resource_untrusted_sec_fetch_expression,
   ])
 }
 
