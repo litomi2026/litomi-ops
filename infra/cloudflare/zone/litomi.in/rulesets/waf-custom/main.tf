@@ -166,58 +166,52 @@ locals {
     format("\"%s\"", method)
   ]))
 
-  api_host_request_expression = join(" ", [
-    "(",
-    format("http.host in %s", local.api_host_expression_set),
-    ")",
-  ])
+  api_host_request_expression   = format("(http.host in %s)", local.api_host_expression_set)
+  image_host_request_expression = format("(http.host in %s)", local.image_host_expression_set)
 
-  image_host_request_expression = join(" ", [
-    "(",
-    format("http.host in %s", local.image_host_expression_set),
-    ")",
-  ])
+  sec_fetch_site_present_expression = "has_key(http.request.headers, \"sec-fetch-site\")"
+  sec_fetch_site_values_expression  = "lower(http.request.headers[\"sec-fetch-site\"][*])[*]"
 
-  cross_site_sec_fetch_expression = join(" ", [
-    "(",
-    "has_key(http.request.headers, \"sec-fetch-site\")",
-    "and any(lower(http.request.headers[\"sec-fetch-site\"][*])[*] eq \"cross-site\")",
-    ")",
-  ])
+  trusted_sec_fetch_site_expression = format(
+    "any(%s in {\"same-site\" \"same-origin\"})",
+    local.sec_fetch_site_values_expression,
+  )
 
-  cross_site_mutating_sec_fetch_expression = join(" ", [
-    "(",
+  cross_site_sec_fetch_expression = format(
+    "(%s and any(%s eq \"cross-site\"))",
+    local.sec_fetch_site_present_expression,
+    local.sec_fetch_site_values_expression,
+  )
+
+  cross_site_mutating_sec_fetch_expression = format(
+    "(%s and http.request.method in %s)",
     local.cross_site_sec_fetch_expression,
-    "and",
-    format("http.request.method in %s", local.mutating_method_expression_set),
-    ")",
-  ])
+    local.mutating_method_expression_set,
+  )
 
-  non_same_site_sec_fetch_expression = join(" ", [
-    "(",
-    "has_key(http.request.headers, \"sec-fetch-site\")",
-    "and not any(lower(http.request.headers[\"sec-fetch-site\"][*])[*] in {\"same-site\" \"same-origin\"})",
-    ")",
-  ])
+  untrusted_sec_fetch_site_expression = format(
+    "(%s and not %s)",
+    local.sec_fetch_site_present_expression,
+    local.trusted_sec_fetch_site_expression,
+  )
 
-  non_same_site_api_sec_fetch_expression = join(" ", [
-    "(",
+  missing_or_untrusted_sec_fetch_site_expression = format(
+    "(not %s or not %s)",
+    local.sec_fetch_site_present_expression,
+    local.trusted_sec_fetch_site_expression,
+  )
+
+  api_untrusted_sec_fetch_expression = format(
+    "(%s and %s)",
     local.api_host_request_expression,
-    "and",
-    local.non_same_site_sec_fetch_expression,
-    ")",
-  ])
+    local.untrusted_sec_fetch_site_expression,
+  )
 
-  non_same_site_image_proxy_sec_fetch_expression = join(" ", [
-    "(",
+  image_missing_or_untrusted_sec_fetch_expression = format(
+    "(%s and %s)",
     local.image_host_request_expression,
-    "and (",
-    "not has_key(http.request.headers, \"sec-fetch-site\")",
-    "or",
-    "not any(lower(http.request.headers[\"sec-fetch-site\"][*])[*] in {\"same-site\" \"same-origin\"})",
-    ")",
-    ")",
-  ])
+    local.missing_or_untrusted_sec_fetch_site_expression,
+  )
 
   automated_or_malformed_request_expression = join(" ", [
     local.automated_user_agent_expression,
@@ -226,9 +220,9 @@ locals {
     "or",
     local.cross_site_mutating_sec_fetch_expression,
     "or",
-    local.non_same_site_api_sec_fetch_expression,
+    local.api_untrusted_sec_fetch_expression,
     "or",
-    local.non_same_site_image_proxy_sec_fetch_expression,
+    local.image_missing_or_untrusted_sec_fetch_expression,
   ])
 }
 
