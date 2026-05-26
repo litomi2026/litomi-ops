@@ -125,7 +125,7 @@ locals {
 
   malformed_next_action_expression = join(" ", [
     "(",
-    "len(http.request.headers[\"next-action\"]) >= 0",
+    "has_key(http.request.headers, \"next-action\")",
     "and (",
     "http.request.method ne \"POST\"",
     "or any(len(http.request.headers[\"next-action\"][*])[*] lt 32)",
