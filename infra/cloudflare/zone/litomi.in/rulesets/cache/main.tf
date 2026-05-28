@@ -47,7 +47,6 @@ locals {
     "/",
     "/app",
     "/chat",
-    "/library",
     "/@",
   ]
 
@@ -66,9 +65,7 @@ locals {
     "/icon.",
     "/image/",
     "/libo",
-    "/library/bookmark",
-    "/library/history",
-    "/library/rating",
+    "/library",
     "/manga",
     "/new/",
     "/nye",
