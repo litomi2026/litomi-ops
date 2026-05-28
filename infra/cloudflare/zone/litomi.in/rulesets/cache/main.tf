@@ -66,7 +66,11 @@ locals {
     "/icon.",
     "/image/",
     "/libo",
+    "/library/bookmark",
+    "/library/history",
+    "/library/rating",
     "/manga",
+    "/new/",
     "/nye",
     "/notification",
     "/offline.html",
@@ -74,7 +78,10 @@ locals {
     "/posts/",
     "/random",
     "/realtime",
+    "/recommend/manga",
+    "/robots.txt",
     "/search",
+    "/sitemap.xml",
     "/tag",
     "/webtoon",
     "/web-app-manifest",
@@ -83,17 +90,15 @@ locals {
   ]
 
   ttl_day_path_prefixes = [
-    "/ranking/",
-    "/robots.txt",
-    "/sitemap.xml",
+    "___",
   ]
 
-  ttl_3h_path_prefixes = [
-    "/new/",
+  ttl_6h_path_prefixes = [
+    "/ranking/",
   ]
 
   ttl_10s_path_equals = [
-    "_________",
+    "___",
   ]
 
   bypass_cache_path_prefixes = [
@@ -133,8 +138,8 @@ locals {
     "(starts_with(http.request.uri.path, \"${prefix}\"))"
   ])
 
-  ttl_3h_conditions = join(" or ", [
-    for prefix in local.ttl_3h_path_prefixes :
+  ttl_6h_conditions = join(" or ", [
+    for prefix in local.ttl_6h_path_prefixes :
     "(starts_with(http.request.uri.path, \"${prefix}\"))"
   ])
 
@@ -263,15 +268,15 @@ resource "cloudflare_ruleset" "cache_rules" {
     {
       ref         = "isr_hour"
       enabled     = true
-      description = "Cache with 3 hours TTL"
-      expression  = local.ttl_3h_conditions
+      description = "Cache with 6 hours TTL"
+      expression  = local.ttl_6h_conditions
       action      = "set_cache_settings"
 
       action_parameters = {
         cache = true
         edge_ttl = {
           mode    = "override_origin"
-          default = 10800
+          default = 21600
         }
         browser_ttl = {
           mode = "respect_origin"
