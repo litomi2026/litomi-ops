@@ -26,8 +26,39 @@ variable "zone_id" {
   nullable    = false
 }
 
+variable "blocked_source_ips" {
+  description = "Source IPs blocked from sending non-read requests to the production API."
+  type        = list(string)
+  default     = []
+  nullable    = false
+  sensitive   = true
+}
+
 locals {
   leaked_credential_check_expression = "(cf.waf.credential_check.password_leaked)"
+
+  blocked_source_ip_set = format(
+    "{%s}",
+    join(" ", var.blocked_source_ips),
+  )
+
+  api_read_methods = [
+    "GET",
+    "HEAD",
+  ]
+
+  api_read_method_expression_set = format("{%s}", join(" ", [
+    for method in local.api_read_methods :
+    format("\"%s\"", method)
+  ]))
+
+  abusive_request_expression = length(var.blocked_source_ips) == 0 ? "(http.request.uri.path eq \"/__disabled_abusive_requests__\")" : join(" ", [
+    "(",
+    format("ip.src in %s", local.blocked_source_ip_set),
+    "and http.host eq \"api.litomi.in\"",
+    format("and not (http.request.method in %s)", local.api_read_method_expression_set),
+    ")",
+  ])
 
   ai_crawl_control_user_agents = [
     "Applebot",
@@ -250,6 +281,13 @@ resource "cloudflare_ruleset" "waf_custom" {
       enabled     = true
       description = "AI Crawl Control - Block AI bots by User Agent"
       expression  = local.ai_crawl_control_expression
+      action      = "block"
+    },
+    {
+      ref         = "block_abusive_requests"
+      enabled     = length(var.blocked_source_ips) > 0
+      description = "Block abusive requests from configured source IPs"
+      expression  = local.abusive_request_expression
       action      = "block"
     },
     {

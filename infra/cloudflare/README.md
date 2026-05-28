@@ -43,6 +43,12 @@ Create a workspace-scoped variable set for the `litomi.in` zone workspaces:
 | --------- | --------- | --------- | -------------------------------------- |
 | Terraform | `zone_id` | No        | Apply to `zone-litomi-in-*` workspaces |
 
+Set this workspace-specific Terraform variable on `zone-litomi-in-waf-custom`:
+
+| Category  | Key                  | Sensitive | HCL | Notes                  |
+| --------- | -------------------- | --------- | --- | ---------------------- |
+| Terraform | `blocked_source_ips` | No        | Yes | HCL list of source IPs |
+
 Set these workspace-specific Terraform variables on `zone-litomi-in-rate-limit`.
 Mark all three as sensitive:
 
