@@ -84,9 +84,9 @@ locals {
   )
 
   untrusted_request_initiator_expression = format(
-    "(not (%s or %s))",
+    "(not %s)",
     local.trusted_request_origin_expression,
-    local.trusted_request_referer_expression,
+    # local.trusted_request_referer_expression, # TODO: same-origin 작업 후에 넣기
   )
 
   untrusted_initiator_protected_request_expression = format(

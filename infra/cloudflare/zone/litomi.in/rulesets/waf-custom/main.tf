@@ -87,17 +87,8 @@ locals {
     ")",
   ])
 
-  # Malformed headers
-  malformed_next_action_expression = join(" ", [
-    "(",
-    "has_key(http.request.headers, \"next-action\")",
-    "and (",
-    "http.request.method ne \"POST\"",
-    "or any(len(http.request.headers[\"next-action\"][*])[*] lt 32)",
-    "or any(len(http.request.headers[\"next-action\"][*])[*] gt 128)",
-    ")",
-    ")",
-  ])
+  # Unexpected Next.js Server Action header
+  malformed_next_action_expression = "(has_key(http.request.headers, \"next-action\"))"
 
   # Cross-site mutating request
   sec_fetch_site_present_expression = "has_key(http.request.headers, \"sec-fetch-site\")"
