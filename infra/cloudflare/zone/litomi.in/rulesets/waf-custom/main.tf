@@ -35,31 +35,10 @@ variable "blocked_source_ips" {
 }
 
 locals {
+  # Leaked credential check
   leaked_credential_check_expression = "(cf.waf.credential_check.password_leaked)"
 
-  blocked_source_ip_set = format(
-    "{%s}",
-    join(" ", var.blocked_source_ips),
-  )
-
-  api_read_methods = [
-    "GET",
-    "HEAD",
-  ]
-
-  api_read_method_expression_set = format("{%s}", join(" ", [
-    for method in local.api_read_methods :
-    format("\"%s\"", method)
-  ]))
-
-  abusive_request_expression = length(var.blocked_source_ips) == 0 ? "(http.request.uri.path eq \"/__disabled_abusive_requests__\")" : join(" ", [
-    "(",
-    format("ip.src in %s", local.blocked_source_ip_set),
-    "and http.host eq \"api.litomi.in\"",
-    format("and not (http.request.method in %s)", local.api_read_method_expression_set),
-    ")",
-  ])
-
+  # AI Crawl Control
   ai_crawl_control_user_agents = [
     "Applebot",
     "archive.org_bot",
@@ -84,76 +63,31 @@ locals {
     ]),
   )
 
-  automated_user_agent_keywords = [
-    "acunetix",
-    "aiohttp",
-    "axios/",
-    "curl/",
-    "dart/",
-    "dirbuster",
-    "ffuf",
-    "go-http-client",
-    "gobuster",
-    "guzzlehttp",
-    "headless",
-    "headlesschrome",
-    "httpie",
-    "httpclient",
-    "httpx",
-    "hydra",
-    "java/",
-    "libcurl",
-    "libwww-perl",
-    "masscan",
-    "mechanize",
-    "nessus",
-    "nikto",
-    "node-fetch",
-    "nuclei",
-    "phantomjs",
-    "playwright",
-    "puppeteer",
-    "python-requests",
-    "python-urllib",
-    "scraper",
-    "scrapy",
-    "selenium",
-    "slimerjs",
-    "sqlmap",
-    "undici",
-    "urllib3",
-    "webdriver",
-    "wget",
-    "wpscan",
-    "zgrab",
+  # Block abusive requests from configured source IPs
+  blocked_source_ip_set = format(
+    "{%s}",
+    join(" ", var.blocked_source_ips),
+  )
+
+  api_read_methods = [
+    "GET",
+    "HEAD",
   ]
 
-  unverified_bot_user_agent_keywords = [
-    "bot",
-    "crawl",
-    "spider",
-  ]
+  api_read_method_expression_set = format("{%s}", join(" ", [
+    for method in local.api_read_methods :
+    format("\"%s\"", method)
+  ]))
 
-  automated_user_agent_expression = join(" ", [
+  abusive_request_expression = length(var.blocked_source_ips) == 0 ? "(http.request.uri.path eq \"/__disabled_abusive_requests__\")" : join(" ", [
     "(",
-    "http.user_agent eq \"\"",
-    "or",
-    join(" or ", [
-      for keyword in local.automated_user_agent_keywords :
-      format("lower(http.user_agent) contains \"%s\"", keyword)
-    ]),
-    "or (",
-    "not cf.client.bot",
-    "and (",
-    join(" or ", [
-      for keyword in local.unverified_bot_user_agent_keywords :
-      format("lower(http.user_agent) contains \"%s\"", keyword)
-    ]),
-    ")",
-    ")",
+    format("ip.src in %s", local.blocked_source_ip_set),
+    "and http.host eq \"api.litomi.in\"",
+    format("and not (http.request.method in %s)", local.api_read_method_expression_set),
     ")",
   ])
 
+  # Malformed headers
   malformed_next_action_expression = join(" ", [
     "(",
     "has_key(http.request.headers, \"next-action\")",
@@ -165,19 +99,15 @@ locals {
     ")",
   ])
 
-  api_hosts = [
-    "api.litomi.in",
-    "api-stg.litomi.in",
-  ]
+  # Cross-site mutating request
+  sec_fetch_site_present_expression = "has_key(http.request.headers, \"sec-fetch-site\")"
+  sec_fetch_site_values_expression  = "lower(http.request.headers[\"sec-fetch-site\"][*])[*]"
 
-  browser_resource_hosts = [
-    "img.litomi.in",
-    "img-stg.litomi.in",
-    "vercel.litomi.in",
-    "vercel-stg.litomi.in",
-    "vercel2.litomi.in",
-    "vercel2-stg.litomi.in",
-  ]
+  cross_site_sec_fetch_expression = format(
+    "(%s and any(%s eq \"cross-site\"))",
+    local.sec_fetch_site_present_expression,
+    local.sec_fetch_site_values_expression,
+  )
 
   mutating_methods = [
     "POST",
@@ -186,37 +116,10 @@ locals {
     "DELETE",
   ]
 
-  api_host_expression_set = format("{%s}", join(" ", [
-    for host in local.api_hosts :
-    format("\"%s\"", host)
-  ]))
-
-  browser_resource_host_expression_set = format("{%s}", join(" ", [
-    for host in local.browser_resource_hosts :
-    format("\"%s\"", host)
-  ]))
-
   mutating_method_expression_set = format("{%s}", join(" ", [
     for method in local.mutating_methods :
     format("\"%s\"", method)
   ]))
-
-  api_host_request_expression      = format("(http.host in %s)", local.api_host_expression_set)
-  browser_resource_host_expression = format("(http.host in %s)", local.browser_resource_host_expression_set)
-
-  sec_fetch_site_present_expression = "has_key(http.request.headers, \"sec-fetch-site\")"
-  sec_fetch_site_values_expression  = "lower(http.request.headers[\"sec-fetch-site\"][*])[*]"
-
-  trusted_sec_fetch_site_expression = format(
-    "any(%s in {\"same-site\" \"same-origin\"})",
-    local.sec_fetch_site_values_expression,
-  )
-
-  cross_site_sec_fetch_expression = format(
-    "(%s and any(%s eq \"cross-site\"))",
-    local.sec_fetch_site_present_expression,
-    local.sec_fetch_site_values_expression,
-  )
 
   cross_site_mutating_sec_fetch_expression = format(
     "(%s and http.request.method in %s)",
@@ -224,41 +127,17 @@ locals {
     local.mutating_method_expression_set,
   )
 
-  untrusted_sec_fetch_site_expression = format(
-    "(%s and not %s)",
-    local.sec_fetch_site_present_expression,
-    local.trusted_sec_fetch_site_expression,
+  # Corrupted request
+  corrupted_request_expression = format(
+    "(%s)",
+    join(" or ", [
+      local.automated_user_agent_expression,
+      local.malformed_next_action_expression,
+      local.cross_site_mutating_sec_fetch_expression,
+      local.untrusted_initiator_protected_request_expression,
+      ]
+    ),
   )
-
-  missing_or_untrusted_sec_fetch_site_expression = format(
-    "(not %s or not %s)",
-    local.sec_fetch_site_present_expression,
-    local.trusted_sec_fetch_site_expression,
-  )
-
-  api_untrusted_sec_fetch_expression = format(
-    "(%s and %s)",
-    local.api_host_request_expression,
-    local.untrusted_sec_fetch_site_expression,
-  )
-
-  browser_resource_untrusted_sec_fetch_expression = format(
-    "(%s and %s)",
-    local.browser_resource_host_expression,
-    local.missing_or_untrusted_sec_fetch_site_expression,
-  )
-
-  automated_or_malformed_request_expression = join(" ", [
-    local.automated_user_agent_expression,
-    "or",
-    local.malformed_next_action_expression,
-    "or",
-    local.cross_site_mutating_sec_fetch_expression,
-    "or",
-    local.api_untrusted_sec_fetch_expression,
-    "or",
-    local.browser_resource_untrusted_sec_fetch_expression,
-  ])
 }
 
 resource "cloudflare_ruleset" "waf_custom" {
@@ -293,8 +172,8 @@ resource "cloudflare_ruleset" "waf_custom" {
     {
       ref         = "block_automated_or_malformed_requests"
       enabled     = true
-      description = "Block automated, malformed, or cross-site requests"
-      expression  = local.automated_or_malformed_request_expression
+      description = "Block corrupted requests"
+      expression  = local.corrupted_request_expression
       action      = "block"
     }
   ]
