@@ -59,6 +59,8 @@ locals {
     "/_not-found",
     "/app.",
     "/apple-",
+    "/auth/login",
+    "/auth/signup",
     "/deterrence",
     "/doc/",
     "/favicon.",
