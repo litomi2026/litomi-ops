@@ -47,7 +47,6 @@ locals {
     "/",
     "/app",
     "/chat",
-    "/@",
   ]
 
   ttl_30d_extension_equals = [
@@ -63,9 +62,11 @@ locals {
     "/auth/signup",
     "/deterrence",
     "/doc/",
+    "/en/",
     "/favicon.",
     "/icon.",
     "/image/",
+    "/ja/",
     "/libo",
     "/library",
     "/manga",
@@ -84,8 +85,9 @@ locals {
     "/tag",
     "/webtoon",
     "/web-app-manifest",
+    "/zh-CN/",
     "/404",
-    "/@/",
+    "/@",
   ]
 
   ttl_day_path_prefixes = [
@@ -102,8 +104,10 @@ locals {
 
   bypass_cache_path_prefixes = [
     "/.well-known/",
-    "/@",
     "/cdn-cgi/challenge-platform/",
+    "/en/settings",
+    "/ja/settings",
+    "/zh-CN/settings",
   ]
 
   bypass_cache_hostnames = [
