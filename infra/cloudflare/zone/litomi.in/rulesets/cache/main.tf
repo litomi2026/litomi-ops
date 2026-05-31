@@ -107,6 +107,7 @@ locals {
     "/cdn-cgi/challenge-platform/",
     "/en/settings",
     "/ja/settings",
+    "/settings",
     "/zh-CN/settings",
   ]
 
