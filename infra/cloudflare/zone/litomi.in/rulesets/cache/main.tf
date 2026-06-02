@@ -46,7 +46,6 @@ locals {
   ttl_30d_path_equals = [
     "/",
     "/app",
-    "/chat",
   ]
 
   ttl_30d_extension_equals = [
@@ -54,21 +53,18 @@ locals {
   ]
 
   ttl_30d_path_prefixes = [
-    "/_next/image",
-    "/_not-found",
     "/app.",
     "/apple-",
     "/auth/login",
     "/auth/signup",
+    "/chat",
     "/censor",
     "/deterrence",
     "/doc/",
-    "/en/",
     "/favicon.",
     "/icon.",
     "/image/",
     "/fortune",
-    "/ja/",
     "/libo",
     "/library",
     "/manga",
@@ -77,6 +73,7 @@ locals {
     "/notification",
     "/offline.html",
     "/og-image.",
+    "/post",
     "/posts/",
     "/random",
     "/realtime",
@@ -87,9 +84,13 @@ locals {
     "/tag",
     "/webtoon",
     "/web-app-manifest",
-    "/zh-CN/",
     "/404",
+    "/_next/image",
+    "/_not-found",
     "/@",
+    "/en/",
+    "/ja/",
+    "/zh-CN/",
   ]
 
   ttl_day_path_prefixes = [
@@ -98,6 +99,9 @@ locals {
 
   ttl_6h_path_prefixes = [
     "/ranking/",
+    "/en/ranking/",
+    "/ja/ranking/",
+    "/zh-CN/ranking/",
   ]
 
   ttl_10s_path_equals = [
@@ -107,9 +111,9 @@ locals {
   bypass_cache_path_prefixes = [
     "/.well-known/",
     "/cdn-cgi/challenge-platform/",
+    "/settings",
     "/en/settings",
     "/ja/settings",
-    "/settings",
     "/zh-CN/settings",
   ]
 
