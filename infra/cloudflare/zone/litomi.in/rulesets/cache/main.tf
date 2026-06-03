@@ -45,6 +45,9 @@ locals {
 
   ttl_30d_path_equals = [
     "/",
+    "/en",
+    "/ja",
+    "/zh-CN",
     "/app",
   ]
 
@@ -53,12 +56,14 @@ locals {
   ]
 
   ttl_30d_path_prefixes = [
+    "/_next/image",
+    "/_not-found",
+    "/404",
     "/app.",
     "/apple-",
     "/auth/login",
     "/auth/signup",
     "/chat",
-    "/censor",
     "/deterrence",
     "/doc/",
     "/favicon.",
@@ -70,11 +75,8 @@ locals {
     "/manga",
     "/new/",
     "/nye",
-    "/notification",
     "/offline.html",
     "/og-image.",
-    "/post",
-    "/posts/",
     "/random",
     "/realtime",
     "/recommend/manga",
@@ -84,10 +86,6 @@ locals {
     "/tag",
     "/webtoon",
     "/web-app-manifest",
-    "/404",
-    "/_next/image",
-    "/_not-found",
-    "/@",
     "/en/",
     "/ja/",
     "/zh-CN/",
@@ -98,6 +96,26 @@ locals {
   ]
 
   ttl_6h_path_prefixes = [
+    "/@",
+    "/en/@",
+    "/ja/@",
+    "/zh-CN/@",
+    "/censor",
+    "/en/censor",
+    "/ja/censor",
+    "/zh-CN/censor",
+    "/donation",
+    "/en/donation",
+    "/ja/donation",
+    "/zh-CN/donation",
+    "/notification",
+    "/en/notification",
+    "/ja/notification",
+    "/zh-CN/notification",
+    "/post",
+    "/en/post",
+    "/ja/post",
+    "/zh-CN/post",
     "/ranking/",
     "/en/ranking/",
     "/ja/ranking/",
