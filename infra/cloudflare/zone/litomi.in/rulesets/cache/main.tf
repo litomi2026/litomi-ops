@@ -34,132 +34,124 @@ variable "domain" {
 }
 
 locals {
+  root_web_cache_hostname = var.domain
+
+  public_locales = [
+    "en",
+    "ja",
+    "zh-CN",
+  ]
+
+  ttl_day_path_prefixes = [
+    "____",
+  ]
+
+  ttl_6h_locale_variant_path_prefixes = [
+    // 인기 페이지 순위 revalidate
+    "/ranking/",
+
+    // right-aside 일간 조회수 순위 revalidate
+    "/@",
+    "/censor",
+    "/donation",
+    "/notification",
+    "/post",
+  ]
+
+  ttl_10s_path_equals = [
+    "____",
+  ]
+
+  respect_origin_path_prefixes = [
+    "/api/",
+    "/oauth/",
+    "/.well-known/",
+  ]
+
+  respect_origin_locale_variant_path_prefixes = [
+    "/settings",
+  ]
+
+  respect_origin_hostnames = [
+    "api.${var.domain}",
+    "api-stg.${var.domain}",
+    "anal.${var.domain}",
+    "anal-preview.${var.domain}",
+    "argocd.${var.domain}",
+    "grafana.${var.domain}",
+    "stg.${var.domain}",
+    "vercel.${var.domain}",
+    "vercel-stg.${var.domain}",
+    "vercel2.${var.domain}",
+    "vercel2-stg.${var.domain}",
+  ]
+
+  bypass_cache_path_prefixes = [
+    "/cdn-cgi/",
+  ]
+
+  bypass_cache_locale_variant_path_prefixes = [
+    "____",
+  ]
+
+  bypass_cache_hostnames = [
+    "____",
+  ]
+
+  r2_cache_hostname = "r2.${var.domain}"
+
   img_cache_hostnames = [
     "img.${var.domain}",
     "img-stg.${var.domain}",
   ]
+}
 
-  respect_origin_prefixes = [
-    "/api/",
-  ]
+locals {
+  expanded_ttl_6h_path_prefixes = flatten([
+    for prefix in local.ttl_6h_locale_variant_path_prefixes :
+    concat([prefix], [
+      for locale in local.public_locales :
+      "/${locale}${prefix}"
+    ])
+  ])
 
-  ttl_30d_path_equals = [
-    "/",
-    "/en",
-    "/ja",
-    "/zh-CN",
-    "/app",
-  ]
+  expanded_bypass_cache_path_prefixes = flatten([
+    for prefix in local.bypass_cache_locale_variant_path_prefixes :
+    concat([prefix], [
+      for locale in local.public_locales :
+      "/${locale}${prefix}"
+    ])
+  ])
 
-  ttl_30d_extension_equals = [
-    "webmanifest",
-  ]
+  expanded_respect_origin_path_prefixes = flatten([
+    for prefix in local.respect_origin_locale_variant_path_prefixes :
+    concat([prefix], [
+      for locale in local.public_locales :
+      "/${locale}${prefix}"
+    ])
+  ])
 
-  ttl_30d_path_prefixes = [
-    "/_next/image",
-    "/_not-found",
-    "/404",
-    "/app.",
-    "/apple-",
-    "/auth/login",
-    "/auth/signup",
-    "/chat",
-    "/deterrence",
-    "/doc/",
-    "/favicon.",
-    "/icon.",
-    "/image/",
-    "/fortune",
-    "/libo",
-    "/library",
-    "/manga",
-    "/new/",
-    "/nye",
-    "/offline.html",
-    "/og-image.",
-    "/random",
-    "/realtime",
-    "/recommend/manga",
-    "/robots.txt",
-    "/search",
-    "/sitemap.xml",
-    "/tag",
-    "/webtoon",
-    "/web-app-manifest",
-    "/en/",
-    "/ja/",
-    "/zh-CN/",
-  ]
+  all_respect_origin_path_prefixes = concat(
+    local.respect_origin_path_prefixes,
+    local.expanded_respect_origin_path_prefixes,
+  )
 
-  ttl_day_path_prefixes = [
-    "___",
-  ]
+  all_bypass_cache_path_prefixes = concat(
+    local.bypass_cache_path_prefixes,
+    local.expanded_bypass_cache_path_prefixes,
+  )
 
-  ttl_6h_path_prefixes = [
-    "/@",
-    "/en/@",
-    "/ja/@",
-    "/zh-CN/@",
-    "/censor",
-    "/en/censor",
-    "/ja/censor",
-    "/zh-CN/censor",
-    "/donation",
-    "/en/donation",
-    "/ja/donation",
-    "/zh-CN/donation",
-    "/notification",
-    "/en/notification",
-    "/ja/notification",
-    "/zh-CN/notification",
-    "/post",
-    "/en/post",
-    "/ja/post",
-    "/zh-CN/post",
-    "/ranking/",
-    "/en/ranking/",
-    "/ja/ranking/",
-    "/zh-CN/ranking/",
-  ]
-
-  ttl_10s_path_equals = [
-    "___",
-  ]
-
-  bypass_cache_path_prefixes = [
-    "/.well-known/",
-    "/cdn-cgi/challenge-platform/",
-    "/settings",
-    "/en/settings",
-    "/ja/settings",
-    "/zh-CN/settings",
-  ]
-
-  bypass_cache_hostnames = [
-    "grafana.${var.domain}",
-    "argocd.${var.domain}",
-    "stg.${var.domain}",
-  ]
-
-  respect_origin_conditions = join(" or ", [
-    for prefix in local.respect_origin_prefixes :
+  respect_origin_path_conditions = join(" or ", [
+    for prefix in local.all_respect_origin_path_prefixes :
     "(starts_with(http.request.uri.path, \"${prefix}\"))"
   ])
 
-  exact_path_conditions = join(" or ", [
-    for path in local.ttl_30d_path_equals :
-    "(http.request.uri.path eq \"${path}\")"
+  respect_origin_host_conditions = join(" or ", [
+    for hostname in local.respect_origin_hostnames :
+    "(http.host eq \"${hostname}\")"
   ])
 
-  exact_extension_conditions = join(" ", [
-    for extension in local.ttl_30d_extension_equals :
-    "\"${extension}\""
-  ])
-
-  prefix_path_conditions = join(" or ", [
-    for prefix in local.ttl_30d_path_prefixes :
-    "(starts_with(http.request.uri.path, \"${prefix}\"))"
-  ])
+  respect_origin_conditions = "${local.respect_origin_path_conditions} or ${local.respect_origin_host_conditions}"
 
   ttl_day_conditions = join(" or ", [
     for prefix in local.ttl_day_path_prefixes :
@@ -167,7 +159,7 @@ locals {
   ])
 
   ttl_6h_conditions = join(" or ", [
-    for prefix in local.ttl_6h_path_prefixes :
+    for prefix in local.expanded_ttl_6h_path_prefixes :
     "(starts_with(http.request.uri.path, \"${prefix}\"))"
   ])
 
@@ -177,7 +169,7 @@ locals {
   ])
 
   bypass_cache_conditions = join(" or ", [
-    for prefix in local.bypass_cache_path_prefixes :
+    for prefix in local.all_bypass_cache_path_prefixes :
     "(starts_with(http.request.uri.path, \"${prefix}\"))"
   ])
 
@@ -191,7 +183,8 @@ locals {
     "((http.host eq \"${hostname}\") and starts_with(http.request.uri.path, \"/i/\"))"
   ])
 
-  ttl_30d_expression = "${local.exact_path_conditions} or ${local.prefix_path_conditions} or (http.request.uri.path.extension in {${local.exact_extension_conditions}})"
+  r2_cache_conditions = "(http.host eq \"${local.r2_cache_hostname}\")"
+  ttl_30d_expression  = "(http.host eq \"${local.root_web_cache_hostname}\")"
 }
 
 resource "cloudflare_ruleset" "cache_rules" {
@@ -201,27 +194,6 @@ resource "cloudflare_ruleset" "cache_rules" {
   phase   = "http_request_cache_settings"
 
   rules = [
-    {
-      ref         = "respect_origin_cache_control"
-      enabled     = true
-      description = "Respect origin cache-control"
-      expression  = local.respect_origin_conditions
-      action      = "set_cache_settings"
-
-      action_parameters = {
-        cache = true
-        edge_ttl = {
-          mode = "respect_origin"
-        }
-        browser_ttl = {
-          mode = "respect_origin"
-        }
-        cache_key = {
-          cache_deception_armor      = true
-          ignore_query_strings_order = true
-        }
-      }
-    },
     {
       ref         = "img_proxy_30d"
       enabled     = true
@@ -250,9 +222,9 @@ resource "cloudflare_ruleset" "cache_rules" {
       }
     },
     {
-      ref         = "manga_pages_html"
+      ref         = "root_web_30d"
       enabled     = true
-      description = "Cache with 30 days TTL"
+      description = "Cache root web host with 30 days TTL"
       expression  = local.ttl_30d_expression
       action      = "set_cache_settings"
 
@@ -341,7 +313,7 @@ resource "cloudflare_ruleset" "cache_rules" {
       ref         = "r2_storage"
       enabled     = true
       description = "Override cache for R2 storage"
-      expression  = "(http.host eq \"r2.${var.domain}\")"
+      expression  = local.r2_cache_conditions
       action      = "set_cache_settings"
 
       action_parameters = {
@@ -353,6 +325,27 @@ resource "cloudflare_ruleset" "cache_rules" {
         browser_ttl = {
           mode    = "override_origin"
           default = 86400
+        }
+        cache_key = {
+          cache_deception_armor      = true
+          ignore_query_strings_order = true
+        }
+      }
+    },
+    {
+      ref         = "respect_origin_cache_control"
+      enabled     = true
+      description = "Respect origin cache-control"
+      expression  = local.respect_origin_conditions
+      action      = "set_cache_settings"
+
+      action_parameters = {
+        cache = true
+        edge_ttl = {
+          mode = "respect_origin"
+        }
+        browser_ttl = {
+          mode = "respect_origin"
         }
         cache_key = {
           cache_deception_armor      = true
