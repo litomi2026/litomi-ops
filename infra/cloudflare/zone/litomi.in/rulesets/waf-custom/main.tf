@@ -87,6 +87,24 @@ locals {
     ")",
   ])
 
+  # Allow /.well_known/* request
+  public_well_known_methods = [
+    "GET",
+    "HEAD",
+  ]
+
+  public_well_known_method_expression_set = format("{%s}", join(" ", [
+    for method in local.public_well_known_methods :
+    format("\"%s\"", method)
+  ]))
+
+  public_well_known_request_expression = join(" ", [
+    "(",
+    "starts_with(http.request.uri.path, \"/.well-known/\")",
+    format("and http.request.method in %s", local.public_well_known_method_expression_set),
+    ")",
+  ])
+
   # Unexpected Next.js Server Action header
   malformed_next_action_expression = "(has_key(http.request.headers, \"next-action\"))"
 
@@ -120,7 +138,8 @@ locals {
 
   # Corrupted request
   corrupted_request_expression = format(
-    "(%s)",
+    "(not %s and (%s))",
+    local.public_well_known_request_expression,
     join(" or ", [
       local.automated_user_agent_expression,
       local.malformed_next_action_expression,
