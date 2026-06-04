@@ -1,0 +1,7 @@
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: platform-standard
+value: 10000
+globalDefault: false
+description: Standard priority for shared platform services that should outlive workloads without displacing critical control-plane add-ons.

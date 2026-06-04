@@ -1,0 +1,20 @@
+additionalAnnotations: {}
+priorityClassName: platform-standard
+apiService:
+  insecureSkipTLSVerify: false
+metrics:
+  enabled: true
+defaultArgs:
+  - --cert-dir=/tmp
+  - --kubelet-preferred-address-types=InternalIP,Hostname
+  - --kubelet-use-node-status-port
+  - --metric-resolution=15s
+tls:
+  type: cert-manager
+nodeSelector:
+  node-pool-role: platform
+tolerations:
+  - key: node-pool-role
+    operator: Equal
+    value: platform
+    effect: NoSchedule

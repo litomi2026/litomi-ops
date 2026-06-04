@@ -1,0 +1,38 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metrics-server
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '1'
+spec:
+  project: platform
+  sources:
+    - repoURL: https://kubernetes-sigs.github.io/metrics-server/
+      chart: metrics-server
+      targetRevision: 3.13.0
+      helm:
+        releaseName: metrics-server
+        valueFiles:
+          - $values/k8s/platform/metrics-server/base/values.yaml
+          - $values/k8s/platform/metrics-server/prod/values.yaml
+    - repoURL: https://github.com/litomi2026/litomi-ops.git
+      targetRevision: main
+      ref: values
+      path: k8s/platform/metrics-server/prod
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: metrics-server
+  # cert-manager가 caBundle을 런타임에 주입하고 API server가 false 기본값인
+  # insecureSkipTLSVerify를 생략한다. metrics-server 인증서 소유권이 바뀌면 재검토한다.
+  ignoreDifferences:
+    - group: apiregistration.k8s.io
+      kind: APIService
+      name: v1beta1.metrics.k8s.io
+      jsonPointers:
+        - /spec/caBundle
+        - /spec/insecureSkipTLSVerify
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

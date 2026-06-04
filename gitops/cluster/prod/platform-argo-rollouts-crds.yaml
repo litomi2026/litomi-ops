@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argo-rollouts-crds
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '-1'
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/argoproj/argo-rollouts.git
+    targetRevision: v1.8.4
+    path: manifests/crds
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  # v1 CRD 기본값(false) 생략으로 생기는 의미 없는 diff만 무시한다.
+  ignoreDifferences:
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      jsonPointers:
+        - /spec/preserveUnknownFields
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true

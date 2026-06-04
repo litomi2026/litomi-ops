@@ -1,0 +1,46 @@
+clusterInstall: true
+installCRDs: false
+controller:
+  replicas: 1
+  priorityClassName: platform-critical
+  trafficRouterPlugins:
+    - name: argoproj-labs/gatewayAPI
+      location: file:///plugins/rollouts-plugin-trafficrouter-gatewayapi
+  initContainers:
+    - name: install-gatewayapi-traffic-router-plugin
+      image: ghcr.io/argoproj-labs/rollouts-plugin-trafficrouter-gatewayapi:v0.13.0@sha256:b32258ade686e317bd8f3f878987a04b873f30dc4d335ca406d79ab2e118703c
+      command:
+        - sh
+        - -c
+      args:
+        - cp /bin/rollouts-plugin-trafficrouter-gatewayapi /plugins/rollouts-plugin-trafficrouter-gatewayapi
+      volumeMounts:
+        - name: gatewayapi-traffic-router-plugin
+          mountPath: /plugins
+  volumes:
+    - name: gatewayapi-traffic-router-plugin
+      emptyDir: {}
+  volumeMounts:
+    - name: gatewayapi-traffic-router-plugin
+      mountPath: /plugins
+  metrics:
+    enabled: true
+  nodeSelector:
+    node-pool-role: platform
+  tolerations:
+    - key: node-pool-role
+      operator: Equal
+      value: platform
+      effect: NoSchedule
+  resources:
+    requests:
+      cpu: 50m
+      memory: 96Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+providerRBAC:
+  providers:
+    gatewayAPI: false
+dashboard:
+  enabled: false

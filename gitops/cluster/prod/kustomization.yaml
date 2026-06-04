@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../project/default
+  - ../../project/platform
+  - ../../project/workload
+  - platform-argocd.yaml
+  - platform-gateway-api.yaml
+  - platform-priorityclass-workload-standard.yaml
+  - platform-priorityclass-platform-critical.yaml
+  - platform-priorityclass-platform-standard.yaml
+  - platform-storage.yaml
+  - platform-istio-system.yaml
+  - platform-istio-base.yaml
+  - platform-argo-rollouts-crds.yaml
+  - platform-argo-rollouts.yaml
+  - platform-external-secrets.yaml
+  - platform-cert-manager.yaml
+  - platform-metrics-server.yaml
+  - platform-istiod.yaml
+  - platform-istio-ingress.yaml
+  - workload-litomi-web.yaml
+  - workload-litomi-api.yaml

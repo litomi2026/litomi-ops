@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: litomi-api
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  project: workload
+  source:
+    repoURL: https://github.com/litomi2026/litomi-ops.git
+    targetRevision: main
+    path: k8s/workload/litomi/prod/api
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: litomi-api
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - RespectIgnoreDifferences=true
+  ignoreDifferences:
+    # Argo Rollouts Gateway API plugin이 canary 진행 중 API HTTPRoute backend weight를 갱신한다.
+    # image route는 승격 전까지 stable service에 고정하므로 이 예외 대상이 아니다.
+    # Gateway API traffic router를 제거하거나 교체할 때 재검토한다.
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: litomi-api
+      namespace: litomi-api
+      jsonPointers:
+        - /spec/rules/0/backendRefs

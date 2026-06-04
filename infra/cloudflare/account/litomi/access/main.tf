@@ -37,7 +37,11 @@ variable "access_allowed_emails" {
 
 locals {
   internal_apps_session_duration = "160h"
-  internal_stg_hostname          = "stg.${var.domain}"
+
+  internal_app_hostnames = [
+    "argocd.${var.domain}",
+    "stg.${var.domain}",
+  ]
 }
 
 resource "cloudflare_zero_trust_access_policy" "internal_apps_allow" {
@@ -60,7 +64,9 @@ resource "cloudflare_zero_trust_access_application" "internal_apps" {
   type = "self_hosted"
 
   destinations = [
-    { uri = local.internal_stg_hostname },
+    for hostname in local.internal_app_hostnames : {
+      uri = hostname
+    }
   ]
 
   session_duration          = local.internal_apps_session_duration

@@ -24,53 +24,33 @@ variable "domain" {
   nullable    = false
 }
 
-data "terraform_remote_state" "selfhost_tunnel" {
-  backend = "remote"
+variable "oke_edge_ipv4" {
+  description = "Reserved OCI public IPv4 for the production OKE edge NLB."
+  type        = string
+  nullable    = false
+  sensitive   = true
 
-  config = {
-    organization = "litomi"
-
-    workspaces = {
-      name = "account-selfhost-tunnel"
-    }
+  validation {
+    condition     = can(cidrnetmask("${var.oke_edge_ipv4}/32"))
+    error_message = "oke_edge_ipv4 must be a valid IPv4 address."
   }
 }
 
 locals {
-  selfhost_tunnel_cname      = data.terraform_remote_state.selfhost_tunnel.outputs.selfhost_tunnel_cname
-  selfhost_anal_hostname     = "anal.${var.domain}"
-  selfhost_anal_preview_host = "anal-preview.${var.domain}"
-  selfhost_img_hostname      = "img.${var.domain}"
-  selfhost_stg_img_hostname  = "img-stg.${var.domain}"
-  selfhost_prod_hostname     = var.domain
-  selfhost_stg_hostname      = "stg.${var.domain}"
-  selfhost_argocd_hostname   = "argocd.${var.domain}"
-  selfhost_grafana_hostname  = "grafana.${var.domain}"
+  oke_edge_hostnames = {
+    root   = var.domain
+    img    = "img.${var.domain}"
+    argocd = "argocd.${var.domain}"
+  }
 }
 
-resource "cloudflare_dns_record" "selfhost_root_cname" {
-  zone_id = var.zone_id
-  name    = local.selfhost_prod_hostname
-  type    = "CNAME"
-  content = local.selfhost_tunnel_cname
-  ttl     = 1
-  proxied = true
-}
+resource "cloudflare_dns_record" "oke_edge_a" {
+  for_each = local.oke_edge_hostnames
 
-resource "cloudflare_dns_record" "selfhost_anal_cname" {
   zone_id = var.zone_id
-  name    = local.selfhost_anal_hostname
-  type    = "CNAME"
-  content = local.selfhost_tunnel_cname
-  ttl     = 1
-  proxied = true
-}
-
-resource "cloudflare_dns_record" "selfhost_anal_preview_cname" {
-  zone_id = var.zone_id
-  name    = local.selfhost_anal_preview_host
-  type    = "CNAME"
-  content = local.selfhost_tunnel_cname
+  name    = each.value
+  type    = "A"
+  content = var.oke_edge_ipv4
   ttl     = 1
   proxied = true
 }
@@ -79,52 +59,7 @@ resource "cloudflare_dns_record" "www_cname" {
   zone_id = var.zone_id
   name    = "www.${var.domain}"
   type    = "CNAME"
-  content = local.selfhost_tunnel_cname
-  ttl     = 1
-  proxied = true
-}
-
-resource "cloudflare_dns_record" "stg_cname" {
-  zone_id = var.zone_id
-  name    = local.selfhost_stg_hostname
-  type    = "CNAME"
-  content = local.selfhost_tunnel_cname
-  ttl     = 1
-  proxied = true
-}
-
-resource "cloudflare_dns_record" "img_cname" {
-  zone_id = var.zone_id
-  name    = local.selfhost_img_hostname
-  type    = "CNAME"
-  content = local.selfhost_tunnel_cname
-  ttl     = 1
-  proxied = true
-}
-
-resource "cloudflare_dns_record" "img_stg_cname" {
-  zone_id = var.zone_id
-  name    = local.selfhost_stg_img_hostname
-  type    = "CNAME"
-  content = local.selfhost_tunnel_cname
-  ttl     = 1
-  proxied = true
-}
-
-resource "cloudflare_dns_record" "selfhost_grafana_cname" {
-  zone_id = var.zone_id
-  name    = local.selfhost_grafana_hostname
-  type    = "CNAME"
-  content = local.selfhost_tunnel_cname
-  ttl     = 1
-  proxied = true
-}
-
-resource "cloudflare_dns_record" "selfhost_argocd_cname" {
-  zone_id = var.zone_id
-  name    = local.selfhost_argocd_hostname
-  type    = "CNAME"
-  content = local.selfhost_tunnel_cname
+  content = var.domain
   ttl     = 1
   proxied = true
 }
@@ -153,24 +88,6 @@ resource "cloudflare_dns_record" "vercel2_cname" {
   type    = "CNAME"
   content = "55c4083f74bdeeda.vercel-dns-016.com"
   ttl     = 600
-  proxied = true
-}
-
-resource "cloudflare_dns_record" "vercel_stg_cname" {
-  zone_id = var.zone_id
-  name    = "vercel-stg.${var.domain}"
-  type    = "CNAME"
-  content = "bc90fad8422c6ce5.vercel-dns-017.com"
-  ttl     = 1
-  proxied = true
-}
-
-resource "cloudflare_dns_record" "vercel2_stg_cname" {
-  zone_id = var.zone_id
-  name    = "vercel2-stg.${var.domain}"
-  type    = "CNAME"
-  content = "55c4083f74bdeeda.vercel-dns-016.com"
-  ttl     = 1
   proxied = true
 }
 
@@ -230,14 +147,5 @@ resource "cloudflare_dns_record" "vercel_verification_txt" {
   type    = "TXT"
   content = "\"vc-domain-verify=vercel2.${var.domain},4c27109d593e9215186d,dc\""
   ttl     = 600
-  proxied = false
-}
-
-resource "cloudflare_dns_record" "vercel_stg_verification_txt" {
-  zone_id = var.zone_id
-  name    = "_vercel"
-  type    = "TXT"
-  content = "\"vc-domain-verify=vercel2-stg.${var.domain},4856999ad01d6e1721c6\""
-  ttl     = 3600
   proxied = false
 }

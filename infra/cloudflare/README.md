@@ -65,7 +65,15 @@ Set `access_allowed_emails` as a workspace-specific Terraform variable on
 ["you@example.com"]
 ```
 
-The Access configuration intentionally fails closed when this list is empty.
+Set this workspace-specific Terraform variable on `zone-litomi-in-dns`:
+
+| Category  | Key             | Sensitive | Notes                                          |
+| --------- | --------------- | --------- | ---------------------------------------------- |
+| Terraform | `oke_edge_ipv4` | Yes       | Reserved OCI public IPv4 for the prod OKE edge |
+
+The DNS workspace does not read OCI state directly. After the OCI prod
+workspace creates or replaces the reserved edge IP, copy that output into the
+`zone-litomi-in-dns` workspace variable in HCP Terraform.
 
 ## Cross-Workspace Dependency
 

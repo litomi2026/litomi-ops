@@ -1,0 +1,43 @@
+crds:
+  enabled: true
+config:
+  enableGatewayAPI: true
+prometheus:
+  enabled: false
+global:
+  priorityClassName: platform-critical
+  nodeSelector:
+    node-pool-role: platform
+  tolerations:
+    - key: node-pool-role
+      operator: Equal
+      value: platform
+      effect: NoSchedule
+  leaderElection:
+    namespace: cert-manager
+replicaCount: 1
+resources:
+  requests:
+    cpu: 50m
+    memory: 96Mi
+  limits:
+    cpu: 200m
+    memory: 192Mi
+webhook:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 25m
+      memory: 64Mi
+    limits:
+      cpu: 150m
+      memory: 128Mi
+cainjector:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 25m
+      memory: 64Mi
+    limits:
+      cpu: 150m
+      memory: 128Mi

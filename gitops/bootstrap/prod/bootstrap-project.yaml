@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: bootstrap
+  namespace: argocd
+spec:
+  description: Bootstrap delivery boundary for the root application.
+  destinations:
+    - namespace: argocd
+      server: https://kubernetes.default.svc
+  sourceRepos:
+    - https://github.com/litomi2026/litomi-ops.git
+  clusterResourceWhitelist: []
+  namespaceResourceWhitelist:
+    - group: argoproj.io
+      kind: Application
+    - group: argoproj.io
+      kind: AppProject

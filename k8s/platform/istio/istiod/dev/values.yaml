@@ -1,0 +1,30 @@
+autoscaleEnabled: true
+autoscaleMin: 2
+autoscaleMax: 5
+cpu:
+  targetAverageUtilization: 80
+rollingMaxUnavailable: 1
+resources:
+  requests:
+    cpu: 500m
+    memory: 2048Mi
+  limits:
+    cpu: "1"
+    memory: 3Gi
+nodeSelector:
+  node-pool-role: platform
+tolerations:
+  - key: node-pool-role
+    operator: Equal
+    value: platform
+    effect: NoSchedule
+global:
+  istioNamespace: istio-system
+  priorityClassName: platform-critical
+  defaultPodDisruptionBudget:
+    enabled: true
+meshConfig:
+  enablePrometheusMerge: true
+base:
+  enableIstioConfigCRDs: true
+  validationFailurePolicy: Fail

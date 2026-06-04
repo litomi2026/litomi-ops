@@ -1,0 +1,54 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "-4"
+  name: workload
+  namespace: argocd
+spec:
+  description: Runtime workload delivery boundary for application services.
+  destinations:
+    - namespace: litomi-web
+      server: https://kubernetes.default.svc
+    - namespace: litomi-api
+      server: https://kubernetes.default.svc
+  sourceRepos:
+    - https://github.com/litomi2026/litomi-ops.git
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+      name: litomi-web
+    - group: ""
+      kind: Namespace
+      name: litomi-api
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: ConfigMap
+    - group: ""
+      kind: ServiceAccount
+    - group: ""
+      kind: Service
+    - group: rbac.authorization.k8s.io
+      kind: Role
+    - group: rbac.authorization.k8s.io
+      kind: RoleBinding
+    - group: ""
+      kind: LimitRange
+    - group: ""
+      kind: ResourceQuota
+    - group: networking.k8s.io
+      kind: NetworkPolicy
+    - group: external-secrets.io
+      kind: ExternalSecret
+    - group: argoproj.io
+      kind: Rollout
+    - group: argoproj.io
+      kind: AnalysisTemplate
+    - group: autoscaling
+      kind: HorizontalPodAutoscaler
+    - group: policy
+      kind: PodDisruptionBudget
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+  orphanedResources:
+    warn: true

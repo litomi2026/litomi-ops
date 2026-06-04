@@ -1,0 +1,50 @@
+installCRDs: true
+replicaCount: 1
+leaderElect: true
+priorityClassName: platform-critical
+nodeSelector:
+  node-pool-role: platform
+tolerations:
+  - key: node-pool-role
+    operator: Equal
+    value: platform
+    effect: NoSchedule
+resources:
+  requests:
+    cpu: 50m
+    memory: 96Mi
+  limits:
+    cpu: 500m
+    memory: 192Mi
+webhook:
+  priorityClassName: platform-critical
+  nodeSelector:
+    node-pool-role: platform
+  tolerations:
+    - key: node-pool-role
+      operator: Equal
+      value: platform
+      effect: NoSchedule
+  resources:
+    requests:
+      cpu: 25m
+      memory: 64Mi
+    limits:
+      cpu: 150m
+      memory: 128Mi
+certController:
+  priorityClassName: platform-critical
+  nodeSelector:
+    node-pool-role: platform
+  tolerations:
+    - key: node-pool-role
+      operator: Equal
+      value: platform
+      effect: NoSchedule
+  resources:
+    requests:
+      cpu: 25m
+      memory: 64Mi
+    limits:
+      cpu: 150m
+      memory: 128Mi

@@ -1,0 +1,33 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: http-redirect
+  namespace: istio-ingress
+spec:
+  hostnames:
+    - litomi.in
+    - img.litomi.in
+    - argocd.litomi.in
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: edge
+      sectionName: root-http
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: edge
+      sectionName: img-http
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: edge
+      sectionName: argocd-http
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301

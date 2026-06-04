@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: argocd-application-controller
+spec:
+  template:
+    spec:
+      priorityClassName: platform-critical
+      nodeSelector:
+        node-pool-role: platform
+      tolerations:
+        - key: node-pool-role
+          operator: Equal
+          value: platform
+          effect: NoSchedule

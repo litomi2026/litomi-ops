@@ -1,0 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../base
+  - secret-binding-config.yaml
+patches:
+  - path: namespace-patch.yaml
+    target:
+      version: v1
+      kind: Namespace
+      name: argocd
+replacements:
+  - source:
+      kind: ConfigMap
+      name: argocd-secret-binding
+      fieldPath: data.argocdSecretName
+    targets:
+      - select:
+          group: external-secrets.io
+          version: v1
+          kind: ExternalSecret
+          name: argocd-github-webhook
+        fieldPaths:
+          - spec.data.[secretKey=webhook.github.secret].remoteRef.key
+        options:
+          create: true
+      - select:
+          group: external-secrets.io
+          version: v1
+          kind: ExternalSecret
+          name: argocd-github-ops-repo
+        fieldPaths:
+          - spec.data.[secretKey=githubAppID].remoteRef.key
+          - spec.data.[secretKey=githubAppInstallationID].remoteRef.key
+          - spec.data.[secretKey=githubAppPrivateKey].remoteRef.key
+        options:
+          create: true

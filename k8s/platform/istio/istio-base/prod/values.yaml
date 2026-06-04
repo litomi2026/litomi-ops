@@ -1,0 +1,6 @@
+defaultRevision: default
+global:
+  istioNamespace: istio-system
+base:
+  enableCRDTemplates: true
+  validationFailurePolicy: Fail

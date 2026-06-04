@@ -1,0 +1,93 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: edge
+  namespace: istio-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-http01
+spec:
+  gatewayClassName: istio
+  infrastructure:
+    parametersRef:
+      group: ""
+      kind: ConfigMap
+      name: edge-gateway-options
+  listeners:
+    - name: root-http
+      hostname: litomi.in
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              gateway.litomi.in/edge-route: "true"
+    - name: root-https
+      hostname: litomi.in
+      port: 443
+      protocol: HTTPS
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: root-tls
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              gateway.litomi.in/edge-route: "true"
+    - name: img-http
+      hostname: img.litomi.in
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              gateway.litomi.in/edge-route: "true"
+    - name: img-https
+      hostname: img.litomi.in
+      port: 443
+      protocol: HTTPS
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: img-tls
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              gateway.litomi.in/edge-route: "true"
+    - name: argocd-http
+      hostname: argocd.litomi.in
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              gateway.litomi.in/edge-route: "true"
+    - name: argocd-https
+      hostname: argocd.litomi.in
+      port: 443
+      protocol: HTTPS
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - group: ""
+            kind: Secret
+            name: argocd-tls
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              gateway.litomi.in/edge-route: "true"

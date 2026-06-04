@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+data:
+  admin.enabled: "true"
+  url: https://argocd.litomi.in
+  users.anonymous.enabled: "false"
+  webhook.maxPayloadSizeMB: "10"
