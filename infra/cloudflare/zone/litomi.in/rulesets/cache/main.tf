@@ -59,13 +59,15 @@ locals {
     "/.well-known/",
   ]
 
+  respect_origin_path_equals = [
+    "/api",
+  ]
+
   respect_origin_locale_variant_path_prefixes = [
     "/settings",
   ]
 
   respect_origin_hostnames = [
-    "api.${var.domain}",
-    "api-stg.${var.domain}",
     "anal.${var.domain}",
     "anal-preview.${var.domain}",
     "argocd.${var.domain}",
@@ -79,6 +81,11 @@ locals {
 
   bypass_cache_path_prefixes = [
     "/cdn-cgi/",
+  ]
+
+  bypass_cache_path_equals = [
+    "/health",
+    "/api/health",
   ]
 
   bypass_cache_locale_variant_path_prefixes = [
@@ -132,10 +139,16 @@ locals {
     local.expanded_bypass_cache_path_prefixes,
   )
 
-  respect_origin_path_conditions = join(" or ", [
-    for prefix in local.all_respect_origin_path_prefixes :
-    "(starts_with(http.request.uri.path, \"${prefix}\"))"
-  ])
+  respect_origin_path_conditions = join(" or ", concat(
+    [
+      for path in local.respect_origin_path_equals :
+      "(http.request.uri.path eq \"${path}\")"
+    ],
+    [
+      for prefix in local.all_respect_origin_path_prefixes :
+      "(starts_with(http.request.uri.path, \"${prefix}\"))"
+    ],
+  ))
 
   respect_origin_host_conditions = join(" or ", [
     for hostname in local.respect_origin_hostnames :
@@ -159,10 +172,16 @@ locals {
     "(http.request.uri.path eq \"${path}\")"
   ])
 
-  bypass_cache_conditions = join(" or ", [
-    for prefix in local.all_bypass_cache_path_prefixes :
-    "(starts_with(http.request.uri.path, \"${prefix}\"))"
-  ])
+  bypass_cache_conditions = join(" or ", concat(
+    [
+      for path in local.bypass_cache_path_equals :
+      "(http.request.uri.path eq \"${path}\")"
+    ],
+    [
+      for prefix in local.all_bypass_cache_path_prefixes :
+      "(starts_with(http.request.uri.path, \"${prefix}\"))"
+    ],
+  ))
 
   bypass_cache_host_conditions = join(" or ", [
     for hostname in local.bypass_cache_hostnames :
