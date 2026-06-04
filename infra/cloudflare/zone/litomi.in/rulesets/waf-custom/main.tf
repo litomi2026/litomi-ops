@@ -70,29 +70,60 @@ locals {
     format("\"%s\"", method)
   ]))
 
+  api_request_expression = join(" ", [
+    "(",
+    "http.host eq \"litomi.in\"",
+    "and starts_with(http.request.uri.path, \"/api/\")",
+    ")",
+  ])
+
   abusive_request_expression = length(var.blocked_source_ips) == 0 ? "(http.request.uri.path eq \"/__disabled_abusive_requests__\")" : join(" ", [
     "(",
     format("ip.src in %s", local.blocked_source_ip_set),
-    "and http.host eq \"api.litomi.in\"",
+    "and ${local.api_request_expression}",
     format("and not (http.request.method in %s)", local.api_read_method_expression_set),
     ")",
   ])
 
-  # Allow /.well_known/* request
-  public_well_known_methods = [
+  # Allow public read-only utility endpoints
+  public_methods = [
     "GET",
     "HEAD",
   ]
 
-  public_well_known_method_expression_set = format("{%s}", join(" ", [
-    for method in local.public_well_known_methods :
+  public_paths = [
+    "/health",
+    "/api/health",
+  ]
+
+  public_prefixes = [
+    "/.well-known/",
+  ]
+
+  public_method_expression_set = format("{%s}", join(" ", [
+    for method in local.public_methods :
     format("\"%s\"", method)
   ]))
 
-  public_well_known_request_expression = join(" ", [
+  public_path_expression_set = format("{%s}", join(" ", [
+    for path in local.public_paths :
+    format("\"%s\"", path)
+  ]))
+
+  public_path_expression = join(" or ", concat(
+    [
+      format("http.request.uri.path in %s", local.public_path_expression_set),
+    ],
+    [
+      for prefix in local.public_prefixes :
+      format("starts_with(http.request.uri.path, \"%s\")", prefix)
+    ],
+  ))
+
+  public_request_expression = join(" ", [
     "(",
-    "starts_with(http.request.uri.path, \"/.well-known/\")",
-    format("and http.request.method in %s", local.public_well_known_method_expression_set),
+    "(${local.public_path_expression})",
+    format("and http.request.method in %s", local.public_method_expression_set),
     ")",
   ])
 
@@ -130,7 +161,7 @@ locals {
   # Corrupted request
   corrupted_request_expression = format(
     "(not %s and (%s))",
-    local.public_well_known_request_expression,
+    local.public_request_expression,
     join(" or ", [
       local.automated_user_agent_expression,
       local.malformed_next_action_expression,
