@@ -146,6 +146,19 @@ variable "pod_redis_cidrs_ipv4" {
   }
 }
 
+variable "pod_redis_ports" {
+  description = "TCP ports allowed for pod Redis egress via NAT."
+  type        = set(number)
+
+  validation {
+    condition = (
+      length(var.pod_redis_ports) > 0 &&
+      alltrue([for port in var.pod_redis_ports : port >= 1 && port <= 65535 && port == floor(port)])
+    )
+    error_message = "pod_redis_ports must contain at least one valid TCP port number."
+  }
+}
+
 variable "freeform_tags" {
   description = "Freeform tags applied to network resources."
   type        = map(string)

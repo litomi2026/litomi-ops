@@ -59,38 +59,20 @@ resource "oci_core_network_security_group_security_rule" "pod_egress_postgresql"
   }
 }
 
-resource "oci_core_network_security_group_security_rule" "pod_egress_redis_6379" {
-  for_each = toset(var.pod_redis_cidrs_ipv4)
+resource "oci_core_network_security_group_security_rule" "pod_egress_redis" {
+  for_each = local.pod_redis_egress_rules
 
   network_security_group_id = oci_core_network_security_group.pod.id
   direction                 = "EGRESS"
-  description               = "Pods to explicit Redis allowlist via NAT."
-  destination               = each.value
+  description               = "Pods to explicit Redis TCP ${each.value.port} allowlist via NAT."
+  destination               = each.value.cidr
   destination_type          = "CIDR_BLOCK"
   protocol                  = "6"
 
   tcp_options {
     destination_port_range {
-      max = 6379
-      min = 6379
-    }
-  }
-}
-
-resource "oci_core_network_security_group_security_rule" "pod_egress_redis_tls_6380" {
-  for_each = toset(var.pod_redis_cidrs_ipv4)
-
-  network_security_group_id = oci_core_network_security_group.pod.id
-  direction                 = "EGRESS"
-  description               = "Pods to explicit TLS Redis allowlist via NAT."
-  destination               = each.value
-  destination_type          = "CIDR_BLOCK"
-  protocol                  = "6"
-
-  tcp_options {
-    destination_port_range {
-      max = 6380
-      min = 6380
+      max = each.value.port
+      min = each.value.port
     }
   }
 }
