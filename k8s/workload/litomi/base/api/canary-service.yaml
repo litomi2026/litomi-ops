@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: litomi-api-canary
+  annotations:
+    rollouts.argoproj.io/managed-service: "true"
+spec:
+  selector:
+    app.kubernetes.io/name: litomi-api
+  ports:
+    - name: http
+      port: 3002
+      protocol: TCP
+      targetPort: http

@@ -1,0 +1,49 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: litomi-web
+resources:
+  - ../../base/web
+  - hpa.yaml
+  - pdb.yaml
+  - limit-range.yaml
+  - resource-quota.yaml
+  - rollouts-gatewayapi-rbac.yaml
+generatorOptions:
+  disableNameSuffixHash: true
+configMapGenerator:
+  - name: litomi-web-public-env
+    envs:
+      - public.env
+  - name: litomi-web-env
+    literals:
+      - APP_ENV=prod
+      - APP_ORIGIN=https://litomi.in
+      - VAPID_PUBLIC_KEY=BCQA2zloAhzL0J3hjB7RTBj9uoG3ZR6elL2kJlrbwZRKw5f4sap5g8AyUsnuDpU49fODsI8icA4o6mu42GmjD3A
+replacements:
+  - source:
+      kind: ConfigMap
+      name: litomi-web-env
+      fieldPath: data.APP_ORIGIN
+    targets:
+      - select:
+          kind: ConfigMap
+          name: litomi-web-public-env
+        fieldPaths:
+          - data.NEXT_PUBLIC_APP_ORIGIN
+        options:
+          create: true
+  - source:
+      kind: ConfigMap
+      name: litomi-web-env
+      fieldPath: data.VAPID_PUBLIC_KEY
+    targets:
+      - select:
+          kind: ConfigMap
+          name: litomi-web-public-env
+        fieldPaths:
+          - data.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+        options:
+          create: true
+images:
+  - name: ghcr.io/litomi2026/litomi-web
+    digest: sha256:b75dcca460b5e2a7c15d065633e30571c4ce8cadd0ec1f97749854c94b2773d2

@@ -1,0 +1,104 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: litomi-api
+  labels:
+    app.kubernetes.io/name: litomi-api
+    app.kubernetes.io/part-of: litomi
+spec:
+  minReadySeconds: 5
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: litomi-api
+  strategy:
+    canary:
+      stableService: litomi-api
+      canaryService: litomi-api-canary
+      maxSurge: 1
+      maxUnavailable: 0
+      trafficRouting:
+        plugins:
+          argoproj-labs/gatewayAPI:
+            httpRoute: litomi-api
+            namespace: litomi-api
+      steps:
+        - setWeight: 10
+        - pause:
+            duration: 5m
+        - setWeight: 50
+        - pause:
+            duration: 10m
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: litomi-api
+        app.kubernetes.io/part-of: litomi
+    spec:
+      automountServiceAccountToken: false
+      serviceAccountName: litomi-api
+      priorityClassName: workload-standard
+      nodeSelector:
+        node-pool-role: workload
+      topologySpreadConstraints:
+        - labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: litomi-api
+          maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+      containers:
+        - name: api
+          image: ghcr.io/litomi2026/litomi-api:overlay-required
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "3002"
+          envFrom:
+            - configMapRef:
+                name: litomi-api-env
+            - secretRef:
+                name: litomi-api-env
+          ports:
+            - containerPort: 3002
+              name: http
+          startupProbe:
+            httpGet:
+              path: /startup
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 12
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 1
+            successThreshold: 1
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 320m
+              memory: 1280Mi
+            limits:
+              cpu: 1200m
+              memory: 1536Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault

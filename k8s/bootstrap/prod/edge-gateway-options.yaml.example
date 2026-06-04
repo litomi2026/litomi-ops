@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: edge-gateway-options
+  namespace: istio-ingress
+data:
+  service: |
+    metadata:
+      annotations:
+        oci.oraclecloud.com/load-balancer-type: nlb
+        oci.oraclecloud.com/security-rule-management-mode: "NSG"
+        oci.oraclecloud.com/reserved-ips: __OCI_EDGE_RESERVED_PUBLIC_IP__
+    spec:
+      type: LoadBalancer
+      externalTrafficPolicy: Cluster
+      ipFamilyPolicy: SingleStack
+      ipFamilies:
+        - IPv4
+  deployment: |
+    spec:
+      replicas: 2
+      template:
+        spec:
+          priorityClassName: platform-critical
+          nodeSelector:
+            node-pool-role: platform
+          topologySpreadConstraints:
+            - labelSelector:
+                matchLabels:
+                  gateway.networking.k8s.io/gateway-name: edge
+              maxSkew: 1
+              topologyKey: kubernetes.io/hostname
+              whenUnsatisfiable: ScheduleAnyway
+          tolerations:
+            - key: node-pool-role
+              operator: Equal
+              value: platform
+              effect: NoSchedule
+          containers:
+            - name: istio-proxy
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+  horizontalPodAutoscaler: |
+    spec:
+      minReplicas: 2
+      maxReplicas: 2
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 75
+  podDisruptionBudget: |
+    spec:
+      minAvailable: 1

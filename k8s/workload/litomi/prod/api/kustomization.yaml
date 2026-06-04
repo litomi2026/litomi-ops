@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: litomi-api
+resources:
+  - ../../base/api
+  - hpa.yaml
+  - pdb.yaml
+  - limit-range.yaml
+  - resource-quota.yaml
+  - rollouts-gatewayapi-rbac.yaml
+generatorOptions:
+  disableNameSuffixHash: true
+configMapGenerator:
+  - name: litomi-api-env
+    literals:
+      - APP_ENV=prod
+      - APP_ORIGIN=https://litomi.in
+images:
+  - name: ghcr.io/litomi2026/litomi-api
+    digest: sha256:7260191c50b15d6b796afda0f50d3b28b01078f18d0fe028d659524cb74216c9
