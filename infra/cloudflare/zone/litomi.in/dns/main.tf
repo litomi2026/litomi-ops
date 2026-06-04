@@ -52,9 +52,7 @@ locals {
   selfhost_img_hostname      = "img.${var.domain}"
   selfhost_stg_img_hostname  = "img-stg.${var.domain}"
   selfhost_prod_hostname     = var.domain
-  selfhost_prod_api_hostname = "api.${var.domain}"
   selfhost_stg_hostname      = "stg.${var.domain}"
-  selfhost_stg_api_hostname  = "api-stg.${var.domain}"
   selfhost_argocd_hostname   = "argocd.${var.domain}"
   selfhost_grafana_hostname  = "grafana.${var.domain}"
 }
@@ -95,27 +93,9 @@ resource "cloudflare_dns_record" "www_cname" {
   proxied = true
 }
 
-resource "cloudflare_dns_record" "api_cname" {
-  zone_id = var.zone_id
-  name    = local.selfhost_prod_api_hostname
-  type    = "CNAME"
-  content = local.selfhost_tunnel_cname
-  ttl     = 1
-  proxied = true
-}
-
 resource "cloudflare_dns_record" "stg_cname" {
   zone_id = var.zone_id
   name    = local.selfhost_stg_hostname
-  type    = "CNAME"
-  content = local.selfhost_tunnel_cname
-  ttl     = 1
-  proxied = true
-}
-
-resource "cloudflare_dns_record" "api_stg_cname" {
-  zone_id = var.zone_id
-  name    = local.selfhost_stg_api_hostname
   type    = "CNAME"
   content = local.selfhost_tunnel_cname
   ttl     = 1
