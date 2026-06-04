@@ -1,13 +1,4 @@
 terraform {
-  cloud {
-    organization = "litomi"
-
-    workspaces {
-      project = "cloudflare"
-      name    = "account-access"
-    }
-  }
-
   required_version = ">= 1.14.0, < 2.0.0"
 
   required_providers {
@@ -46,9 +37,7 @@ variable "access_allowed_emails" {
 
 locals {
   internal_apps_session_duration = "160h"
-  selfhost_argocd_hostname       = "argocd.${var.domain}"
-  selfhost_grafana_hostname      = "grafana.${var.domain}"
-  selfhost_stg_hostname          = "stg.${var.domain}"
+  internal_stg_hostname          = "stg.${var.domain}"
 }
 
 resource "cloudflare_zero_trust_access_policy" "internal_apps_allow" {
@@ -71,9 +60,7 @@ resource "cloudflare_zero_trust_access_application" "internal_apps" {
   type = "self_hosted"
 
   destinations = [
-    # { uri = local.selfhost_argocd_hostname },
-    # { uri = local.selfhost_grafana_hostname },
-    { uri = local.selfhost_stg_hostname },
+    { uri = local.internal_stg_hostname },
   ]
 
   session_duration          = local.internal_apps_session_duration
