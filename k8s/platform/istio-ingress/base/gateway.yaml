@@ -4,7 +4,7 @@ metadata:
   name: edge
   namespace: istio-ingress
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-http01
+    cert-manager.io/cluster-issuer: letsencrypt-dns01
 spec:
   gatewayClassName: istio
   infrastructure:

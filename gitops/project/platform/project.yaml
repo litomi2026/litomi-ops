@@ -65,7 +65,7 @@ spec:
       kind: APIService
     - group: cert-manager.io
       kind: ClusterIssuer
-      name: letsencrypt-http01
+      name: letsencrypt-dns01
     - group: gateway.networking.k8s.io
       kind: GatewayClass
       name: istio

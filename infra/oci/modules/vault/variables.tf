@@ -23,6 +23,11 @@ variable "argocd_secret_name" {
   type        = string
 }
 
+variable "cert_manager_secret_name" {
+  description = "Vault secret name used by cert-manager."
+  type        = string
+}
+
 variable "freeform_tags" {
   description = "Freeform tags applied to vault resources."
   type        = map(string)

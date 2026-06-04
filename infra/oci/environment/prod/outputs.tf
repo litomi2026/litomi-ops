@@ -28,6 +28,11 @@ output "argocd_secret_name" {
   value       = module.vault.argocd_secret_name
 }
 
+output "cert_manager_secret_name" {
+  description = "Vault secret name for cert-manager."
+  value       = module.vault.cert_manager_secret_name
+}
+
 output "web_secret_id" {
   description = "Vault secret OCID for the web workload."
   value       = module.vault.web_secret_id
@@ -41,6 +46,11 @@ output "api_secret_id" {
 output "argocd_secret_id" {
   description = "Vault secret OCID for Argo CD."
   value       = module.vault.argocd_secret_id
+}
+
+output "cert_manager_secret_id" {
+  description = "Vault secret OCID for cert-manager."
+  value       = module.vault.cert_manager_secret_id
 }
 
 output "namespace_compartment_id" {

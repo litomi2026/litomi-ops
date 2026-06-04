@@ -42,3 +42,13 @@ output "argocd_secret_name" {
   description = "Argo CD secret name."
   value       = var.argocd_secret_name
 }
+
+output "cert_manager_secret_id" {
+  description = "cert-manager vault secret OCID."
+  value       = oci_vault_secret.cert_manager.id
+}
+
+output "cert_manager_secret_name" {
+  description = "cert-manager secret name."
+  value       = var.cert_manager_secret_name
+}
