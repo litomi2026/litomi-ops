@@ -24,14 +24,3 @@ replacements:
           - spec.data.[secretKey=webhook.github.secret].remoteRef.key
         options:
           create: true
-      - select:
-          group: external-secrets.io
-          version: v1
-          kind: ExternalSecret
-          name: argocd-github-ops-repo
-        fieldPaths:
-          - spec.data.[secretKey=githubAppID].remoteRef.key
-          - spec.data.[secretKey=githubAppInstallationID].remoteRef.key
-          - spec.data.[secretKey=githubAppPrivateKey].remoteRef.key
-        options:
-          create: true
