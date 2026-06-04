@@ -54,7 +54,7 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - name: PORT
-              value: "3000"
+              value: '3000'
           envFrom:
             - configMapRef:
                 name: litomi-web-public-env
@@ -88,7 +88,7 @@ spec:
             failureThreshold: 3
           resources:
             requests:
-              cpu: 400m
+              cpu: 310m
               memory: 1248Mi
             limits:
               cpu: 1000m
