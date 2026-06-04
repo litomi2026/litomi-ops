@@ -42,19 +42,19 @@ resource "oci_core_network_security_group_security_rule" "pod_egress_internet_ht
 }
 
 resource "oci_core_network_security_group_security_rule" "pod_egress_postgresql" {
-  for_each = toset(var.pod_postgresql_cidrs_ipv4)
+  for_each = local.pod_postgresql_egress_rules
 
   network_security_group_id = oci_core_network_security_group.pod.id
   direction                 = "EGRESS"
-  description               = "Pods to explicit PostgreSQL allowlist via NAT."
-  destination               = each.value
+  description               = "Pods to explicit PostgreSQL TCP ${each.value.port} allowlist via NAT."
+  destination               = each.value.cidr
   destination_type          = "CIDR_BLOCK"
   protocol                  = "6"
 
   tcp_options {
     destination_port_range {
-      max = 5432
-      min = 5432
+      max = each.value.port
+      min = each.value.port
     }
   }
 }

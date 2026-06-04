@@ -286,6 +286,19 @@ variable "pod_postgresql_cidrs_ipv4" {
   }
 }
 
+variable "pod_postgresql_ports" {
+  description = "TCP ports allowed for pod PostgreSQL egress via NAT."
+  type        = set(number)
+
+  validation {
+    condition = (
+      length(var.pod_postgresql_ports) > 0 &&
+      alltrue([for port in var.pod_postgresql_ports : port >= 1 && port <= 65535 && port == floor(port)])
+    )
+    error_message = "pod_postgresql_ports must contain at least one valid TCP port number."
+  }
+}
+
 variable "pod_redis_cidrs_ipv4" {
   description = "IPv4 CIDRs allowed for pod Redis egress via NAT."
   type        = list(string)

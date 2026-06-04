@@ -64,6 +64,7 @@ module "network" {
   worker_external_https_cidrs_ipv4  = var.worker_external_https_cidrs_ipv4
   pod_external_https_cidrs_ipv4     = var.pod_external_https_cidrs_ipv4
   pod_postgresql_cidrs_ipv4         = var.pod_postgresql_cidrs_ipv4
+  pod_postgresql_ports              = var.pod_postgresql_ports
   pod_redis_cidrs_ipv4              = var.pod_redis_cidrs_ipv4
   pod_redis_ports                   = var.pod_redis_ports
   freeform_tags                     = local.freeform_tags
