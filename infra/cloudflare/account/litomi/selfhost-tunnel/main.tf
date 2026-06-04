@@ -1,13 +1,4 @@
 terraform {
-  cloud {
-    organization = "litomi"
-
-    workspaces {
-      project = "cloudflare"
-      name    = "account-selfhost-tunnel"
-    }
-  }
-
   required_version = ">= 1.14.0, < 2.0.0"
 
   required_providers {
