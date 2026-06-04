@@ -87,7 +87,7 @@ resource "cloudflare_dns_record" "vercel2_cname" {
   name    = "vercel2.${var.domain}"
   type    = "CNAME"
   content = "55c4083f74bdeeda.vercel-dns-016.com"
-  ttl     = 600
+  ttl     = 1
   proxied = true
 }
 
