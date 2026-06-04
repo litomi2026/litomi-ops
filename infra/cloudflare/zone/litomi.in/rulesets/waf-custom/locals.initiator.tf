@@ -1,11 +1,11 @@
 locals {
   initiator_protected_request_targets = [
     {
-      host        = "api.litomi.in"
+      host        = "litomi.in"
       path_prefix = "/api/"
     },
     {
-      host        = "api-stg.litomi.in"
+      host        = "stg.litomi.in"
       path_prefix = "/api/"
     },
     {
@@ -46,14 +46,8 @@ locals {
   )
 
   trusted_sec_fetch_site_expression = format(
-    "any(%s in {\"same-site\" \"same-origin\"})",
+    "any(%s eq \"same-origin\")",
     local.sec_fetch_site_values_expression,
-  )
-
-  missing_or_untrusted_fetch_metadata_expression = format(
-    "(not %s or not %s)",
-    local.sec_fetch_site_present_expression,
-    local.trusted_sec_fetch_site_expression,
   )
 
   trusted_request_initiator_origins = [
@@ -83,17 +77,17 @@ locals {
     ]),
   )
 
-  untrusted_request_initiator_expression = format(
-    "(not %s)",
+  trusted_request_initiator_expression = format(
+    "(%s or %s or %s)",
+    local.trusted_sec_fetch_site_expression,
     local.trusted_request_origin_expression,
-    # local.trusted_request_referer_expression, # TODO: same-origin 작업 후에 넣기
+    local.trusted_request_referer_expression,
   )
 
   untrusted_initiator_protected_request_expression = format(
-    "(%s and (%s or %s))",
+    "(%s and not %s)",
     local.initiator_protected_request_target_expression,
-    local.missing_or_untrusted_fetch_metadata_expression,
-    local.untrusted_request_initiator_expression,
+    local.trusted_request_initiator_expression,
   )
 
 }
