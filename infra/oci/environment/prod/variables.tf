@@ -4,6 +4,11 @@ variable "region" {
   default     = "ap-tokyo-1"
 }
 
+variable "home_region" {
+  description = "OCI tenancy home region used for Identity service CRUD operations."
+  type        = string
+}
+
 variable "tenancy_ocid" {
   description = "OCI tenancy OCID."
   type        = string
@@ -69,7 +74,7 @@ variable "namespace_compartment_description" {
 variable "workload_compartment_name" {
   description = "Child workload compartment name."
   type        = string
-  default     = "prod"
+  default     = "litomi-prod"
 }
 
 variable "workload_compartment_description" {
@@ -133,6 +138,7 @@ variable "node_boot_volume_size_in_gbs" {
 variable "kubernetes_version" {
   description = "Target Kubernetes version for the OKE cluster."
   type        = string
+  default     = "v1.35.2"
 }
 
 variable "vcn_cidr_blocks" {

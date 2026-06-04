@@ -23,8 +23,21 @@ provider "oci" {
   private_key_password = var.private_key_password
 }
 
+provider "oci" {
+  alias                = "home"
+  region               = var.home_region
+  tenancy_ocid         = var.tenancy_ocid
+  user_ocid            = var.user_ocid
+  fingerprint          = var.fingerprint
+  private_key          = local.private_key_value
+  private_key_password = var.private_key_password
+}
+
 module "compartments" {
   source = "../../modules/compartments"
+  providers = {
+    oci = oci.home
+  }
 
   tenancy_ocid          = var.tenancy_ocid
   namespace_name        = var.namespace_compartment_name
@@ -56,6 +69,9 @@ module "network" {
 
 module "tags" {
   source = "../../modules/tags"
+  providers = {
+    oci = oci.home
+  }
 
   compartment_id             = module.compartments.namespace_compartment_id
   namespace_name             = var.worker_tag_namespace_name
@@ -105,6 +121,9 @@ module "oke" {
 
 module "iam" {
   source = "../../modules/iam"
+  providers = {
+    oci = oci.home
+  }
 
   tenancy_ocid                 = var.tenancy_ocid
   policy_compartment_id        = module.compartments.namespace_compartment_id
