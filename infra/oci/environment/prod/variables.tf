@@ -1,7 +1,6 @@
 variable "region" {
   description = "OCI region."
   type        = string
-  default     = "ap-tokyo-1"
 }
 
 variable "home_region" {
