@@ -2,6 +2,9 @@ crds:
   enabled: true
 config:
   enableGatewayAPI: true
+extraArgs:
+  - --dns01-recursive-nameservers=10.96.5.5:53
+  - --dns01-recursive-nameservers-only
 prometheus:
   enabled: false
 global:
