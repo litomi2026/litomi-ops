@@ -7,10 +7,35 @@ terraform {
 }
 
 locals {
-  initial_workload_secret_content = base64encode(jsonencode({
-    DATABASE_URL        = "REPLACE_ME_DATABASE_URL"
-    BETTER_AUTH_SECRETS = "REPLACE_ME_BETTER_AUTH_SECRETS"
+  initial_web_secret_content = base64encode(jsonencode({
+    APP_POSTGRES_CERTIFICATE     = "REPLACE_ME_APP_POSTGRES_CERTIFICATE"
+    APP_POSTGRES_URL             = "REPLACE_ME_APP_POSTGRES_URL"
+    CATALOG_POSTGRES_CERTIFICATE = "REPLACE_ME_CATALOG_POSTGRES_CERTIFICATE"
+    CATALOG_POSTGRES_URL         = "REPLACE_ME_CATALOG_POSTGRES_URL"
+    JWT_SECRET_ACCESS_TOKEN      = "REPLACE_ME_JWT_SECRET_ACCESS_TOKEN"
+    JWT_SECRET_REFRESH_TOKEN     = "REPLACE_ME_JWT_SECRET_REFRESH_TOKEN"
+    JWT_SECRET_TRUSTED_DEVICE    = "REPLACE_ME_JWT_SECRET_TRUSTED_DEVICE"
+    REDIS_URL                    = "REPLACE_ME_REDIS_URL"
+    TOTP_ENCRYPTION_KEY          = "REPLACE_ME_TOTP_ENCRYPTION_KEY"
+    VAPID_PUBLIC_KEY             = "REPLACE_ME_VAPID_PUBLIC_KEY"
   }))
+
+  initial_api_secret_content = base64encode(jsonencode({
+    ADSTERRA_API_KEY             = "REPLACE_ME_ADSTERRA_API_KEY"
+    APP_POSTGRES_CERTIFICATE     = "REPLACE_ME_APP_POSTGRES_CERTIFICATE"
+    APP_POSTGRES_URL             = "REPLACE_ME_APP_POSTGRES_URL"
+    BBATON_CLIENT_SECRET         = "REPLACE_ME_BBATON_CLIENT_SECRET"
+    CATALOG_POSTGRES_CERTIFICATE = "REPLACE_ME_CATALOG_POSTGRES_CERTIFICATE"
+    CATALOG_POSTGRES_URL         = "REPLACE_ME_CATALOG_POSTGRES_URL"
+    JWT_SECRET_ACCESS_TOKEN      = "REPLACE_ME_JWT_SECRET_ACCESS_TOKEN"
+    JWT_SECRET_REFRESH_TOKEN     = "REPLACE_ME_JWT_SECRET_REFRESH_TOKEN"
+    JWT_SECRET_TRUSTED_DEVICE    = "REPLACE_ME_JWT_SECRET_TRUSTED_DEVICE"
+    REDIS_URL                    = "REPLACE_ME_REDIS_URL"
+    TOTP_ENCRYPTION_KEY          = "REPLACE_ME_TOTP_ENCRYPTION_KEY"
+    TURNSTILE_SECRET_KEY         = "REPLACE_ME_TURNSTILE_SECRET_KEY"
+    VAPID_PRIVATE_KEY            = "REPLACE_ME_VAPID_PRIVATE_KEY"
+  }))
+
   initial_argocd_secret_content = base64encode(jsonencode({
     CLOUDFLARE_ACCESS_ARGOCD_CLIENT_SECRET = "REPLACE_ME_CLOUDFLARE_ACCESS_ARGOCD_CLIENT_SECRET"
     GITHUB_WEBHOOK_SECRET                  = "REPLACE_ME_GITHUB_WEBHOOK_SECRET"
@@ -49,7 +74,7 @@ resource "oci_vault_secret" "web" {
   freeform_tags  = var.freeform_tags
 
   secret_content {
-    content      = local.initial_workload_secret_content
+    content      = local.initial_web_secret_content
     content_type = "BASE64"
     name         = "initial-placeholder"
     stage        = "CURRENT"
@@ -71,7 +96,7 @@ resource "oci_vault_secret" "api" {
   freeform_tags  = var.freeform_tags
 
   secret_content {
-    content      = local.initial_workload_secret_content
+    content      = local.initial_api_secret_content
     content_type = "BASE64"
     name         = "initial-placeholder"
     stage        = "CURRENT"
