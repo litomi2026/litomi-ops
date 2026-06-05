@@ -3,7 +3,7 @@ kind: Kustomization
 namespace: argocd
 resources:
   - namespace.yaml
-  - https://raw.githubusercontent.com/argoproj/argo-cd/v3.3.7/manifests/install.yaml
+  - https://raw.githubusercontent.com/argoproj/argo-cd/v3.3.11/manifests/install.yaml
   - cloudflare-access-oidc-external-secret.yaml
   - github-webhook-external-secret.yaml
   - argocd-secret-github-webhook-external-secret.yaml
