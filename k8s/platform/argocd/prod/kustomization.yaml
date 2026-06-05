@@ -19,6 +19,17 @@ replacements:
           group: external-secrets.io
           version: v1
           kind: ExternalSecret
+          name: argocd-cloudflare-access-oidc
+        fieldPaths:
+          - spec.data.[secretKey=oidc.cloudflare.issuer].remoteRef.key
+          - spec.data.[secretKey=oidc.cloudflare.clientID].remoteRef.key
+          - spec.data.[secretKey=oidc.cloudflare.clientSecret].remoteRef.key
+        options:
+          create: true
+      - select:
+          group: external-secrets.io
+          version: v1
+          kind: ExternalSecret
           name: argocd-github-webhook
         fieldPaths:
           - spec.data.[secretKey=webhook.github.secret].remoteRef.key

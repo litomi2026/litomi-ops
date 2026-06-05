@@ -3,4 +3,8 @@ kind: ConfigMap
 metadata:
   name: argocd-rbac-cm
 data:
-  policy.default: role:readonly
+  policy.csv: |
+    g, litomi-argocd-admins, role:admin
+    g, litomi-argocd-readonly, role:readonly
+  policy.default: role:none
+  scopes: '[groups]'
