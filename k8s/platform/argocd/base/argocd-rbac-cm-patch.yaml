@@ -6,5 +6,5 @@ data:
   policy.csv: |
     g, litomi-argocd-admins, role:admin
     g, litomi-argocd-readonly, role:readonly
-  policy.default: role:none
-  scopes: '[groups]'
+  policy.default: role:admin
+  scopes: '[groups, email]'

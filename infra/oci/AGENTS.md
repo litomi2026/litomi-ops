@@ -5,6 +5,7 @@
 - 로컬 개발환경에선 OCI Bastion으로 OKE production 클러스터에 접속한다.
 - 현재 개발환경 기준 kubeconfig는 `~/.kube/litomi-prod-seoul`을 사용한다.
 - OCI OCID, private endpoint IP, ssh-metadata 출력값은 repo에 기록하지 않는다.
+- OKE Cluster 는 kubectl 로 직접 수정하지 않는다. Terraform 으로만 수정한다.
 
 ### Bastion tunnel 여는 법
 
@@ -12,6 +13,32 @@
    session TTL도 10800초로 맞춘다.
 
    ```sh
+   export KUBECONFIG="$HOME/.kube/litomi-prod-seoul"
+   export BASTION_NAME="litomi-prod-oke-api-bastion"
+   export CLUSTER_NAME="litomi-prod-oke"
+   export BASTION_SSH_KEY="$HOME/.ssh/litomi-prod-bastion"
+   export LOCAL_API_PORT="16443"
+
+   BASTION_ID="$(oci search resource structured-search \
+     --query-text "query all resources where displayName = '$BASTION_NAME'" \
+     --limit 1 \
+     --query 'data.items[0].identifier' \
+     --raw-output)"
+
+   CLUSTER_ID="$(oci search resource structured-search \
+     --query-text "query all resources where displayName = '$CLUSTER_NAME'" \
+     --limit 1 \
+     --query 'data.items[0].identifier' \
+     --raw-output)"
+
+   CLUSTER_PRIVATE_ENDPOINT="$(oci ce cluster get \
+     --cluster-id "$CLUSTER_ID" \
+     --query 'data.endpoints."private-endpoint"' \
+     --raw-output)"
+
+   TARGET_PRIVATE_IP="${CLUSTER_PRIVATE_ENDPOINT%:*}"
+   TARGET_PORT="${CLUSTER_PRIVATE_ENDPOINT##*:}"
+
    SESSION_ID="$(oci bastion session create-port-forwarding \
      --bastion-id "$BASTION_ID" \
      --display-name "local-oke-api-tunnel" \
@@ -38,4 +65,10 @@
      -o ServerAliveInterval=30 \
      -o ServerAliveCountMax=3 \
      -o StrictHostKeyChecking=accept-new
+   ```
+
+3. 다른 터미널에서 접속을 확인한다.
+
+   ```sh
+   KUBECONFIG="$HOME/.kube/litomi-prod-seoul" kubectl get ns
    ```
