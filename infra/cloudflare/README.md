@@ -66,11 +66,6 @@ Set these workspace-specific Terraform variables on `account-access`.
 | Terraform | `argocd_readonly_emails`      | No        | Yes |
 | Terraform | `stg_allowed_emails`          | No        | Yes |
 
-Argo CD currently does not split roles in Cloudflare or Argo CD. The values in
-`argocd_admin_emails` and the deprecated compatibility variable
-`argocd_readonly_emails` are merged into one email allowlist, and every allowed
-Argo CD OIDC user receives Argo CD admin permissions.
-
 Set this workspace-specific Terraform variable on `zone-litomi-in-dns`:
 
 | Category  | Key             | Sensitive | Notes                                          |
