@@ -24,59 +24,260 @@ variable "domain" {
   nullable    = false
 }
 
-variable "access_allowed_emails" {
-  description = "Exact email allowlist for Litomi internal Cloudflare Access apps."
-  type        = list(string)
+variable "cloudflare_access_team_name" {
+  description = "Cloudflare Access team name used in the account's cloudflareaccess.com OIDC issuer URL."
+  type        = string
   nullable    = false
 
   validation {
-    condition     = length(var.access_allowed_emails) > 0
-    error_message = "access_allowed_emails must contain at least one email; internal apps must fail closed."
+    condition     = length(trimspace(var.cloudflare_access_team_name)) > 0
+    error_message = "cloudflare_access_team_name must not be empty."
+  }
+}
+
+variable "argocd_admin_emails" {
+  description = "Exact email allowlist for Argo CD administrators."
+  type        = set(string)
+  nullable    = false
+
+  validation {
+    condition     = length(var.argocd_admin_emails) > 0
+    error_message = "argocd_admin_emails must contain at least one email; Argo CD must have a break-glass administrator."
+  }
+}
+
+variable "argocd_readonly_emails" {
+  description = "Exact email allowlist for Argo CD read-only users. Argo CD administrators are included in the read-only group automatically."
+  type        = set(string)
+  default     = []
+  nullable    = false
+}
+
+variable "stg_allowed_emails" {
+  description = "Exact email allowlist for the staging application."
+  type        = set(string)
+  nullable    = false
+
+  validation {
+    condition     = length(var.stg_allowed_emails) > 0
+    error_message = "stg_allowed_emails must contain at least one email; staging access must fail closed."
   }
 }
 
 locals {
-  internal_apps_session_duration = "160h"
+  argocd_admin_group_name    = "litomi-argocd-admins"
+  argocd_readonly_group_name = "litomi-argocd-readonly"
+  stg_group_name             = "litomi-stg-users"
 
-  internal_app_hostnames = [
-    "argocd.${var.domain}",
-    "stg.${var.domain}",
-  ]
+  argocd_session_duration = "12h"
+  stg_session_duration    = "160h"
+
+  argocd_hostname = "argocd.${var.domain}"
+  stg_hostname    = "stg.${var.domain}"
+
+  argocd_readonly_effective_emails = setunion(
+    var.argocd_admin_emails,
+    var.argocd_readonly_emails,
+  )
 }
 
-resource "cloudflare_zero_trust_access_policy" "internal_apps_allow" {
-  account_id       = var.account_id
-  name             = "Litomi Internal Apps Allow"
-  decision         = "allow"
-  session_duration = local.internal_apps_session_duration
+resource "cloudflare_zero_trust_access_group" "argocd_admins" {
+  account_id = var.account_id
+  name       = local.argocd_admin_group_name
 
   include = [
-    for email in var.access_allowed_emails : {
+    for email in sort(tolist(var.argocd_admin_emails)) : {
       email = { email = email }
     }
   ]
 }
 
-resource "cloudflare_zero_trust_access_application" "internal_apps" {
+resource "cloudflare_zero_trust_access_group" "argocd_readonly" {
+  account_id = var.account_id
+  name       = local.argocd_readonly_group_name
+
+  include = [
+    for email in sort(tolist(local.argocd_readonly_effective_emails)) : {
+      email = { email = email }
+    }
+  ]
+}
+
+resource "cloudflare_zero_trust_access_group" "stg_users" {
+  account_id = var.account_id
+  name       = local.stg_group_name
+
+  include = [
+    for email in sort(tolist(var.stg_allowed_emails)) : {
+      email = { email = email }
+    }
+  ]
+}
+
+resource "cloudflare_zero_trust_access_policy" "argocd_admins_allow" {
+  account_id       = var.account_id
+  name             = "Litomi Argo CD Admins Allow"
+  decision         = "allow"
+  session_duration = local.argocd_session_duration
+
+  include = [
+    {
+      group = { id = cloudflare_zero_trust_access_group.argocd_admins.id }
+    }
+  ]
+}
+
+resource "cloudflare_zero_trust_access_policy" "argocd_readonly_allow" {
+  account_id       = var.account_id
+  name             = "Litomi Argo CD Readonly Allow"
+  decision         = "allow"
+  session_duration = local.argocd_session_duration
+
+  include = [
+    {
+      group = { id = cloudflare_zero_trust_access_group.argocd_readonly.id }
+    }
+  ]
+}
+
+resource "cloudflare_zero_trust_access_policy" "argocd_webhook_bypass" {
+  account_id = var.account_id
+  name       = "Litomi Argo CD Webhook Bypass"
+  decision   = "bypass"
+
+  include = [
+    {
+      everyone = {}
+    }
+  ]
+}
+
+resource "cloudflare_zero_trust_access_policy" "stg_users_allow" {
+  account_id       = var.account_id
+  name             = "Litomi Staging Users Allow"
+  decision         = "allow"
+  session_duration = local.stg_session_duration
+
+  include = [
+    {
+      group = { id = cloudflare_zero_trust_access_group.stg_users.id }
+    }
+  ]
+}
+
+resource "cloudflare_zero_trust_access_application" "argocd" {
   account_id = var.account_id
 
-  name = "Litomi Internal Apps"
+  name = "Argo CD"
   type = "self_hosted"
 
   destinations = [
-    for hostname in local.internal_app_hostnames : {
-      uri = hostname
+    {
+      uri = local.argocd_hostname
     }
   ]
 
-  session_duration          = local.internal_apps_session_duration
+  session_duration          = local.argocd_session_duration
   auto_redirect_to_identity = true
   enable_binding_cookie     = true
 
   policies = [
     {
       precedence = 1
-      id         = cloudflare_zero_trust_access_policy.internal_apps_allow.id
+      id         = cloudflare_zero_trust_access_policy.argocd_admins_allow.id
+    },
+    {
+      precedence = 2
+      id         = cloudflare_zero_trust_access_policy.argocd_readonly_allow.id
     }
   ]
+}
+
+resource "cloudflare_zero_trust_access_application" "argocd_webhook" {
+  account_id = var.account_id
+
+  name = "Argo CD Webhook"
+  type = "self_hosted"
+
+  destinations = [
+    {
+      uri = "${local.argocd_hostname}/api/webhook"
+    }
+  ]
+
+  app_launcher_visible = false
+
+  policies = [
+    {
+      precedence = 1
+      id         = cloudflare_zero_trust_access_policy.argocd_webhook_bypass.id
+    }
+  ]
+}
+
+resource "cloudflare_zero_trust_access_application" "argocd_oidc" {
+  account_id = var.account_id
+
+  name = "Argo CD OIDC"
+  type = "saas"
+
+  saas_app = {
+    auth_type             = "oidc"
+    access_token_lifetime = "1h"
+    grant_types           = ["authorization_code"]
+    group_filter_regex    = "^${local.argocd_admin_group_name}$|^${local.argocd_readonly_group_name}$"
+    redirect_uris         = ["https://${local.argocd_hostname}/auth/callback"]
+    scopes                = ["openid", "email", "profile", "groups"]
+  }
+
+  policies = [
+    {
+      precedence = 1
+      id         = cloudflare_zero_trust_access_policy.argocd_admins_allow.id
+    },
+    {
+      precedence = 2
+      id         = cloudflare_zero_trust_access_policy.argocd_readonly_allow.id
+    }
+  ]
+}
+
+resource "cloudflare_zero_trust_access_application" "stg" {
+  account_id = var.account_id
+
+  name = "Staging"
+  type = "self_hosted"
+
+  destinations = [
+    {
+      uri = local.stg_hostname
+    }
+  ]
+
+  session_duration          = local.stg_session_duration
+  auto_redirect_to_identity = true
+  enable_binding_cookie     = true
+
+  policies = [
+    {
+      precedence = 1
+      id         = cloudflare_zero_trust_access_policy.stg_users_allow.id
+    }
+  ]
+}
+
+output "argocd_oidc_client_id" {
+  description = "Cloudflare Access OIDC client ID for Argo CD. Copy this to the Argo CD OCI Vault secret property CLOUDFLARE_ACCESS_ARGOCD_CLIENT_ID."
+  value       = cloudflare_zero_trust_access_application.argocd_oidc.saas_app.client_id
+}
+
+output "argocd_oidc_client_secret" {
+  description = "Cloudflare Access OIDC client secret for Argo CD. Copy this to the Argo CD OCI Vault secret property CLOUDFLARE_ACCESS_ARGOCD_CLIENT_SECRET."
+  value       = cloudflare_zero_trust_access_application.argocd_oidc.saas_app.client_secret
+  sensitive   = true
+}
+
+output "argocd_oidc_issuer" {
+  description = "Cloudflare Access OIDC issuer for Argo CD. Copy this to the Argo CD OCI Vault secret property CLOUDFLARE_ACCESS_ARGOCD_ISSUER."
+  value       = "https://${var.cloudflare_access_team_name}.cloudflareaccess.com/cdn-cgi/access/sso/oidc/${cloudflare_zero_trust_access_application.argocd_oidc.saas_app.client_id}"
 }
