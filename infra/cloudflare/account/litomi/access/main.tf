@@ -91,6 +91,17 @@ resource "cloudflare_zero_trust_access_group" "argocd_admins" {
   ]
 }
 
+resource "cloudflare_zero_trust_access_group" "argocd_readonly" {
+  account_id = var.account_id
+  name       = "litomi-argocd-readonly"
+
+  include = [
+    for email in sort(tolist(local.argocd_allowed_emails)) : {
+      email = { email = email }
+    }
+  ]
+}
+
 resource "cloudflare_zero_trust_access_group" "stg_users" {
   account_id = var.account_id
   name       = local.stg_group_name
@@ -111,6 +122,19 @@ resource "cloudflare_zero_trust_access_policy" "argocd_admins_allow" {
   include = [
     {
       group = { id = cloudflare_zero_trust_access_group.argocd_admins.id }
+    }
+  ]
+}
+
+resource "cloudflare_zero_trust_access_policy" "argocd_readonly_allow" {
+  account_id       = var.account_id
+  name             = "Litomi Argo CD Readonly Allow"
+  decision         = "allow"
+  session_duration = local.argocd_session_duration
+
+  include = [
+    {
+      group = { id = cloudflare_zero_trust_access_group.argocd_readonly.id }
     }
   ]
 }
