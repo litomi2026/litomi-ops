@@ -6,6 +6,7 @@ metadata:
     app.kubernetes.io/name: litomi-api
     app.kubernetes.io/part-of: litomi
 spec:
+  replicas: 2
   minReadySeconds: 5
   progressDeadlineSeconds: 600
   revisionHistoryLimit: 3
@@ -17,7 +18,7 @@ spec:
       stableService: litomi-api
       canaryService: litomi-api-canary
       maxSurge: 1
-      maxUnavailable: 0
+      maxUnavailable: 1
       trafficRouting:
         plugins:
           argoproj-labs/gatewayAPI:

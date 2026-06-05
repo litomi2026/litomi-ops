@@ -7,8 +7,7 @@ spec:
     apiVersion: argoproj.io/v1alpha1
     kind: Rollout
     name: litomi-api
-  minReplicas: 2
-  maxReplicas: 5
+  maxReplicas: 3
   metrics:
     - type: Resource
       resource:
