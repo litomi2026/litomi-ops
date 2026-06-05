@@ -9,9 +9,9 @@ data:
   webhook.maxPayloadSizeMB: "10"
   oidc.config: |
     name: Cloudflare Access
-    issuer: $oidc.cloudflare.issuer
-    clientID: $oidc.cloudflare.clientID
-    clientSecret: $oidc.cloudflare.clientSecret
+    issuer: $argocd-cloudflare-access-oidc:oidc.cloudflare.issuer
+    clientID: $argocd-cloudflare-access-oidc:oidc.cloudflare.clientID
+    clientSecret: $argocd-cloudflare-access-oidc:oidc.cloudflare.clientSecret
     requestedScopes:
       - openid
       - email

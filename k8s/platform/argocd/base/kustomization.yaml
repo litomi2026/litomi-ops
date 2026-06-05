@@ -6,6 +6,7 @@ resources:
   - https://raw.githubusercontent.com/argoproj/argo-cd/v3.3.7/manifests/install.yaml
   - cloudflare-access-oidc-external-secret.yaml
   - github-webhook-external-secret.yaml
+  - argocd-secret-github-webhook-external-secret.yaml
   - route.yaml
 patches:
   - path: argocd-cm-patch.yaml
@@ -23,11 +24,6 @@ patches:
       version: v1
       kind: ConfigMap
       name: argocd-cmd-params-cm
-  - path: argocd-secret-patch.yaml
-    target:
-      version: v1
-      kind: Secret
-      name: argocd-secret
   - path: applicationset-controller-patch.yaml
     target:
       group: apps
