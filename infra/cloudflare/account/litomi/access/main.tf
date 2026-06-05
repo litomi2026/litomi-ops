@@ -179,7 +179,7 @@ resource "cloudflare_zero_trust_access_application" "argocd" {
 
   session_duration          = local.argocd_session_duration
   auto_redirect_to_identity = true
-  enable_binding_cookie     = true
+  enable_binding_cookie     = false
 
   policies = [
     {
