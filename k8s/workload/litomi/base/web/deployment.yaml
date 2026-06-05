@@ -6,6 +6,7 @@ metadata:
     app.kubernetes.io/name: litomi-web
     app.kubernetes.io/part-of: litomi
 spec:
+  replicas: 2
   minReadySeconds: 5
   progressDeadlineSeconds: 600
   revisionHistoryLimit: 3
@@ -15,8 +16,8 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
+      maxSurge: 0
+      maxUnavailable: 1
   template:
     metadata:
       labels:

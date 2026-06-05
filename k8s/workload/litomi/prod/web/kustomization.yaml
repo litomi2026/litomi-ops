@@ -3,7 +3,6 @@ kind: Kustomization
 namespace: litomi-web
 resources:
   - ../../base/web
-  - hpa.yaml
   - pdb.yaml
   - limit-range.yaml
   - resource-quota.yaml
