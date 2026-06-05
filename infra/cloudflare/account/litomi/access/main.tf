@@ -68,7 +68,7 @@ locals {
   argocd_group_name = "litomi-argocd-users"
   stg_group_name    = "litomi-stg-users"
 
-  argocd_session_duration = "12h"
+  argocd_session_duration = "160h"
   stg_session_duration    = "160h"
 
   argocd_hostname = "argocd.${var.domain}"
@@ -198,6 +198,10 @@ resource "cloudflare_zero_trust_access_application" "argocd_oidc" {
     grant_types           = ["authorization_code"]
     redirect_uris         = ["https://${local.argocd_hostname}/auth/callback"]
     scopes                = ["openid", "email", "profile"]
+
+    refresh_token_options = {
+      lifetime = local.argocd_session_duration
+    }
   }
 
   policies = [
