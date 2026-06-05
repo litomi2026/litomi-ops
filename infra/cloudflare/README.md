@@ -49,8 +49,7 @@ Set this workspace-specific Terraform variable on `zone-litomi-in-waf-custom`:
 | --------- | -------------------- | --------- | --- | ---------------------- |
 | Terraform | `blocked_source_ips` | No        | Yes | HCL list of source IPs |
 
-Set these workspace-specific Terraform variables on `zone-litomi-in-rate-limit`.
-Mark all three as sensitive:
+Set these workspace-specific Terraform variables on `zone-litomi-in-rate-limit`:
 
 | Category  | Key                   | Sensitive | Notes                                     |
 | --------- | --------------------- | --------- | ----------------------------------------- |
@@ -58,12 +57,14 @@ Mark all three as sensitive:
 | Terraform | `rate_limit_requests` | Yes       | Maximum requests allowed per period       |
 | Terraform | `rate_limit_timeout`  | Yes       | Mitigation timeout after the limit is hit |
 
-Set `access_allowed_emails` as a workspace-specific Terraform variable on
-`account-access`. It must be a non-empty HCL list, for example:
+Set these workspace-specific Terraform variables on `account-access`.
 
-```hcl
-["you@example.com"]
-```
+| Category  | Key                           | Sensitive | HCL |
+| --------- | ----------------------------- | --------- | --- |
+| Terraform | `cloudflare_access_team_name` | No        | Yes |
+| Terraform | `argocd_admin_emails`         | No        | Yes |
+| Terraform | `argocd_readonly_emails`      | No        | Yes |
+| Terraform | `stg_allowed_emails`          | No        | Yes |
 
 Set this workspace-specific Terraform variable on `zone-litomi-in-dns`:
 
