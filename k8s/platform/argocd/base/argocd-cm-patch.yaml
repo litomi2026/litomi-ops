@@ -17,3 +17,9 @@ data:
       - email
       - profile
       - groups
+    requestedIDTokenClaims:
+      groups:
+        essential: true
+    enableUserInfoGroups: true
+    userInfoPath: /userinfo
+    userInfoCacheExpiration: 5m
