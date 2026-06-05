@@ -7,7 +7,6 @@ resources:
   - pdb.yaml
   - limit-range.yaml
   - resource-quota.yaml
-  - rollouts-gatewayapi-rbac.yaml
 generatorOptions:
   disableNameSuffixHash: true
 configMapGenerator:

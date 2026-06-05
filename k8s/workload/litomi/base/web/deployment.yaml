@@ -1,5 +1,5 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: litomi-web
   labels:
@@ -13,23 +13,10 @@ spec:
     matchLabels:
       app.kubernetes.io/name: litomi-web
   strategy:
-    canary:
-      stableService: litomi-web
-      canaryService: litomi-web-canary
+    type: RollingUpdate
+    rollingUpdate:
       maxSurge: 1
       maxUnavailable: 0
-      trafficRouting:
-        plugins:
-          argoproj-labs/gatewayAPI:
-            httpRoute: litomi-web
-            namespace: litomi-web
-      steps:
-        - setWeight: 10
-        - pause:
-            duration: 5m
-        - setWeight: 50
-        - pause:
-            duration: 10m
   template:
     metadata:
       labels:

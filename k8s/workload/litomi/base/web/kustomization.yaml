@@ -5,7 +5,6 @@ resources:
   - namespace.yaml
   - serviceaccount.yaml
   - service.yaml
-  - canary-service.yaml
-  - rollout.yaml
+  - deployment.yaml
   - route.yaml
   - external-secret.yaml

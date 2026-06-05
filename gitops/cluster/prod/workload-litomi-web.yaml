@@ -20,14 +20,3 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - RespectIgnoreDifferences=true
-  ignoreDifferences:
-    # Argo Rollouts Gateway API plugin이 canary 진행 중 HTTPRoute backend weight를 갱신한다.
-    # 이 값은 배포 런타임 상태라 GitOps drift로 보지 않는다.
-    # Gateway API traffic router를 제거하거나 교체할 때 재검토한다.
-    - group: gateway.networking.k8s.io
-      kind: HTTPRoute
-      name: litomi-web
-      namespace: litomi-web
-      jsonPointers:
-        - /spec/rules/0/backendRefs
