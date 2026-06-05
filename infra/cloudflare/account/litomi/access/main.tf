@@ -195,7 +195,7 @@ resource "cloudflare_zero_trust_access_application" "argocd_oidc" {
   saas_app = {
     auth_type             = "oidc"
     access_token_lifetime = "1h"
-    grant_types           = ["authorization_code"]
+    grant_types           = ["authorization_code", "refresh_tokens"]
     redirect_uris         = ["https://${local.argocd_hostname}/auth/callback"]
     scopes                = ["openid", "email", "profile"]
 
