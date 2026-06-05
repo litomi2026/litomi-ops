@@ -36,7 +36,7 @@ variable "cloudflare_access_team_name" {
 }
 
 variable "argocd_admin_emails" {
-  description = "Exact email allowlist for Argo CD administrators."
+  description = "Exact email allowlist for Argo CD users."
   type        = set(string)
   nullable    = false
 
@@ -47,7 +47,7 @@ variable "argocd_admin_emails" {
 }
 
 variable "argocd_readonly_emails" {
-  description = "Exact email allowlist for Argo CD read-only users. Argo CD administrators are included in the read-only group automatically."
+  description = "[Deprecated] Exact email allowlist for Argo CD read-only users."
   type        = set(string)
   default     = []
   nullable    = false
@@ -65,9 +65,8 @@ variable "stg_allowed_emails" {
 }
 
 locals {
-  argocd_admin_group_name    = "litomi-argocd-admins"
-  argocd_readonly_group_name = "litomi-argocd-readonly"
-  stg_group_name             = "litomi-stg-users"
+  argocd_group_name = "litomi-argocd-users"
+  stg_group_name    = "litomi-stg-users"
 
   argocd_session_duration = "12h"
   stg_session_duration    = "160h"
@@ -75,7 +74,7 @@ locals {
   argocd_hostname = "argocd.${var.domain}"
   stg_hostname    = "stg.${var.domain}"
 
-  argocd_readonly_effective_emails = setunion(
+  argocd_allowed_emails = setunion(
     var.argocd_admin_emails,
     var.argocd_readonly_emails,
   )
@@ -83,21 +82,10 @@ locals {
 
 resource "cloudflare_zero_trust_access_group" "argocd_admins" {
   account_id = var.account_id
-  name       = local.argocd_admin_group_name
+  name       = local.argocd_group_name
 
   include = [
-    for email in sort(tolist(var.argocd_admin_emails)) : {
-      email = { email = email }
-    }
-  ]
-}
-
-resource "cloudflare_zero_trust_access_group" "argocd_readonly" {
-  account_id = var.account_id
-  name       = local.argocd_readonly_group_name
-
-  include = [
-    for email in sort(tolist(local.argocd_readonly_effective_emails)) : {
+    for email in sort(tolist(local.argocd_allowed_emails)) : {
       email = { email = email }
     }
   ]
@@ -116,7 +104,7 @@ resource "cloudflare_zero_trust_access_group" "stg_users" {
 
 resource "cloudflare_zero_trust_access_policy" "argocd_admins_allow" {
   account_id       = var.account_id
-  name             = "Litomi Argo CD Admins Allow"
+  name             = "Argo CD Users Allow"
   decision         = "allow"
   session_duration = local.argocd_session_duration
 
@@ -127,22 +115,9 @@ resource "cloudflare_zero_trust_access_policy" "argocd_admins_allow" {
   ]
 }
 
-resource "cloudflare_zero_trust_access_policy" "argocd_readonly_allow" {
-  account_id       = var.account_id
-  name             = "Litomi Argo CD Readonly Allow"
-  decision         = "allow"
-  session_duration = local.argocd_session_duration
-
-  include = [
-    {
-      group = { id = cloudflare_zero_trust_access_group.argocd_readonly.id }
-    }
-  ]
-}
-
 resource "cloudflare_zero_trust_access_policy" "argocd_webhook_bypass" {
   account_id = var.account_id
-  name       = "Litomi Argo CD Webhook Bypass"
+  name       = "Argo CD Webhook Bypass"
   decision   = "bypass"
 
   include = [
@@ -154,7 +129,7 @@ resource "cloudflare_zero_trust_access_policy" "argocd_webhook_bypass" {
 
 resource "cloudflare_zero_trust_access_policy" "stg_users_allow" {
   account_id       = var.account_id
-  name             = "Litomi Staging Users Allow"
+  name             = "Staging Users Allow"
   decision         = "allow"
   session_duration = local.stg_session_duration
 
@@ -185,10 +160,6 @@ resource "cloudflare_zero_trust_access_application" "argocd" {
     {
       precedence = 1
       id         = cloudflare_zero_trust_access_policy.argocd_admins_allow.id
-    },
-    {
-      precedence = 2
-      id         = cloudflare_zero_trust_access_policy.argocd_readonly_allow.id
     }
   ]
 }
@@ -225,19 +196,14 @@ resource "cloudflare_zero_trust_access_application" "argocd_oidc" {
     auth_type             = "oidc"
     access_token_lifetime = "1h"
     grant_types           = ["authorization_code"]
-    group_filter_regex    = "^${local.argocd_admin_group_name}$|^${local.argocd_readonly_group_name}$"
     redirect_uris         = ["https://${local.argocd_hostname}/auth/callback"]
-    scopes                = ["openid", "email", "profile", "groups"]
+    scopes                = ["openid", "email", "profile"]
   }
 
   policies = [
     {
       precedence = 1
       id         = cloudflare_zero_trust_access_policy.argocd_admins_allow.id
-    },
-    {
-      precedence = 2
-      id         = cloudflare_zero_trust_access_policy.argocd_readonly_allow.id
     }
   ]
 }
