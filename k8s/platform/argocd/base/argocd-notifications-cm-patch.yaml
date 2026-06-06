@@ -10,9 +10,6 @@ data:
         value: Bearer $cloudflareApiToken
       - name: Content-Type
         value: application/json
-    retryWaitMin: 5s
-    retryWaitMax: 30s
-    retryMax: 5
   template.cloudflare-cache-purge-litomi-web: |
     webhook:
       cloudflare-cache:
