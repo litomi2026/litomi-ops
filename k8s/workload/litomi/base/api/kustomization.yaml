@@ -9,3 +9,4 @@ resources:
   - rollout.yaml
   - route.yaml
   - external-secret.yaml
+  - google-credentials-external-secret.yaml
