@@ -5,6 +5,7 @@ resources:
   - namespace.yaml
   - https://raw.githubusercontent.com/argoproj/argo-cd/v3.3.11/manifests/install.yaml
   - cloudflare-access-oidc-external-secret.yaml
+  - cloudflare-cache-purge-external-secret.yaml
   - github-webhook-external-secret.yaml
   - argocd-secret-github-webhook-external-secret.yaml
   - route.yaml
@@ -24,6 +25,11 @@ patches:
       version: v1
       kind: ConfigMap
       name: argocd-cmd-params-cm
+  - path: argocd-notifications-cm-patch.yaml
+    target:
+      version: v1
+      kind: ConfigMap
+      name: argocd-notifications-cm
   - path: argocd-server-clusterrole-patch.yaml
     target:
       group: rbac.authorization.k8s.io

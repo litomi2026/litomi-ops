@@ -5,6 +5,7 @@ metadata:
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "10"
+    notifications.argoproj.io/subscribe.on-litomi-web-deployed.cloudflare-cache: ""
 spec:
   project: workload
   source:

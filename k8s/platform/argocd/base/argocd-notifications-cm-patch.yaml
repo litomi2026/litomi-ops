@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-notifications-cm
+data:
+  service.webhook.cloudflare-cache: |
+    url: https://api.cloudflare.com
+    headers:
+      - name: Authorization
+        value: Bearer $cloudflareApiToken
+      - name: Content-Type
+        value: application/json
+    retryWaitMin: 5s
+    retryWaitMax: 30s
+    retryMax: 5
+  template.cloudflare-cache-purge-litomi-web: |
+    webhook:
+      cloudflare-cache:
+        method: POST
+        path: /client/v4/zones/{{ .secrets.cloudflareZoneId }}/purge_cache
+        body: |
+          {
+            "hosts": ["litomi.in"]
+          }
+  trigger.on-litomi-web-deployed: |
+    when: >-
+      app.metadata.name == 'litomi-web'
+      and app.status.sync.status == 'Synced'
+      and app.status.health.status == 'Healthy'
+      and app.status?.operationState.phase in ['Succeeded']
+      and app.status.sync.revision == app.status?.operationState.syncResult.revision
+      and app.status?.summary.images != nil
+      and len(app.status.summary.images) == 1
+      and app.status.summary.images[0] matches '^ghcr\\.io/litomi2026/litomi-web@sha256:[a-f0-9]{64}$'
+    oncePer: app.status.summary.images[0]
+    send: [cloudflare-cache-purge-litomi-web]

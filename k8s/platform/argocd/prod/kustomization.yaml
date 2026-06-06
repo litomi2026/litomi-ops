@@ -39,6 +39,16 @@ replacements:
           group: external-secrets.io
           version: v1
           kind: ExternalSecret
+          name: argocd-notifications-cloudflare-cache-purge
+        fieldPaths:
+          - spec.data.[secretKey=cloudflareApiToken].remoteRef.key
+          - spec.data.[secretKey=cloudflareZoneId].remoteRef.key
+        options:
+          create: true
+      - select:
+          group: external-secrets.io
+          version: v1
+          kind: ExternalSecret
           name: argocd-secret-github-webhook
         fieldPaths:
           - spec.data.[secretKey=webhook.github.secret].remoteRef.key
