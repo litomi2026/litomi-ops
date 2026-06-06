@@ -17,4 +17,4 @@ configMapGenerator:
       - APP_ORIGIN=https://litomi.in
 images:
   - name: ghcr.io/litomi2026/litomi-api
-    digest: sha256:748c80d86e84f137e36e9195635dec71061f7a2f93ae4635e746f9d0dce676f2
+    digest: sha256:8424510bf8add885958746a819343cc2d130d71ae41720794129cc1605351d08
