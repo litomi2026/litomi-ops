@@ -23,14 +23,26 @@ data:
             "hosts": ["litomi.in"]
           }
   trigger.on-litomi-web-deployed: |
-    when: >-
-      app.metadata.name == 'litomi-web'
-      and app.status.sync.status == 'Synced'
-      and app.status.health.status == 'Healthy'
-      and app.status?.operationState.phase in ['Succeeded']
-      and app.status.sync.revision == app.status?.operationState.syncResult.revision
-      and app.status?.summary.images != nil
-      and len(app.status.summary.images) == 1
-      and app.status.summary.images[0] matches '^ghcr\\.io/litomi2026/litomi-web@sha256:[a-f0-9]{64}$'
-    oncePer: app.status.summary.images[0]
-    send: [cloudflare-cache-purge-litomi-web]
+    - when: >-
+        app.metadata.name == 'litomi-web'
+        and app.status.sync.status == 'Synced'
+        and app.status.health.status == 'Healthy'
+        and app.status?.operationState.phase in ['Succeeded']
+        and app.status.sync.revision == app.status?.operationState.syncResult.revision
+        and app.status?.operationState.syncResult.resources != nil
+        and len(filter(app.status.operationState.syncResult.resources, {
+          .group == 'apps'
+          and .kind == 'Deployment'
+          and .namespace == 'litomi-web'
+          and .name == 'litomi-web'
+          and len(.images) == 1
+          and .images[0] matches '^ghcr\\.io/litomi2026/litomi-web@sha256:[a-f0-9]{64}$'
+        })) == 1
+      oncePer: >-
+        filter(app.status.operationState.syncResult.resources, {
+          .group == 'apps'
+          and .kind == 'Deployment'
+          and .namespace == 'litomi-web'
+          and .name == 'litomi-web'
+        })[0].images[0]
+      send: [cloudflare-cache-purge-litomi-web]
