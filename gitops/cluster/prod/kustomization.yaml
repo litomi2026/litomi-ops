@@ -3,7 +3,9 @@ kind: Kustomization
 resources:
   - ../../project/default
   - ../../project/platform
+  - ../../project/metrics-server
   - ../../project/workload
+  - metrics-server.yaml
   - platform-argocd.yaml
   - platform-gateway-api.yaml
   - platform-priorityclass-workload-standard.yaml
@@ -16,7 +18,6 @@ resources:
   - platform-argo-rollouts.yaml
   - platform-external-secrets.yaml
   - platform-cert-manager.yaml
-  - platform-metrics-server.yaml
   - platform-istiod.yaml
   - platform-istio-ingress.yaml
   - workload-litomi-web.yaml

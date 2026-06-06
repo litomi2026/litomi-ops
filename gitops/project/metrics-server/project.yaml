@@ -1,0 +1,53 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "-4"
+  name: metrics-server
+  namespace: argocd
+spec:
+  description: Metrics API delivery boundary.
+  destinations:
+    - namespace: metrics-server
+      server: https://kubernetes.default.svc
+    - namespace: kube-system
+      server: https://kubernetes.default.svc
+  sourceRepos:
+    - https://github.com/litomi2026/litomi-ops.git
+    - https://kubernetes-sigs.github.io/metrics-server/
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+      name: metrics-server
+    - group: apiregistration.k8s.io
+      kind: APIService
+      name: v1beta1.metrics.k8s.io
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: system:metrics-server
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: system:metrics-server-aggregated-reader
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: metrics-server:system:auth-delegator
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+      name: system:metrics-server
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: Service
+    - group: ""
+      kind: ServiceAccount
+    - group: apps
+      kind: Deployment
+    - group: cert-manager.io
+      kind: Certificate
+    - group: cert-manager.io
+      kind: Issuer
+    - group: policy
+      kind: PodDisruptionBudget
+    - group: rbac.authorization.k8s.io
+      kind: RoleBinding
+  orphanedResources:
+    warn: false
