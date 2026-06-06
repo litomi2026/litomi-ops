@@ -13,3 +13,11 @@ spec:
           operator: Equal
           value: platform
           effect: NoSchedule
+      initContainers:
+        - name: copyutil
+          securityContext:
+            allowPrivilegeEscalation: false
+      containers:
+        - name: argocd-repo-server
+          securityContext:
+            allowPrivilegeEscalation: false

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: argocd-notifications-controller
+  name: argocd-dex-server
 spec:
   template:
     spec:
@@ -13,7 +13,11 @@ spec:
           operator: Equal
           value: platform
           effect: NoSchedule
+      initContainers:
+        - name: copyutil
+          securityContext:
+            allowPrivilegeEscalation: false
       containers:
-        - name: argocd-notifications-controller
+        - name: dex
           securityContext:
             allowPrivilegeEscalation: false

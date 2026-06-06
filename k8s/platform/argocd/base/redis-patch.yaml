@@ -13,3 +13,11 @@ spec:
           operator: Equal
           value: platform
           effect: NoSchedule
+      initContainers:
+        - name: secret-init
+          securityContext:
+            allowPrivilegeEscalation: false
+      containers:
+        - name: redis
+          securityContext:
+            allowPrivilegeEscalation: false

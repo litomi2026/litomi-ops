@@ -13,3 +13,7 @@ spec:
           operator: Equal
           value: platform
           effect: NoSchedule
+      containers:
+        - name: argocd-application-controller
+          securityContext:
+            allowPrivilegeEscalation: false
