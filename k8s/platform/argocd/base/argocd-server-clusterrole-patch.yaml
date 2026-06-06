@@ -1,0 +1,4 @@
+- op: replace
+  path: /rules/0/verbs
+  value:
+    - get

@@ -24,6 +24,12 @@ patches:
       version: v1
       kind: ConfigMap
       name: argocd-cmd-params-cm
+  - path: argocd-server-clusterrole-patch.yaml
+    target:
+      group: rbac.authorization.k8s.io
+      version: v1
+      kind: ClusterRole
+      name: argocd-server
   - path: applicationset-controller-patch.yaml
     target:
       group: apps
