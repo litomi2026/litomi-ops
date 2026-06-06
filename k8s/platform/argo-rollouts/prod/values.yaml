@@ -1,5 +1,9 @@
 clusterInstall: true
 installCRDs: false
+podSecurityContext:
+  runAsNonRoot: true
+  fsGroup: 999
+  fsGroupChangePolicy: OnRootMismatch
 controller:
   replicas: 1
   priorityClassName: platform-critical
@@ -14,6 +18,17 @@ controller:
         - -c
       args:
         - cp /bin/rollouts-plugin-trafficrouter-gatewayapi /plugins/rollouts-plugin-trafficrouter-gatewayapi
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
       volumeMounts:
         - name: gatewayapi-traffic-router-plugin
           mountPath: /plugins
