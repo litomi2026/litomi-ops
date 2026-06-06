@@ -5,6 +5,8 @@ autoscaleMax: 1
 cpu:
   targetAverageUtilization: 80
 rollingMaxUnavailable: 1
+seccompProfile:
+  type: RuntimeDefault
 resources:
   requests:
     cpu: 100m
@@ -24,8 +26,14 @@ global:
   priorityClassName: platform-critical
   defaultPodDisruptionBudget:
     enabled: true
+  proxy:
+    seccompProfile:
+      type: RuntimeDefault
 meshConfig:
   enablePrometheusMerge: true
 base:
   enableIstioConfigCRDs: true
   validationFailurePolicy: Fail
+gateways:
+  seccompProfile:
+    type: RuntimeDefault
