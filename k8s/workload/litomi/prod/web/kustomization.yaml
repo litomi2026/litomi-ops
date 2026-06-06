@@ -31,4 +31,4 @@ replacements:
           create: true
 images:
   - name: ghcr.io/litomi2026/litomi-web
-    digest: sha256:ffc89c584c99772a20c21b4f6f1f0e2af0e053700d8db97423b6c690dade1796
+    digest: sha256:dd44d168cd8ea134f5525ce03e21f667fd7e623300fa28bfd2542e744b83bf79
