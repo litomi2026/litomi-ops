@@ -76,7 +76,7 @@ spec:
             failureThreshold: 3
           resources:
             requests:
-              cpu: 310m
+              cpu: 300m
               memory: 1248Mi
             limits:
               cpu: 1000m
