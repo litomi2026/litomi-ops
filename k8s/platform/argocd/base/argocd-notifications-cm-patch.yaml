@@ -14,7 +14,7 @@ data:
     webhook:
       cloudflare-cache:
         method: POST
-        path: /client/v4/zones/{{ .secrets.cloudflareZoneId }}/purge_cache
+        path: /client/v4/zones/{{ printf "%s" .secrets.cloudflareZoneId }}/purge_cache
         body: |
           {
             "hosts": ["litomi.in"]
