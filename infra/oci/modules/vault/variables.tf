@@ -28,6 +28,11 @@ variable "cert_manager_secret_name" {
   type        = string
 }
 
+variable "grafana_k8s_monitoring_secret_name" {
+  description = "Vault secret name used by Grafana Kubernetes Monitoring."
+  type        = string
+}
+
 variable "freeform_tags" {
   description = "Freeform tags applied to vault resources."
   type        = map(string)

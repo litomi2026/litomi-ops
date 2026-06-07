@@ -52,3 +52,13 @@ output "cert_manager_secret_name" {
   description = "cert-manager secret name."
   value       = var.cert_manager_secret_name
 }
+
+output "grafana_k8s_monitoring_secret_id" {
+  description = "Grafana Kubernetes Monitoring vault secret OCID."
+  value       = oci_vault_secret.grafana_k8s_monitoring.id
+}
+
+output "grafana_k8s_monitoring_secret_name" {
+  description = "Grafana Kubernetes Monitoring secret name."
+  value       = var.grafana_k8s_monitoring_secret_name
+}

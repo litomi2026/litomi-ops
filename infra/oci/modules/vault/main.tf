@@ -48,6 +48,13 @@ locals {
   initial_cert_manager_secret_content = base64encode(jsonencode({
     CLOUDFLARE_API_TOKEN = "REPLACE_ME_CLOUDFLARE_API_TOKEN"
   }))
+
+  initial_grafana_k8s_monitoring_secret_content = base64encode(jsonencode({
+    GRAFANA_CLOUD_LOGS_PASSWORD    = "REPLACE_ME_GRAFANA_CLOUD_LOGS_PASSWORD"
+    GRAFANA_CLOUD_LOGS_USERNAME    = "REPLACE_ME_GRAFANA_CLOUD_LOGS_USERNAME"
+    GRAFANA_CLOUD_METRICS_PASSWORD = "REPLACE_ME_GRAFANA_CLOUD_METRICS_PASSWORD"
+    GRAFANA_CLOUD_METRICS_USERNAME = "REPLACE_ME_GRAFANA_CLOUD_METRICS_USERNAME"
+  }))
 }
 
 resource "oci_kms_vault" "this" {
@@ -154,6 +161,28 @@ resource "oci_vault_secret" "cert_manager" {
   lifecycle {
     # OCI Vault secret version은 cert-manager 부트스트랩/로테이션 절차가 CURRENT 값을 갱신한다.
     # Terraform state에 실제 Cloudflare API token을 저장하지 않기 위한 예외이므로 GitOps drift로 보지 않는다.
+    ignore_changes = [secret_content]
+  }
+}
+
+resource "oci_vault_secret" "grafana_k8s_monitoring" {
+  compartment_id = var.compartment_id
+  description    = "Secret container for Grafana Kubernetes Monitoring. Secret values are managed out-of-band."
+  key_id         = oci_kms_key.this.id
+  secret_name    = var.grafana_k8s_monitoring_secret_name
+  vault_id       = oci_kms_vault.this.id
+  freeform_tags  = var.freeform_tags
+
+  secret_content {
+    content      = local.initial_grafana_k8s_monitoring_secret_content
+    content_type = "BASE64"
+    name         = "initial-placeholder"
+    stage        = "CURRENT"
+  }
+
+  lifecycle {
+    # OCI Vault secret version은 Grafana Kubernetes Monitoring 부트스트랩/로테이션 절차가 CURRENT 값을 갱신한다.
+    # Terraform state에 실제 Grafana Cloud credential을 저장하지 않기 위한 예외이므로 GitOps drift로 보지 않는다.
     ignore_changes = [secret_content]
   }
 }
