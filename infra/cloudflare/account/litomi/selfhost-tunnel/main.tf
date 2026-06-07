@@ -48,14 +48,6 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "selfhost" {
   config = {
     ingress = [
       {
-        hostname = local.selfhost_anal_hostname
-        service  = local.selfhost_origin_service
-      },
-      {
-        hostname = local.selfhost_anal_preview_hostname
-        service  = local.selfhost_origin_service
-      },
-      {
         hostname = local.selfhost_img_hostname
         service  = local.selfhost_origin_service
       },
@@ -68,15 +60,7 @@ resource "cloudflare_zero_trust_tunnel_cloudflared_config" "selfhost" {
         service  = local.selfhost_origin_service
       },
       {
-        hostname = local.selfhost_prod_api_hostname
-        service  = local.selfhost_origin_service
-      },
-      {
         hostname = local.selfhost_stg_hostname
-        service  = local.selfhost_origin_service
-      },
-      {
-        hostname = local.selfhost_stg_api_hostname
         service  = local.selfhost_origin_service
       },
       {
