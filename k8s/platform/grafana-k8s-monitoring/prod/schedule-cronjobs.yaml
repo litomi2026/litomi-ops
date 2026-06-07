@@ -12,6 +12,8 @@ spec:
   failedJobsHistoryLimit: 3
   jobTemplate:
     spec:
+      activeDeadlineSeconds: 300
+      backoffLimit: 1
       template:
         metadata:
           labels:
@@ -20,10 +22,21 @@ spec:
         spec:
           serviceAccountName: grafana-k8s-monitoring-scheduler
           restartPolicy: OnFailure
+          securityContext:
+            seccompProfile:
+              type: RuntimeDefault
           containers:
             - name: kubectl
-              image: docker.io/bitnami/kubectl:1.35.0
+              image: ghcr.io/grafana/helm-chart-toolbox-kubectl:0.1.2
               imagePullPolicy: IfNotPresent
+              securityContext:
+                allowPrivilegeEscalation: false
+                runAsNonRoot: true
+                runAsUser: 65532
+                runAsGroup: 65532
+                capabilities:
+                  drop:
+                    - ALL
               command:
                 - /bin/sh
                 - -ec
@@ -56,6 +69,8 @@ spec:
   failedJobsHistoryLimit: 3
   jobTemplate:
     spec:
+      activeDeadlineSeconds: 300
+      backoffLimit: 1
       template:
         metadata:
           labels:
@@ -64,10 +79,21 @@ spec:
         spec:
           serviceAccountName: grafana-k8s-monitoring-scheduler
           restartPolicy: OnFailure
+          securityContext:
+            seccompProfile:
+              type: RuntimeDefault
           containers:
             - name: kubectl
-              image: docker.io/bitnami/kubectl:1.35.0
+              image: ghcr.io/grafana/helm-chart-toolbox-kubectl:0.1.2
               imagePullPolicy: IfNotPresent
+              securityContext:
+                allowPrivilegeEscalation: false
+                runAsNonRoot: true
+                runAsUser: 65532
+                runAsGroup: 65532
+                capabilities:
+                  drop:
+                    - ALL
               command:
                 - /bin/sh
                 - -ec
