@@ -20,6 +20,8 @@ spec:
       server: https://kubernetes.default.svc
     - namespace: istio-ingress
       server: https://kubernetes.default.svc
+    - namespace: grafana-k8s-monitoring
+      server: https://kubernetes.default.svc
   sourceRepos:
     - https://github.com/litomi2026/litomi-ops.git
     - https://github.com/kubernetes-sigs/gateway-api.git
@@ -28,6 +30,7 @@ spec:
     - https://charts.external-secrets.io
     - https://argoproj.github.io/argo-helm
     - https://github.com/argoproj/argo-rollouts.git
+    - https://grafana.github.io/helm-charts
   clusterResourceWhitelist:
     - group: ""
       kind: Namespace
@@ -47,6 +50,9 @@ spec:
     - group: ""
       kind: Namespace
       name: istio-ingress
+    - group: ""
+      kind: Namespace
+      name: grafana-k8s-monitoring
     - group: admissionregistration.k8s.io
       kind: MutatingWebhookConfiguration
     - group: admissionregistration.k8s.io
@@ -103,9 +109,15 @@ spec:
     - group: apps
       kind: Deployment
     - group: apps
+      kind: DaemonSet
+    - group: apps
       kind: StatefulSet
     - group: batch
+      kind: CronJob
+    - group: batch
       kind: Job
+    - group: collectors.grafana.com
+      kind: Alloy
     - group: external-secrets.io
       kind: ExternalSecret
     - group: gateway.networking.k8s.io

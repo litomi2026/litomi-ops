@@ -14,8 +14,8 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
-  # v1 CRD 기본값(false) 생략으로 생기는 의미 없는 diff만 무시한다.
   ignoreDifferences:
+    # v1 CRD 기본값(false) 생략으로 생기는 의미 없는 diff만 무시한다.
     - group: apiextensions.k8s.io
       kind: CustomResourceDefinition
       jsonPointers:

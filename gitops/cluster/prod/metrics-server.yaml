@@ -23,9 +23,9 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: metrics-server
-  # cert-manager가 caBundle을 런타임에 주입하고 API server가 false 기본값인
-  # insecureSkipTLSVerify를 생략한다. metrics-server 인증서 소유권이 바뀌면 재검토한다.
   ignoreDifferences:
+    # cert-manager가 caBundle을 런타임에 주입하고 API server가 false 기본값인
+    # insecureSkipTLSVerify를 생략한다. metrics-server 인증서 소유권이 바뀌면 재검토한다.
     - group: apiregistration.k8s.io
       kind: APIService
       name: v1beta1.metrics.k8s.io
