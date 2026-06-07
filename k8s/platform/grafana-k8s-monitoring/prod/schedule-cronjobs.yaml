@@ -1,0 +1,87 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: grafana-k8s-monitoring-start
+  namespace: grafana-k8s-monitoring
+spec:
+  schedule: '0 15 * * *'
+  timeZone: Asia/Seoul
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 600
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: grafana-k8s-monitoring-start
+            app.kubernetes.io/part-of: grafana-k8s-monitoring
+        spec:
+          serviceAccountName: grafana-k8s-monitoring-scheduler
+          restartPolicy: OnFailure
+          containers:
+            - name: kubectl
+              image: docker.io/bitnami/kubectl:1.35.0
+              imagePullPolicy: IfNotPresent
+              command:
+                - /bin/sh
+                - -ec
+                - |
+                  namespace=grafana-k8s-monitoring
+
+                  for alloy in grafana-k8s-monitoring-alloy-metrics grafana-k8s-monitoring-alloy-singleton; do
+                    kubectl -n "${namespace}" patch alloy.collectors.grafana.com "${alloy}" --type=merge -p '{"spec":{"controller":{"replicas":1}}}' || true
+                  done
+
+                  kubectl -n "${namespace}" patch alloy.collectors.grafana.com grafana-k8s-monitoring-alloy-logs --type=json -p '[{"op":"remove","path":"/spec/controller/nodeSelector/grafana.litomi.in~1paused"}]' || true
+
+                  kubectl -n "${namespace}" scale deployment/grafana-k8s-monitoring-kube-state-metrics deployment/grafana-k8s-monitoring-opencost --replicas=1 || true
+
+                  for daemonset in grafana-k8s-monitoring-node-exporter grafana-k8s-monitoring-kepler; do
+                    kubectl -n "${namespace}" patch daemonset "${daemonset}" --type=json -p '[{"op":"remove","path":"/spec/template/spec/nodeSelector/grafana.litomi.in~1paused"}]' || true
+                  done
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: grafana-k8s-monitoring-stop
+  namespace: grafana-k8s-monitoring
+spec:
+  schedule: '0 3 * * *'
+  timeZone: Asia/Seoul
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 600
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: grafana-k8s-monitoring-stop
+            app.kubernetes.io/part-of: grafana-k8s-monitoring
+        spec:
+          serviceAccountName: grafana-k8s-monitoring-scheduler
+          restartPolicy: OnFailure
+          containers:
+            - name: kubectl
+              image: docker.io/bitnami/kubectl:1.35.0
+              imagePullPolicy: IfNotPresent
+              command:
+                - /bin/sh
+                - -ec
+                - |
+                  namespace=grafana-k8s-monitoring
+
+                  for alloy in grafana-k8s-monitoring-alloy-metrics grafana-k8s-monitoring-alloy-singleton; do
+                    kubectl -n "${namespace}" patch alloy.collectors.grafana.com "${alloy}" --type=merge -p '{"spec":{"controller":{"replicas":0}}}' || true
+                  done
+
+                  kubectl -n "${namespace}" patch alloy.collectors.grafana.com grafana-k8s-monitoring-alloy-logs --type=merge -p '{"spec":{"controller":{"nodeSelector":{"grafana.litomi.in/paused":"true"}}}}' || true
+
+                  kubectl -n "${namespace}" scale deployment/grafana-k8s-monitoring-kube-state-metrics deployment/grafana-k8s-monitoring-opencost --replicas=0 || true
+
+                  for daemonset in grafana-k8s-monitoring-node-exporter grafana-k8s-monitoring-kepler; do
+                    kubectl -n "${namespace}" patch daemonset "${daemonset}" --type=merge -p '{"spec":{"template":{"spec":{"nodeSelector":{"grafana.litomi.in/paused":"true"}}}}}' || true
+                  done
