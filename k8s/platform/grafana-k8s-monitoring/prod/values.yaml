@@ -1,0 +1,247 @@
+global:
+  scrapeInterval: 120s
+
+cluster:
+  name: litomi-prod
+
+destinations:
+  grafana-cloud-metrics:
+    type: prometheus
+    url: https://prometheus-prod-49-prod-ap-northeast-0.grafana.net/api/prom/push
+    auth:
+      type: basic
+      usernameFrom: convert.nonsensitive(sys.env("GRAFANA_CLOUD_METRICS_USERNAME"))
+      passwordFrom: sys.env("GRAFANA_CLOUD_METRICS_PASSWORD")
+  grafana-cloud-logs:
+    type: loki
+    url: https://logs-prod-030.grafana.net/loki/api/v1/push
+    auth:
+      type: basic
+      usernameFrom: convert.nonsensitive(sys.env("GRAFANA_CLOUD_LOGS_USERNAME"))
+      passwordFrom: sys.env("GRAFANA_CLOUD_LOGS_PASSWORD")
+
+clusterMetrics:
+  enabled: true
+  collector: alloy-metrics
+
+hostMetrics:
+  enabled: true
+  collector: alloy-metrics
+  linuxHosts:
+    enabled: true
+  windowsHosts:
+    enabled: false
+  energyMetrics:
+    enabled: false
+
+costMetrics:
+  enabled: true
+  collector: alloy-metrics
+
+clusterEvents:
+  enabled: true
+  collector: alloy-singleton
+
+podLogsViaLoki:
+  enabled: true
+  collector: alloy-logs
+  namespaces:
+    - litomi-prod
+
+annotationAutodiscovery:
+  enabled: false
+
+prometheusOperatorObjects:
+  enabled: false
+
+nodeLogs:
+  enabled: false
+
+podLogsObjects:
+  enabled: false
+
+applicationObservability:
+  enabled: false
+
+profiling:
+  enabled: false
+
+autoInstrumentation:
+  enabled: false
+
+integrations:
+  collector: alloy-metrics
+  alloy:
+    instances:
+      - name: alloy
+        labelSelectors:
+          app.kubernetes.io/name:
+            - alloy-metrics
+            - alloy-singleton
+            - alloy-logs
+
+collectorCommon:
+  alloy:
+    extraEnv:
+      - name: GRAFANA_CLOUD_METRICS_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: grafana-cloud-metrics-grafana-k8s-monitoring
+            key: username
+      - name: GRAFANA_CLOUD_METRICS_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: grafana-cloud-metrics-grafana-k8s-monitoring
+            key: password
+      - name: GRAFANA_CLOUD_LOGS_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: grafana-cloud-logs-grafana-k8s-monitoring
+            key: username
+      - name: GRAFANA_CLOUD_LOGS_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: grafana-cloud-logs-grafana-k8s-monitoring
+            key: password
+    controller:
+      priorityClassName: platform-standard
+
+collectors:
+  alloy-metrics:
+    presets:
+      - clustered
+      - statefulset
+    alloy:
+      resources:
+        requests:
+          cpu: 75m
+          memory: 128Mi
+        limits:
+          cpu: 300m
+          memory: 512Mi
+    controller:
+      nodeSelector:
+        node-pool-role: platform
+      tolerations:
+        - key: node-pool-role
+          operator: Equal
+          value: platform
+          effect: NoSchedule
+      replicas: 0
+  alloy-singleton:
+    presets:
+      - singleton
+    alloy:
+      resources:
+        requests:
+          cpu: 25m
+          memory: 64Mi
+        limits:
+          cpu: 150m
+          memory: 192Mi
+    controller:
+      nodeSelector:
+        node-pool-role: platform
+      tolerations:
+        - key: node-pool-role
+          operator: Equal
+          value: platform
+          effect: NoSchedule
+      replicas: 0
+  alloy-logs:
+    presets:
+      - filesystem-log-reader
+      - daemonset
+    alloy:
+      resources:
+        requests:
+          cpu: 5m
+          memory: 64Mi
+        limits:
+          cpu: 100m
+          memory: 256Mi
+    controller:
+      nodeSelector:
+        grafana.litomi.in/paused: "true"
+
+alloy-operator:
+  priorityClassName: platform-standard
+  nodeSelector:
+    kubernetes.io/os: linux
+    node-pool-role: platform
+  tolerations:
+    - key: node-pool-role
+      operator: Equal
+      value: platform
+      effect: NoSchedule
+  resources:
+    requests:
+      cpu: 25m
+      memory: 96Mi
+    limits:
+      cpu: 250m
+      memory: 192Mi
+
+telemetryServices:
+  kube-state-metrics:
+    deploy: true
+    replicas: 0
+    priorityClassName: platform-standard
+    nodeSelector:
+      node-pool-role: platform
+    tolerations:
+      - key: node-pool-role
+        operator: Equal
+        value: platform
+        effect: NoSchedule
+    resources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+  node-exporter:
+    deploy: true
+    nodeSelector:
+      kubernetes.io/os: linux
+      grafana.litomi.in/paused: "true"
+    resources:
+      requests:
+        cpu: 5m
+        memory: 32Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+  windows-exporter:
+    deploy: false
+  opencost:
+    deploy: true
+    metricsSource: grafana-cloud-metrics
+    priorityClassName: platform-standard
+    opencost:
+      exporter:
+        defaultClusterId: litomi-prod
+        replicas: 0
+        resources:
+          requests:
+            cpu: 25m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 512Mi
+      prometheus:
+        existingSecretName: grafana-cloud-metrics-grafana-k8s-monitoring
+        username_key: username
+        password_key: password
+        external:
+          url: https://prometheus-prod-49-prod-ap-northeast-0.grafana.net/api/prom
+      nodeSelector:
+        node-pool-role: platform
+      tolerations:
+        - key: node-pool-role
+          operator: Equal
+          value: platform
+          effect: NoSchedule
+  kepler:
+    deploy: false

@@ -66,8 +66,3 @@ spec:
       name: grafana-k8s-monitoring-node-exporter
       jqPathExpressions:
         - .spec.template.spec.nodeSelector["grafana.litomi.in/paused"]
-    - group: apps
-      kind: DaemonSet
-      name: grafana-k8s-monitoring-kepler
-      jqPathExpressions:
-        - .spec.template.spec.nodeSelector["grafana.litomi.in/paused"]

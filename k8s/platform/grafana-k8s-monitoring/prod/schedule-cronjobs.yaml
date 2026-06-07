@@ -38,7 +38,7 @@ spec:
 
                   kubectl -n "${namespace}" scale deployment/grafana-k8s-monitoring-kube-state-metrics deployment/grafana-k8s-monitoring-opencost --replicas=1 || true
 
-                  for daemonset in grafana-k8s-monitoring-node-exporter grafana-k8s-monitoring-kepler; do
+                  for daemonset in grafana-k8s-monitoring-node-exporter; do
                     kubectl -n "${namespace}" patch daemonset "${daemonset}" --type=json -p '[{"op":"remove","path":"/spec/template/spec/nodeSelector/grafana.litomi.in~1paused"}]' || true
                   done
 ---
@@ -82,6 +82,6 @@ spec:
 
                   kubectl -n "${namespace}" scale deployment/grafana-k8s-monitoring-kube-state-metrics deployment/grafana-k8s-monitoring-opencost --replicas=0 || true
 
-                  for daemonset in grafana-k8s-monitoring-node-exporter grafana-k8s-monitoring-kepler; do
+                  for daemonset in grafana-k8s-monitoring-node-exporter; do
                     kubectl -n "${namespace}" patch daemonset "${daemonset}" --type=merge -p '{"spec":{"template":{"spec":{"nodeSelector":{"grafana.litomi.in/paused":"true"}}}}}' || true
                   done

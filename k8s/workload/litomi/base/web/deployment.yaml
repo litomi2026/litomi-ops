@@ -80,7 +80,7 @@ spec:
               memory: 1248Mi
             limits:
               cpu: 1000m
-              memory: 1664Mi
+              memory: 2048Mi
           securityContext:
             allowPrivilegeEscalation: false
             runAsNonRoot: true
