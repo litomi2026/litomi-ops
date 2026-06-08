@@ -24,12 +24,6 @@ variable "domain" {
   nullable    = false
 }
 
-variable "turnstile_widget_sitekey" {
-  description = "Existing Cloudflare Turnstile widget sitekey used only for import."
-  type        = string
-  nullable    = false
-}
-
 locals {
   turnstile_widget_name = "litomi"
 

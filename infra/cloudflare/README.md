@@ -67,12 +67,6 @@ Set these workspace-specific Terraform variables on `account-access`.
 | Terraform | `argocd_readonly_emails`      | No        | Yes |
 | Terraform | `stg_allowed_emails`          | No        | Yes |
 
-Set this workspace-specific Terraform variable on `account-turnstile`:
-
-| Category  | Key                       | Sensitive | Notes                                |
-| --------- | ------------------------- | --------- | ------------------------------------ |
-| Terraform | `turnstile_widget_sitekey` | No        | Existing widget sitekey for import   |
-
 Set this workspace-specific Terraform variable on `zone-litomi-in-dns`:
 
 | Category  | Key             | Sensitive | Notes                                          |
