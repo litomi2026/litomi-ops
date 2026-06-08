@@ -170,6 +170,17 @@ locals {
       ]
     ),
   )
+
+  # Turnstile pre-clearance gate
+  edge_proxy_host_expression_set = "{\"vercel.litomi.in\" \"vercel-stg.litomi.in\" \"vercel2.litomi.in\" \"vercel2-stg.litomi.in\"}"
+
+  edge_proxy_turnstile_expression = join(" ", [
+    "(",
+    format("http.host in %s", local.edge_proxy_host_expression_set),
+    "and starts_with(http.request.uri.path, \"/api/proxy/\")",
+    "and http.request.method ne \"OPTIONS\"",
+    ")",
+  ])
 }
 
 resource "cloudflare_ruleset" "waf_custom" {
@@ -207,6 +218,13 @@ resource "cloudflare_ruleset" "waf_custom" {
       description = "Block corrupted requests"
       expression  = local.corrupted_request_expression
       action      = "block"
+    },
+    {
+      ref         = "managed_challenge_edge_proxy_api"
+      enabled     = true
+      description = "Require Turnstile clearance"
+      expression  = local.edge_proxy_turnstile_expression
+      action      = "managed_challenge"
     }
   ]
 }
