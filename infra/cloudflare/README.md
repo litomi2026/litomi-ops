@@ -11,6 +11,7 @@ Terraform immediately.
 | -------------------------------------- | ----------------------------------- | ----------------------------------- |
 | `./account/litomi/selfhost-tunnel`     | `account-selfhost-tunnel`           | Account-level Cloudflare Tunnel     |
 | `./account/litomi/access`              | `account-access`                    | Account-level Access app and policy |
+| `./account/litomi/turnstile`           | `account-turnstile`                 | Account-level Turnstile widget      |
 | `./zone/litomi.in/dns`                 | `zone-litomi-in-dns`                | Zone DNS records                    |
 | `./zone/litomi.in/bot-management`      | `zone-litomi-in-bot-management`     | Bot Management settings             |
 | `./zone/litomi.in/rulesets/cache`      | `zone-litomi-in-cache`              | Cache Rules phase                   |
@@ -65,6 +66,12 @@ Set these workspace-specific Terraform variables on `account-access`.
 | Terraform | `argocd_admin_emails`         | No        | Yes |
 | Terraform | `argocd_readonly_emails`      | No        | Yes |
 | Terraform | `stg_allowed_emails`          | No        | Yes |
+
+Set this workspace-specific Terraform variable on `account-turnstile`:
+
+| Category  | Key                       | Sensitive | Notes                                |
+| --------- | ------------------------- | --------- | ------------------------------------ |
+| Terraform | `turnstile_widget_sitekey` | No        | Existing widget sitekey for import   |
 
 Set this workspace-specific Terraform variable on `zone-litomi-in-dns`:
 
