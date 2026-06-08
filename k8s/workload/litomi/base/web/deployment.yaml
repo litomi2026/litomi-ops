@@ -35,7 +35,7 @@ spec:
               app.kubernetes.io/name: litomi-web
           maxSkew: 1
           topologyKey: kubernetes.io/hostname
-          whenUnsatisfiable: ScheduleAnyway
+          whenUnsatisfiable: DoNotSchedule
       containers:
         - name: web
           image: ghcr.io/litomi2026/litomi-web:overlay-required
@@ -76,8 +76,8 @@ spec:
             failureThreshold: 3
           resources:
             requests:
-              cpu: 250m
-              memory: 1024Mi
+              cpu: 300m
+              memory: 1280Mi
             limits:
               cpu: 1000m
               memory: 2048Mi
