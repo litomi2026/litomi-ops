@@ -30,7 +30,7 @@ data:
                   gateway.networking.k8s.io/gateway-name: edge
               maxSkew: 1
               topologyKey: kubernetes.io/hostname
-              whenUnsatisfiable: ScheduleAnyway
+              whenUnsatisfiable: DoNotSchedule
           tolerations:
             - key: node-pool-role
               operator: Equal
