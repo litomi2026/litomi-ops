@@ -18,6 +18,7 @@ Terraform immediately.
 | `./zone/litomi.in/rulesets/rate-limit` | `zone-litomi-in-rate-limit`         | Rate limiting phase                 |
 | `./zone/litomi.in/rulesets/redirects`  | `zone-litomi-in-redirects`          | Dynamic redirects phase             |
 | `./zone/litomi.in/rulesets/waf-custom` | `zone-litomi-in-waf-custom`         | WAF custom rules phase              |
+| `./zone/litomi.in/ssl-tls`             | `zone-litomi-in-ssl-tls`            | SSL/TLS edge settings               |
 | `./zone/litomi.in/managed-transforms`  | `zone-litomi-in-managed-transforms` | Managed transforms                  |
 
 Each workspace should use VCS-driven runs with manual apply. Pull requests
