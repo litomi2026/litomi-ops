@@ -20,18 +20,30 @@ variable "zone_id" {
 resource "cloudflare_universal_ssl_setting" "default" {
   zone_id = var.zone_id
   enabled = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "cloudflare_zone_setting" "always_use_https" {
   zone_id    = var.zone_id
   setting_id = "always_use_https"
   value      = "on"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "cloudflare_zone_setting" "automatic_https_rewrites" {
   zone_id    = var.zone_id
   setting_id = "automatic_https_rewrites"
   value      = "on"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "cloudflare_zone_setting" "hsts" {
@@ -47,22 +59,38 @@ resource "cloudflare_zone_setting" "hsts" {
       preload            = true
     }
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "cloudflare_zone_setting" "min_tls_version" {
   zone_id    = var.zone_id
   setting_id = "min_tls_version"
   value      = "1.2"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "cloudflare_zone_setting" "opportunistic_encryption" {
   zone_id    = var.zone_id
   setting_id = "opportunistic_encryption"
   value      = "on"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "cloudflare_zone_setting" "tls_1_3" {
   zone_id    = var.zone_id
   setting_id = "tls_1_3"
   value      = "on"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
