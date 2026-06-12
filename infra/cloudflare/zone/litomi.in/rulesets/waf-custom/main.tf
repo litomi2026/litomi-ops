@@ -246,7 +246,7 @@ resource "cloudflare_ruleset" "waf_custom" {
       action_parameters = {
         response = {
           status_code  = 403
-          content_type = "application/problem+json"
+          content_type = "application/json"
           content      = local.adult_gate_kr_deterrence_response
         }
       }
