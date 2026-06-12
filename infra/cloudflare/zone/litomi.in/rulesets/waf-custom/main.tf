@@ -188,6 +188,13 @@ locals {
     "(not http.cookie contains \"${local.adult_access_cookie}\")",
   ])
 
+  adult_gate_kr_deterrence_response = jsonencode({
+    type   = "https://litomi.in/problems/adult-verification-required"
+    title  = "Adult verification required"
+    status = 403
+    detail = "Anonymous adult verification is required."
+  })
+
   # Turnstile pre-clearance gate
   edge_proxy_host_expression_set = "{\"vercel.litomi.in\" \"vercel-stg.litomi.in\" \"vercel2.litomi.in\" \"vercel2-stg.litomi.in\"}"
 
@@ -231,10 +238,18 @@ resource "cloudflare_ruleset" "waf_custom" {
     },
     {
       ref         = "adult_gate_kr_deterrence"
-      enabled     = false
+      enabled     = true
       description = "Block Korean adult-gated API/image traffic"
       expression  = local.adult_gate_kr_deterrence_condition
       action      = "block"
+
+      action_parameters = {
+        response = {
+          status_code  = 403
+          content_type = "application/problem+json"
+          content      = local.adult_gate_kr_deterrence_response
+        }
+      }
     },
     {
       ref         = "managed_challenge_edge_proxy_api"
