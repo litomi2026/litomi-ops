@@ -178,22 +178,23 @@ locals {
   # Adult gate
   adult_access_cookie = "__Secure-adult-pass=1"
 
-  adult_gate_api_proxy_condition         = "(starts_with(http.request.uri.path, \"/api/proxy/\"))"
-  adult_gate_image_proxy_condition       = "(starts_with(http.request.uri.path, \"/i/\"))"
-  adult_gate_protected_content_condition = "(${local.adult_gate_api_proxy_condition} or ${local.adult_gate_image_proxy_condition})"
+  adult_gate_protected_path_prefixes = [
+    "/api/proxy/",
+    "/api/v1/library/",
+    "/api/v1/post",
+    "/i/",
+  ]
+
+  adult_gate_protected_content_condition = join(" or ", [
+    for prefix in local.adult_gate_protected_path_prefixes :
+    format("(starts_with(http.request.uri.path, \"%s\"))", prefix)
+  ])
 
   adult_gate_kr_deterrence_condition = join(" and ", [
     local.adult_gate_protected_content_condition,
     "(ip.src.country eq \"KR\")",
     "(not http.cookie contains \"${local.adult_access_cookie}\")",
   ])
-
-  adult_gate_kr_deterrence_response = jsonencode({
-    type   = "https://litomi.in/problems/adult-verification-required"
-    title  = "Adult verification required"
-    status = 403
-    detail = "Anonymous adult verification is required."
-  })
 
   # Turnstile pre-clearance gate
   edge_proxy_host_expression_set = "{\"vercel.litomi.in\" \"vercel-stg.litomi.in\" \"vercel2.litomi.in\" \"vercel2-stg.litomi.in\"}"
@@ -242,14 +243,6 @@ resource "cloudflare_ruleset" "waf_custom" {
       description = "Block Korean adult-gated API/image traffic"
       expression  = local.adult_gate_kr_deterrence_condition
       action      = "block"
-
-      action_parameters = {
-        response = {
-          status_code  = 403
-          content_type = "application/json"
-          content      = local.adult_gate_kr_deterrence_response
-        }
-      }
     },
     {
       ref         = "managed_challenge_edge_proxy_api"
