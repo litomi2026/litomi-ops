@@ -24,20 +24,6 @@ variable "domain" {
   nullable    = false
 }
 
-locals {
-  adult_access_cookie = "__Secure-adult-pass=1"
-
-  adult_gate_api_proxy_condition         = "(starts_with(http.request.uri.path, \"/api/proxy/\"))"
-  adult_gate_image_proxy_condition       = "(starts_with(http.request.uri.path, \"/i/\"))"
-  adult_gate_protected_content_condition = "(${local.adult_gate_api_proxy_condition} or ${local.adult_gate_image_proxy_condition})"
-
-  adult_gate_kr_deterrence_condition = join(" and ", [
-    local.adult_gate_protected_content_condition,
-    "(ip.src.country eq \"KR\")",
-    "(not http.cookie contains \"${local.adult_access_cookie}\")",
-  ])
-}
-
 resource "cloudflare_ruleset" "www_redirect" {
   zone_id     = var.zone_id
   name        = "WWW Redirect"
@@ -60,23 +46,6 @@ resource "cloudflare_ruleset" "www_redirect" {
       expression  = "http.host eq \"www.${var.domain}\""
       description = "Redirect www to root"
       enabled     = true
-    },
-    {
-      ref    = "adult_gate_kr_deterrence"
-      action = "redirect"
-      action_parameters = {
-        from_value = {
-          status_code = 302
-          target_url = {
-            value = "https://${var.domain}/deterrence"
-          }
-          preserve_query_string = false
-        }
-      }
-      expression  = local.adult_gate_kr_deterrence_condition
-      description = "Redirect Korean adult-gated API/image traffic to deterrence when adult pass cookie is missing"
-      # Enable after the app starts issuing the adult access cookie.
-      enabled = false
     }
   ]
 }

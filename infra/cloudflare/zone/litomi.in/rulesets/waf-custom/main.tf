@@ -77,7 +77,7 @@ locals {
     ")",
   ])
 
-  abusive_request_expression = length(var.blocked_source_ips) == 0 ? "(http.request.uri.path eq \"/__disabled_abusive_requests__\")" : join(" ", [
+  abusive_request_expression = join(" ", [
     "(",
     format("ip.src in %s", local.blocked_source_ip_set),
     "and ${local.api_request_expression}",
@@ -159,17 +159,34 @@ locals {
   )
 
   # Corrupted request
-  corrupted_request_expression = format(
-    "(not %s and (%s))",
-    local.public_request_expression,
-    join(" or ", [
+  corrupted_request_conditions = concat(
+    [
       local.automated_user_agent_expression,
       local.malformed_next_action_expression,
       local.cross_site_mutating_sec_fetch_expression,
       local.untrusted_initiator_protected_request_expression,
-      ]
-    ),
+    ],
+    length(var.blocked_source_ips) > 0 ? [local.abusive_request_expression] : [],
   )
+
+  corrupted_request_expression = format(
+    "(not %s and (%s))",
+    local.public_request_expression,
+    join(" or ", local.corrupted_request_conditions),
+  )
+
+  # Adult gate
+  adult_access_cookie = "__Secure-adult-pass=1"
+
+  adult_gate_api_proxy_condition         = "(starts_with(http.request.uri.path, \"/api/proxy/\"))"
+  adult_gate_image_proxy_condition       = "(starts_with(http.request.uri.path, \"/i/\"))"
+  adult_gate_protected_content_condition = "(${local.adult_gate_api_proxy_condition} or ${local.adult_gate_image_proxy_condition})"
+
+  adult_gate_kr_deterrence_condition = join(" and ", [
+    local.adult_gate_protected_content_condition,
+    "(ip.src.country eq \"KR\")",
+    "(not http.cookie contains \"${local.adult_access_cookie}\")",
+  ])
 
   # Turnstile pre-clearance gate
   edge_proxy_host_expression_set = "{\"vercel.litomi.in\" \"vercel-stg.litomi.in\" \"vercel2.litomi.in\" \"vercel2-stg.litomi.in\"}"
@@ -206,17 +223,17 @@ resource "cloudflare_ruleset" "waf_custom" {
       action      = "block"
     },
     {
-      ref         = "block_abusive_requests"
-      enabled     = length(var.blocked_source_ips) > 0
-      description = "Block abusive requests from configured source IPs"
-      expression  = local.abusive_request_expression
+      ref         = "block_automated_or_malformed_requests"
+      enabled     = true
+      description = "Block automated, malformed, or abusive requests"
+      expression  = local.corrupted_request_expression
       action      = "block"
     },
     {
-      ref         = "block_automated_or_malformed_requests"
-      enabled     = true
-      description = "Block corrupted requests"
-      expression  = local.corrupted_request_expression
+      ref         = "adult_gate_kr_deterrence"
+      enabled     = false
+      description = "Block Korean adult-gated API/image traffic"
+      expression  = local.adult_gate_kr_deterrence_condition
       action      = "block"
     },
     {
