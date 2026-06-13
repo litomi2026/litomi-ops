@@ -191,7 +191,7 @@ locals {
   ])
 
   adult_gate_kr_deterrence_condition = join(" and ", [
-    local.adult_gate_protected_content_condition,
+    "(${local.adult_gate_protected_content_condition})",
     "(ip.src.country eq \"KR\")",
     "(not http.cookie contains \"${local.adult_access_cookie}\")",
   ])
