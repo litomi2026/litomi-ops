@@ -2,18 +2,18 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: litomi-web
 resources:
-  - ../../base/web
-  - pdb.yaml
-  - limit-range.yaml
-  - resource-quota.yaml
+- ../../base/web
+- pdb.yaml
+- limit-range.yaml
+- resource-quota.yaml
 generatorOptions:
   disableNameSuffixHash: true
 configMapGenerator:
-  - name: litomi-web-env
-    literals:
-      - APP_ENV=prod
-      - APP_ORIGIN=https://litomi.cc
+- literals:
+  - APP_ENV=prod
+  - APP_ORIGIN=https://litomi.cc
+  name: litomi-web-env
 images:
-  - digest: sha256:24883208f68075e6fce72e3c60485fbc0b70ac6d327d23ac790b2f29872ad845
-    name: ghcr.io/litomi2026/litomi-web
-    newName: ghcr.io/litomi2026/litomi-web
+- digest: sha256:13d5b57bc3248c27c3463412c320ec173d15da97c01e1bf59df415174444a71a
+  name: ghcr.io/litomi2026/litomi-web
+  newName: ghcr.io/litomi2026/litomi-web
