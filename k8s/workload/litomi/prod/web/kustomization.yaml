@@ -15,7 +15,7 @@ configMapGenerator:
   - name: litomi-web-env
     literals:
       - APP_ENV=prod
-      - APP_ORIGIN=https://litomi.in
+      - APP_ORIGIN=https://litomi.cc
 replacements:
   - source:
       kind: ConfigMap

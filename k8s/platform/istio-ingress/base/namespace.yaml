@@ -5,7 +5,7 @@ metadata:
   labels:
     app.kubernetes.io/name: istio-ingress
     app.kubernetes.io/part-of: platform
-    gateway.litomi.in/edge-route: "true"
+    gateway.litomi.cc/edge-route: "true"
     pod-security.kubernetes.io/enforce: restricted
     pod-security.kubernetes.io/enforce-version: v1.35
     pod-security.kubernetes.io/audit: restricted

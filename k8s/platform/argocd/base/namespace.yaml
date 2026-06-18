@@ -6,7 +6,7 @@ metadata:
     app.kubernetes.io/name: argocd
     app.kubernetes.io/part-of: platform
     app.kubernetes.io/environment: base
-    gateway.litomi.in/edge-route: "true"
+    gateway.litomi.cc/edge-route: "true"
     pod-security.kubernetes.io/enforce: restricted
     pod-security.kubernetes.io/enforce-version: v1.35
     pod-security.kubernetes.io/audit: restricted

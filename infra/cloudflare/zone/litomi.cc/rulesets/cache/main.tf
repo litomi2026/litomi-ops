@@ -12,7 +12,7 @@ terraform {
 provider "cloudflare" {}
 
 variable "zone_id" {
-  description = "Cloudflare zone ID for litomi.in."
+  description = "Cloudflare zone ID for litomi.cc."
   type        = string
   nullable    = false
 }
@@ -20,7 +20,7 @@ variable "zone_id" {
 variable "domain" {
   description = "Primary Cloudflare zone name."
   type        = string
-  default     = "litomi.in"
+  default     = "litomi.cc"
   nullable    = false
 }
 

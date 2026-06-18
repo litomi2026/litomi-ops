@@ -1,35 +1,35 @@
 locals {
   initiator_protected_request_targets = [
     {
-      host        = "litomi.in"
+      host        = "litomi.cc"
       path_prefix = "/api/"
     },
     {
-      host        = "stg.litomi.in"
+      host        = "stg.litomi.cc"
       path_prefix = "/api/"
     },
     {
-      host        = "img.litomi.in"
+      host        = "img.litomi.cc"
       path_prefix = null
     },
     {
-      host        = "img-stg.litomi.in"
+      host        = "img-stg.litomi.cc"
       path_prefix = null
     },
     {
-      host        = "vercel.litomi.in"
+      host        = "vercel.litomi.cc"
       path_prefix = null
     },
     {
-      host        = "vercel-stg.litomi.in"
+      host        = "vercel-stg.litomi.cc"
       path_prefix = null
     },
     {
-      host        = "vercel2.litomi.in"
+      host        = "vercel2.litomi.cc"
       path_prefix = null
     },
     {
-      host        = "vercel2-stg.litomi.in"
+      host        = "vercel2-stg.litomi.cc"
       path_prefix = null
     },
   ]
@@ -51,8 +51,8 @@ locals {
   )
 
   trusted_request_initiator_origins = [
-    "https://litomi.in",
-    "https://stg.litomi.in",
+    "https://litomi.cc",
+    "https://stg.litomi.cc",
   ]
 
   trusted_request_initiator_origin_expression_set = format("{%s}", join(" ", [

@@ -20,7 +20,7 @@ variable "account_id" {
 variable "domain" {
   description = "Primary Cloudflare zone name."
   type        = string
-  default     = "litomi.in"
+  default     = "litomi.cc"
   nullable    = false
 }
 

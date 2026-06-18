@@ -5,9 +5,9 @@ metadata:
   namespace: istio-ingress
 spec:
   hostnames:
-    - litomi.in
-    - img.litomi.in
-    - argocd.litomi.in
+    - litomi.cc
+    - img.litomi.cc
+    - argocd.litomi.cc
   parentRefs:
     - group: gateway.networking.k8s.io
       kind: Gateway

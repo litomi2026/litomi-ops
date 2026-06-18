@@ -17,7 +17,7 @@ data:
         path: /client/v4/zones/{{ printf "%s" .secrets.cloudflareZoneId }}/purge_cache
         body: |
           {
-            "hosts": ["litomi.in"]
+            "hosts": ["litomi.cc"]
           }
   trigger.on-litomi-web-deployed: |
     - when: >-

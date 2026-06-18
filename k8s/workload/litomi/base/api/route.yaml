@@ -10,7 +10,7 @@ spec:
       namespace: istio-ingress
       sectionName: root-https
   hostnames:
-    - litomi.in
+    - litomi.cc
   rules:
     - matches:
         - path:
@@ -36,7 +36,7 @@ spec:
       namespace: istio-ingress
       sectionName: img-https
   hostnames:
-    - img.litomi.in
+    - img.litomi.cc
   rules:
     - matches:
         - path:

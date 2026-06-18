@@ -10,7 +10,7 @@ spec:
       namespace: istio-ingress
       sectionName: argocd-https
   hostnames:
-    - argocd.litomi.in
+    - argocd.litomi.cc
   rules:
     - matches:
         - path:

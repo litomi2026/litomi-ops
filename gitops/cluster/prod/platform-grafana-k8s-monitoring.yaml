@@ -48,7 +48,7 @@ spec:
       kind: Alloy
       name: grafana-k8s-monitoring-alloy-logs
       jqPathExpressions:
-        - .spec.controller.nodeSelector["grafana.litomi.in/paused"]
+        - .spec.controller.nodeSelector["grafana.litomi.cc/paused"]
     # 보조 Deployment도 동일하게 활성 시간대에만 replicas를 1로 유지한다.
     - group: apps
       kind: Deployment
@@ -65,4 +65,4 @@ spec:
       kind: DaemonSet
       name: grafana-k8s-monitoring-node-exporter
       jqPathExpressions:
-        - .spec.template.spec.nodeSelector["grafana.litomi.in/paused"]
+        - .spec.template.spec.nodeSelector["grafana.litomi.cc/paused"]

@@ -4,7 +4,7 @@ metadata:
   name: argocd-cm
 data:
   admin.enabled: "false"
-  url: https://argocd.litomi.in
+  url: https://argocd.litomi.cc
   users.anonymous.enabled: "false"
   webhook.maxPayloadSizeMB: "10"
   oidc.config: |

@@ -14,7 +14,7 @@ spec:
       name: edge-gateway-options
   listeners:
     - name: root-http
-      hostname: litomi.in
+      hostname: litomi.cc
       port: 80
       protocol: HTTP
       allowedRoutes:
@@ -22,9 +22,9 @@ spec:
           from: Selector
           selector:
             matchLabels:
-              gateway.litomi.in/edge-route: "true"
+              gateway.litomi.cc/edge-route: "true"
     - name: root-https
-      hostname: litomi.in
+      hostname: litomi.cc
       port: 443
       protocol: HTTPS
       tls:
@@ -38,9 +38,9 @@ spec:
           from: Selector
           selector:
             matchLabels:
-              gateway.litomi.in/edge-route: "true"
+              gateway.litomi.cc/edge-route: "true"
     - name: img-http
-      hostname: img.litomi.in
+      hostname: img.litomi.cc
       port: 80
       protocol: HTTP
       allowedRoutes:
@@ -48,9 +48,9 @@ spec:
           from: Selector
           selector:
             matchLabels:
-              gateway.litomi.in/edge-route: "true"
+              gateway.litomi.cc/edge-route: "true"
     - name: img-https
-      hostname: img.litomi.in
+      hostname: img.litomi.cc
       port: 443
       protocol: HTTPS
       tls:
@@ -64,9 +64,9 @@ spec:
           from: Selector
           selector:
             matchLabels:
-              gateway.litomi.in/edge-route: "true"
+              gateway.litomi.cc/edge-route: "true"
     - name: argocd-http
-      hostname: argocd.litomi.in
+      hostname: argocd.litomi.cc
       port: 80
       protocol: HTTP
       allowedRoutes:
@@ -74,9 +74,9 @@ spec:
           from: Selector
           selector:
             matchLabels:
-              gateway.litomi.in/edge-route: "true"
+              gateway.litomi.cc/edge-route: "true"
     - name: argocd-https
-      hostname: argocd.litomi.in
+      hostname: argocd.litomi.cc
       port: 443
       protocol: HTTPS
       tls:
@@ -90,4 +90,4 @@ spec:
           from: Selector
           selector:
             matchLabels:
-              gateway.litomi.in/edge-route: "true"
+              gateway.litomi.cc/edge-route: "true"

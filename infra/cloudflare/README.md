@@ -12,14 +12,14 @@ Terraform immediately.
 | `./account/litomi/selfhost-tunnel`     | `account-selfhost-tunnel`           | Account-level Cloudflare Tunnel     |
 | `./account/litomi/access`              | `account-access`                    | Account-level Access app and policy |
 | `./account/litomi/turnstile`           | `account-turnstile`                 | Account-level Turnstile widget      |
-| `./zone/litomi.in/dns`                 | `zone-litomi-in-dns`                | Zone DNS records                    |
-| `./zone/litomi.in/bot-management`      | `zone-litomi-in-bot-management`     | Bot Management settings             |
-| `./zone/litomi.in/rulesets/cache`      | `zone-litomi-in-cache`              | Cache Rules phase                   |
-| `./zone/litomi.in/rulesets/rate-limit` | `zone-litomi-in-rate-limit`         | Rate limiting phase                 |
-| `./zone/litomi.in/rulesets/redirects`  | `zone-litomi-in-redirects`          | Dynamic redirects phase             |
-| `./zone/litomi.in/rulesets/waf-custom` | `zone-litomi-in-waf-custom`         | WAF custom rules phase              |
-| `./zone/litomi.in/ssl-tls`             | `zone-litomi-in-ssl-tls`            | SSL/TLS edge settings               |
-| `./zone/litomi.in/managed-transforms`  | `zone-litomi-in-managed-transforms` | Managed transforms                  |
+| `./zone/litomi.cc/dns`                 | `zone-litomi-cc-dns`                | Zone DNS records                    |
+| `./zone/litomi.cc/bot-management`      | `zone-litomi-cc-bot-management`     | Bot Management settings             |
+| `./zone/litomi.cc/rulesets/cache`      | `zone-litomi-cc-cache`              | Cache Rules phase                   |
+| `./zone/litomi.cc/rulesets/rate-limit` | `zone-litomi-cc-rate-limit`         | Rate limiting phase                 |
+| `./zone/litomi.cc/rulesets/redirects`  | `zone-litomi-cc-redirects`          | Dynamic redirects phase             |
+| `./zone/litomi.cc/rulesets/waf-custom` | `zone-litomi-cc-waf-custom`         | WAF custom rules phase              |
+| `./zone/litomi.cc/ssl-tls`             | `zone-litomi-cc-ssl-tls`            | SSL/TLS edge settings               |
+| `./zone/litomi.cc/managed-transforms`  | `zone-litomi-cc-managed-transforms` | Managed transforms                  |
 
 Each workspace should use VCS-driven runs with manual apply. Pull requests
 should produce speculative plans; merges to the production branch should require
@@ -39,19 +39,19 @@ Create a workspace-scoped variable set for account-level workspaces:
 | --------- | ------------ | --------- | ------------------------------- |
 | Terraform | `account_id` | No        | Apply to `account-*` workspaces |
 
-Create a workspace-scoped variable set for the `litomi.in` zone workspaces:
+Create a workspace-scoped variable set for the `litomi.cc` zone workspaces:
 
 | Category  | Key       | Sensitive | Notes                                  |
 | --------- | --------- | --------- | -------------------------------------- |
-| Terraform | `zone_id` | No        | Apply to `zone-litomi-in-*` workspaces |
+| Terraform | `zone_id` | No        | Apply to `zone-litomi-cc-*` workspaces |
 
-Set this workspace-specific Terraform variable on `zone-litomi-in-waf-custom`:
+Set this workspace-specific Terraform variable on `zone-litomi-cc-waf-custom`:
 
 | Category  | Key                  | Sensitive | HCL | Notes                  |
 | --------- | -------------------- | --------- | --- | ---------------------- |
 | Terraform | `blocked_source_ips` | No        | Yes | HCL list of source IPs |
 
-Set these workspace-specific Terraform variables on `zone-litomi-in-rate-limit`:
+Set these workspace-specific Terraform variables on `zone-litomi-cc-rate-limit`:
 
 | Category  | Key                   | Sensitive | Notes                                     |
 | --------- | --------------------- | --------- | ----------------------------------------- |
@@ -68,7 +68,7 @@ Set these workspace-specific Terraform variables on `account-access`.
 | Terraform | `argocd_readonly_emails`      | No        | Yes |
 | Terraform | `stg_allowed_emails`          | No        | Yes |
 
-Set this workspace-specific Terraform variable on `zone-litomi-in-dns`:
+Set this workspace-specific Terraform variable on `zone-litomi-cc-dns`:
 
 | Category  | Key             | Sensitive | Notes                                          |
 | --------- | --------------- | --------- | ---------------------------------------------- |
@@ -76,11 +76,11 @@ Set this workspace-specific Terraform variable on `zone-litomi-in-dns`:
 
 The DNS workspace does not read OCI state directly. After the OCI prod
 workspace creates or replaces the reserved edge IP, copy that output into the
-`zone-litomi-in-dns` workspace variable in HCP Terraform.
+`zone-litomi-cc-dns` workspace variable in HCP Terraform.
 
 ## Cross-Workspace Dependency
 
-`zone/litomi.in/dns` reads `selfhost_tunnel_cname` from
+`zone/litomi.cc/dns` reads `selfhost_tunnel_cname` from
 `account-selfhost-tunnel` via `terraform_remote_state`.
 Allow the DNS workspace to read the tunnel workspace state outputs in HCP
 Terraform before planning DNS. Prefer granting this to the DNS workspace only,

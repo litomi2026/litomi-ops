@@ -47,12 +47,12 @@ spec:
                     kubectl -n "${namespace}" patch alloy.collectors.grafana.com "${alloy}" --type=merge -p '{"spec":{"controller":{"replicas":1}}}' || true
                   done
 
-                  kubectl -n "${namespace}" patch alloy.collectors.grafana.com grafana-k8s-monitoring-alloy-logs --type=json -p '[{"op":"remove","path":"/spec/controller/nodeSelector/grafana.litomi.in~1paused"}]' || true
+                  kubectl -n "${namespace}" patch alloy.collectors.grafana.com grafana-k8s-monitoring-alloy-logs --type=json -p '[{"op":"remove","path":"/spec/controller/nodeSelector/grafana.litomi.cc~1paused"}]' || true
 
                   kubectl -n "${namespace}" scale deployment/grafana-k8s-monitoring-kube-state-metrics deployment/grafana-k8s-monitoring-opencost --replicas=1 || true
 
                   for daemonset in grafana-k8s-monitoring-node-exporter; do
-                    kubectl -n "${namespace}" patch daemonset "${daemonset}" --type=json -p '[{"op":"remove","path":"/spec/template/spec/nodeSelector/grafana.litomi.in~1paused"}]' || true
+                    kubectl -n "${namespace}" patch daemonset "${daemonset}" --type=json -p '[{"op":"remove","path":"/spec/template/spec/nodeSelector/grafana.litomi.cc~1paused"}]' || true
                   done
 ---
 apiVersion: batch/v1
@@ -104,10 +104,10 @@ spec:
                     kubectl -n "${namespace}" patch alloy.collectors.grafana.com "${alloy}" --type=merge -p '{"spec":{"controller":{"replicas":0}}}' || true
                   done
 
-                  kubectl -n "${namespace}" patch alloy.collectors.grafana.com grafana-k8s-monitoring-alloy-logs --type=merge -p '{"spec":{"controller":{"nodeSelector":{"grafana.litomi.in/paused":"true"}}}}' || true
+                  kubectl -n "${namespace}" patch alloy.collectors.grafana.com grafana-k8s-monitoring-alloy-logs --type=merge -p '{"spec":{"controller":{"nodeSelector":{"grafana.litomi.cc/paused":"true"}}}}' || true
 
                   kubectl -n "${namespace}" scale deployment/grafana-k8s-monitoring-kube-state-metrics deployment/grafana-k8s-monitoring-opencost --replicas=0 || true
 
                   for daemonset in grafana-k8s-monitoring-node-exporter; do
-                    kubectl -n "${namespace}" patch daemonset "${daemonset}" --type=merge -p '{"spec":{"template":{"spec":{"nodeSelector":{"grafana.litomi.in/paused":"true"}}}}}' || true
+                    kubectl -n "${namespace}" patch daemonset "${daemonset}" --type=merge -p '{"spec":{"template":{"spec":{"nodeSelector":{"grafana.litomi.cc/paused":"true"}}}}}' || true
                   done

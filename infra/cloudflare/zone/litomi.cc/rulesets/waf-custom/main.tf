@@ -12,7 +12,7 @@ terraform {
 provider "cloudflare" {}
 
 variable "zone_id" {
-  description = "Cloudflare zone ID for litomi.in."
+  description = "Cloudflare zone ID for litomi.cc."
   type        = string
   nullable    = false
 }
@@ -72,7 +72,7 @@ locals {
 
   api_request_expression = join(" ", [
     "(",
-    "http.host eq \"litomi.in\"",
+    "http.host eq \"litomi.cc\"",
     "and starts_with(http.request.uri.path, \"/api/\")",
     ")",
   ])
@@ -197,7 +197,7 @@ locals {
   ])
 
   # Turnstile pre-clearance gate
-  edge_proxy_host_expression_set = "{\"vercel.litomi.in\" \"vercel-stg.litomi.in\" \"vercel2.litomi.in\" \"vercel2-stg.litomi.in\"}"
+  edge_proxy_host_expression_set = "{\"vercel.litomi.cc\" \"vercel-stg.litomi.cc\" \"vercel2.litomi.cc\" \"vercel2-stg.litomi.cc\"}"
 
   edge_proxy_turnstile_expression = join(" ", [
     "(",
