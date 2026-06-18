@@ -12,7 +12,7 @@ terraform {
 provider "cloudflare" {}
 
 variable "zone_id" {
-  description = "Cloudflare zone ID for litomi.cc"
+  description = "Cloudflare zone ID for litomi.cc."
   type        = string
   nullable    = false
 }
