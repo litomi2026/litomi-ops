@@ -21,7 +21,7 @@ resource "cloudflare_bot_management" "default" {
   zone_id = var.zone_id
 
   ai_bots_protection      = "block"
-  content_bots_protection = "block"
+  content_bots_protection = "disabled"
   crawler_protection      = "enabled"
   enable_js               = true
   fight_mode              = true
