@@ -136,7 +136,7 @@ resource "cloudflare_dns_record" "vercel_verification_txt" {
   zone_id = var.zone_id
   name    = "_vercel"
   type    = "TXT"
-  content = "\"vc-domain-verify=vercel2.${var.domain},dd05d145eed4a2dcccf7,dc\""
+  content = "\"vc-domain-verify=vercel2.${var.domain},317544e90c67411ab41b,dc\""
   ttl     = 600
   proxied = false
 }
