@@ -64,15 +64,6 @@ resource "cloudflare_dns_record" "www_cname" {
   proxied = true
 }
 
-resource "cloudflare_dns_record" "r2_cname" {
-  zone_id = var.zone_id
-  name    = "r2.${var.domain}"
-  type    = "CNAME"
-  content = "public.r2.dev"
-  ttl     = 1
-  proxied = true
-}
-
 resource "cloudflare_dns_record" "vercel_cname" {
   zone_id = var.zone_id
   name    = "vercel.${var.domain}"
