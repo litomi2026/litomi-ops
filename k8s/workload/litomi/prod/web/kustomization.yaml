@@ -9,26 +9,10 @@ resources:
 generatorOptions:
   disableNameSuffixHash: true
 configMapGenerator:
-  - name: litomi-web-public-env
-    envs:
-      - public.env
   - name: litomi-web-env
     literals:
       - APP_ENV=prod
       - APP_ORIGIN=https://litomi.cc
-replacements:
-  - source:
-      kind: ConfigMap
-      name: litomi-web-env
-      fieldPath: data.APP_ORIGIN
-    targets:
-      - select:
-          kind: ConfigMap
-          name: litomi-web-public-env
-        fieldPaths:
-          - data.NEXT_PUBLIC_APP_ORIGIN
-        options:
-          create: true
 images:
   - name: ghcr.io/litomi2026/litomi-web
     digest: sha256:b23e6dff73539e92677dba66a071af676a0e41af9137a0ea8d5c4c5a9a90077c
