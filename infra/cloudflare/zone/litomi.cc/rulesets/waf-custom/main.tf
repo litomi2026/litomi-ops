@@ -186,7 +186,10 @@ locals {
   adult_access_cookie = "__Secure-adult-pass=1"
 
   adult_gate_protected_path_prefixes = [
+    # HTML 정적 콘텐츠
     "/ranking/",
+
+    # Cloudflare public cache 사용
     "/api/proxy/",
     "/api/v1/library/",
     "/api/v1/post",
