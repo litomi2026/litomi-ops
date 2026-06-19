@@ -73,6 +73,26 @@ resource "cloudflare_dns_record" "vercel_cname" {
   proxied = true
 }
 
+# TEMPORARY: adopt the pre-existing vercel2 CNAME into state. The record lives in
+# Cloudflare, but the prior state entry went stale (404 on refresh), so Terraform
+# planned a create that would collide with the live record. The data source looks up
+# the current record id at plan time so the import needs no hardcoded id. Remove this
+# data source and the import block in a follow-up commit once the import has applied.
+data "cloudflare_dns_records" "vercel2_cname" {
+  zone_id   = var.zone_id
+  type      = "CNAME"
+  max_items = 1
+
+  name = {
+    exact = "vercel2.${var.domain}"
+  }
+}
+
+import {
+  to = cloudflare_dns_record.vercel2_cname
+  id = "${var.zone_id}/${data.cloudflare_dns_records.vercel2_cname.result[0].id}"
+}
+
 resource "cloudflare_dns_record" "vercel2_cname" {
   zone_id = var.zone_id
   name    = "vercel2.${var.domain}"
