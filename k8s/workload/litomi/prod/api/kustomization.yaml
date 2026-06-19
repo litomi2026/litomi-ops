@@ -17,6 +17,6 @@ configMapGenerator:
   name: litomi-api-env
 
 images:
-- digest: sha256:154a561de89efc724e25b38546f2770922b4d6effef8a027701ba2344cbc11a1
+- digest: sha256:586737c33524cc8868284a3af03ef65093fc6a88a388961c36a94f45b713c5da
   name: ghcr.io/litomi2026/litomi-api
   newName: ghcr.io/litomi2026/litomi-api
