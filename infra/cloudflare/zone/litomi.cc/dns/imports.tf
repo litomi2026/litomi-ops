@@ -3,10 +3,10 @@
 
 import {
   to = cloudflare_dns_record.google_verification2_txt
-  id = "${var.zone_id}/0f319ff7196207e03d82b5e7fae87ea2"
+  id = "${data.cloudflare_zone.this.zone_id}/0f319ff7196207e03d82b5e7fae87ea2"
 }
 
 import {
   to = cloudflare_zone_dnssec.litomi_cc
-  id = var.zone_id
+  id = data.cloudflare_zone.this.zone_id
 }

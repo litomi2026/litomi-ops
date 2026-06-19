@@ -11,10 +11,17 @@ terraform {
 
 provider "cloudflare" {}
 
-variable "zone_id" {
-  description = "Cloudflare zone ID for litomi.cc."
+variable "domain" {
+  description = "Primary Cloudflare zone name."
   type        = string
+  default     = "litomi.cc"
   nullable    = false
+}
+
+data "cloudflare_zone" "this" {
+  filter = {
+    name = var.domain
+  }
 }
 
 variable "rate_limit_period" {
@@ -39,7 +46,7 @@ variable "rate_limit_timeout" {
 }
 
 resource "cloudflare_ruleset" "rate_limiting" {
-  zone_id = var.zone_id
+  zone_id = data.cloudflare_zone.this.zone_id
   name    = "default"
   kind    = "zone"
   phase   = "http_ratelimit"

@@ -11,10 +11,10 @@ terraform {
 
 provider "cloudflare" {}
 
-variable "zone_id" {
-  description = "Cloudflare zone ID for litomi.cc."
-  type        = string
-  nullable    = false
+data "cloudflare_zone" "this" {
+  filter = {
+    name = var.domain
+  }
 }
 
 variable "domain" {
@@ -47,7 +47,7 @@ locals {
 resource "cloudflare_dns_record" "oke_edge_a" {
   for_each = local.oke_edge_hostnames
 
-  zone_id = var.zone_id
+  zone_id = data.cloudflare_zone.this.zone_id
   name    = each.value
   type    = "A"
   content = var.oke_edge_ipv4
@@ -56,7 +56,7 @@ resource "cloudflare_dns_record" "oke_edge_a" {
 }
 
 resource "cloudflare_dns_record" "www_cname" {
-  zone_id = var.zone_id
+  zone_id = data.cloudflare_zone.this.zone_id
   name    = "www.${var.domain}"
   type    = "CNAME"
   content = var.domain
@@ -65,7 +65,7 @@ resource "cloudflare_dns_record" "www_cname" {
 }
 
 resource "cloudflare_dns_record" "vercel_cname" {
-  zone_id = var.zone_id
+  zone_id = data.cloudflare_zone.this.zone_id
   name    = "vercel.${var.domain}"
   type    = "CNAME"
   content = "cname.vercel-dns.com"
@@ -74,7 +74,7 @@ resource "cloudflare_dns_record" "vercel_cname" {
 }
 
 resource "cloudflare_dns_record" "vercel2_cname" {
-  zone_id = var.zone_id
+  zone_id = data.cloudflare_zone.this.zone_id
   name    = "vercel2.${var.domain}"
   type    = "CNAME"
   content = "55c4083f74bdeeda.vercel-dns-016.com"
@@ -83,7 +83,7 @@ resource "cloudflare_dns_record" "vercel2_cname" {
 }
 
 resource "cloudflare_dns_record" "caa" {
-  zone_id = var.zone_id
+  zone_id = data.cloudflare_zone.this.zone_id
   name    = var.domain
   type    = "CAA"
   ttl     = 1
@@ -97,7 +97,7 @@ resource "cloudflare_dns_record" "caa" {
 }
 
 resource "cloudflare_dns_record" "dmarc_txt" {
-  zone_id = var.zone_id
+  zone_id = data.cloudflare_zone.this.zone_id
   name    = "_dmarc.${var.domain}"
   type    = "TXT"
   content = "\"v=DMARC1; p=reject; sp=reject; adkim=s; aspf=s; rua=mailto:2f5f6900562c4b2b93de27531f70eb4e@dmarc-reports.cloudflare.net;\""
@@ -106,7 +106,7 @@ resource "cloudflare_dns_record" "dmarc_txt" {
 }
 
 resource "cloudflare_dns_record" "domainkey_txt" {
-  zone_id = var.zone_id
+  zone_id = data.cloudflare_zone.this.zone_id
   name    = "*._domainkey.${var.domain}"
   type    = "TXT"
   content = "\"v=DKIM1; p=\""
@@ -115,7 +115,7 @@ resource "cloudflare_dns_record" "domainkey_txt" {
 }
 
 resource "cloudflare_dns_record" "spf_txt" {
-  zone_id = var.zone_id
+  zone_id = data.cloudflare_zone.this.zone_id
   name    = var.domain
   type    = "TXT"
   content = "\"v=spf1 -all\""
@@ -124,7 +124,7 @@ resource "cloudflare_dns_record" "spf_txt" {
 }
 
 resource "cloudflare_dns_record" "google_verification_txt" {
-  zone_id = var.zone_id
+  zone_id = data.cloudflare_zone.this.zone_id
   name    = var.domain
   type    = "TXT"
   content = "\"google-site-verification=9lwchIN7Iw35PvdxZPPW-QFktzJY1q_SP4llbtlVej4\""
@@ -133,7 +133,7 @@ resource "cloudflare_dns_record" "google_verification_txt" {
 }
 
 resource "cloudflare_dns_record" "vercel_verification_txt" {
-  zone_id = var.zone_id
+  zone_id = data.cloudflare_zone.this.zone_id
   name    = "_vercel"
   type    = "TXT"
   content = "\"vc-domain-verify=vercel2.${var.domain},317544e90c67411ab41b,dc\""
@@ -142,7 +142,7 @@ resource "cloudflare_dns_record" "vercel_verification_txt" {
 }
 
 resource "cloudflare_dns_record" "google_verification2_txt" {
-  zone_id = var.zone_id
+  zone_id = data.cloudflare_zone.this.zone_id
   name    = var.domain
   type    = "TXT"
   content = "\"google-site-verification=btUSc6zsZBn_G2Wt8evVcQ-5yaCM5uIQlBFIoFw-Hpk\""
@@ -151,6 +151,6 @@ resource "cloudflare_dns_record" "google_verification2_txt" {
 }
 
 resource "cloudflare_zone_dnssec" "litomi_cc" {
-  zone_id = var.zone_id
+  zone_id = data.cloudflare_zone.this.zone_id
   status  = "active"
 }

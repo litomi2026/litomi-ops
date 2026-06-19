@@ -11,14 +11,21 @@ terraform {
 
 provider "cloudflare" {}
 
-variable "zone_id" {
-  description = "Cloudflare zone ID for litomi.cc."
+variable "domain" {
+  description = "Primary Cloudflare zone name."
   type        = string
+  default     = "litomi.cc"
   nullable    = false
 }
 
+data "cloudflare_zone" "this" {
+  filter = {
+    name = var.domain
+  }
+}
+
 resource "cloudflare_bot_management" "default" {
-  zone_id = var.zone_id
+  zone_id = data.cloudflare_zone.this.zone_id
 
   ai_bots_protection      = "block"
   content_bots_protection = "disabled"

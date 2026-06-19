@@ -3,15 +3,15 @@
 
 import {
   to = cloudflare_zone_setting.early_hints
-  id = "${var.zone_id}/early_hints"
+  id = "${data.cloudflare_zone.this.zone_id}/early_hints"
 }
 
 import {
   to = cloudflare_zone_setting.hotlink_protection
-  id = "${var.zone_id}/hotlink_protection"
+  id = "${data.cloudflare_zone.this.zone_id}/hotlink_protection"
 }
 
 import {
   to = cloudflare_zone_setting.challenge_ttl
-  id = "${var.zone_id}/challenge_ttl"
+  id = "${data.cloudflare_zone.this.zone_id}/challenge_ttl"
 }

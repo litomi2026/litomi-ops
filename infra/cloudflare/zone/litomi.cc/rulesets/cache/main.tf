@@ -11,10 +11,10 @@ terraform {
 
 provider "cloudflare" {}
 
-variable "zone_id" {
-  description = "Cloudflare zone ID for litomi.cc."
-  type        = string
-  nullable    = false
+data "cloudflare_zone" "this" {
+  filter = {
+    name = var.domain
+  }
 }
 
 variable "domain" {
@@ -198,7 +198,7 @@ locals {
 }
 
 resource "cloudflare_ruleset" "cache_rules" {
-  zone_id = var.zone_id
+  zone_id = data.cloudflare_zone.this.zone_id
   name    = "Cache Rules"
   kind    = "zone"
   phase   = "http_request_cache_settings"

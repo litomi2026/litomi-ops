@@ -11,14 +11,21 @@ terraform {
 
 provider "cloudflare" {}
 
-variable "zone_id" {
-  description = "Cloudflare zone ID for litomi.cc."
+variable "domain" {
+  description = "Primary Cloudflare zone name."
   type        = string
+  default     = "litomi.cc"
   nullable    = false
 }
 
+data "cloudflare_zone" "this" {
+  filter = {
+    name = var.domain
+  }
+}
+
 resource "cloudflare_managed_transforms" "managed_transforms" {
-  zone_id = var.zone_id
+  zone_id = data.cloudflare_zone.this.zone_id
 
   managed_request_headers = [
     {

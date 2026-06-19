@@ -11,10 +11,17 @@ terraform {
 
 provider "cloudflare" {}
 
-variable "zone_id" {
-  description = "Cloudflare zone ID for litomi.cc."
+variable "domain" {
+  description = "Primary Cloudflare zone name."
   type        = string
+  default     = "litomi.cc"
   nullable    = false
+}
+
+data "cloudflare_zone" "this" {
+  filter = {
+    name = var.domain
+  }
 }
 
 variable "blocked_source_ips" {
@@ -210,7 +217,7 @@ locals {
 }
 
 resource "cloudflare_ruleset" "waf_custom" {
-  zone_id     = var.zone_id
+  zone_id     = data.cloudflare_zone.this.zone_id
   name        = "default"
   description = ""
   kind        = "zone"

@@ -11,10 +11,10 @@ terraform {
 
 provider "cloudflare" {}
 
-variable "zone_id" {
-  description = "Cloudflare zone ID for litomi.cc."
-  type        = string
-  nullable    = false
+data "cloudflare_zone" "this" {
+  filter = {
+    name = var.domain
+  }
 }
 
 variable "domain" {
@@ -25,7 +25,7 @@ variable "domain" {
 }
 
 resource "cloudflare_ruleset" "www_redirect" {
-  zone_id     = var.zone_id
+  zone_id     = data.cloudflare_zone.this.zone_id
   name        = "WWW Redirect"
   description = "Redirect www to root"
   kind        = "zone"
