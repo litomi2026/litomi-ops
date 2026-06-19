@@ -223,6 +223,11 @@ locals {
   ])
 }
 
+resource "cloudflare_leaked_credential_check" "this" {
+  zone_id = data.cloudflare_zone.this.zone_id
+  enabled = true
+}
+
 resource "cloudflare_ruleset" "waf_custom" {
   zone_id     = data.cloudflare_zone.this.zone_id
   name        = "default"

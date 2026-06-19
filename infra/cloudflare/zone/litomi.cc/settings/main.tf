@@ -51,3 +51,24 @@ resource "cloudflare_zone_setting" "always_online" {
   setting_id = "always_online"
   value      = "on"
 }
+
+# Browser Integrity Check
+resource "cloudflare_zone_setting" "browser_check" {
+  zone_id    = data.cloudflare_zone.this.zone_id
+  setting_id = "browser_check"
+  value      = "on"
+}
+
+# Email Address Obfuscation
+resource "cloudflare_zone_setting" "email_obfuscation" {
+  zone_id    = data.cloudflare_zone.this.zone_id
+  setting_id = "email_obfuscation"
+  value      = "on"
+}
+
+# Replace insecure JavaScript libraries
+resource "cloudflare_zone_setting" "replace_insecure_js" {
+  zone_id    = data.cloudflare_zone.this.zone_id
+  setting_id = "replace_insecure_js"
+  value      = "on"
+}
