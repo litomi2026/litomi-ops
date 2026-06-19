@@ -22,6 +22,12 @@ resource "cloudflare_universal_ssl_setting" "default" {
   enabled = true
 }
 
+resource "cloudflare_zone_setting" "ssl" {
+  zone_id    = var.zone_id
+  setting_id = "ssl"
+  value      = "full"
+}
+
 resource "cloudflare_zone_setting" "always_use_https" {
   zone_id    = var.zone_id
   setting_id = "always_use_https"
@@ -42,7 +48,7 @@ resource "cloudflare_zone_setting" "hsts" {
     strict_transport_security = {
       enabled            = true
       include_subdomains = true
-      max_age            = 15552000
+      max_age            = 31536000
       nosniff            = true
       preload            = true
     }
@@ -64,5 +70,5 @@ resource "cloudflare_zone_setting" "opportunistic_encryption" {
 resource "cloudflare_zone_setting" "tls_1_3" {
   zone_id    = var.zone_id
   setting_id = "tls_1_3"
-  value      = "on"
+  value      = "zrt"
 }

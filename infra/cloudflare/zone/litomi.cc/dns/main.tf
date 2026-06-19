@@ -140,3 +140,17 @@ resource "cloudflare_dns_record" "vercel_verification_txt" {
   ttl     = 600
   proxied = false
 }
+
+resource "cloudflare_dns_record" "google_verification2_txt" {
+  zone_id = var.zone_id
+  name    = var.domain
+  type    = "TXT"
+  content = "\"google-site-verification=btUSc6zsZBn_G2Wt8evVcQ-5yaCM5uIQlBFIoFw-Hpk\""
+  ttl     = 3600
+  proxied = false
+}
+
+resource "cloudflare_zone_dnssec" "litomi_cc" {
+  zone_id = var.zone_id
+  status  = "active"
+}
