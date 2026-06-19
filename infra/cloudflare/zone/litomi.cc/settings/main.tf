@@ -44,3 +44,10 @@ resource "cloudflare_zone_setting" "challenge_ttl" {
   setting_id = "challenge_ttl"
   value      = 57600
 }
+
+# Always Online
+resource "cloudflare_zone_setting" "always_online" {
+  zone_id    = data.cloudflare_zone.this.zone_id
+  setting_id = "always_online"
+  value      = "on"
+}
