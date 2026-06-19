@@ -72,3 +72,21 @@ resource "cloudflare_zone_setting" "tls_1_3" {
   setting_id = "tls_1_3"
   value      = "zrt"
 }
+
+resource "cloudflare_zone_setting" "zero_rtt" {
+  zone_id    = var.zone_id
+  setting_id = "0rtt"
+  value      = "on"
+}
+
+resource "cloudflare_zone_setting" "ech" {
+  zone_id    = var.zone_id
+  setting_id = "ech"
+  value      = "on"
+}
+
+resource "cloudflare_zone_setting" "pq_keyex" {
+  zone_id    = var.zone_id
+  setting_id = "pq_keyex"
+  value      = "on"
+}
