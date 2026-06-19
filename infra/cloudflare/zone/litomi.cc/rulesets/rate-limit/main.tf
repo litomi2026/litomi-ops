@@ -55,8 +55,8 @@ resource "cloudflare_ruleset" "rate_limiting" {
     {
       ref         = "rate_limit"
       enabled     = true
-      description = "Rate limit"
-      expression  = "(starts_with(http.request.uri.path, \"/\") and not starts_with(http.request.uri.path, \"/cdn-cgi/challenge-platform/\") and not starts_with(http.request.uri.path, \"/.well-known/\") and not http.request.uri.path contains \".\")"
+      description = "Rate limit /api/*"
+      expression  = "starts_with(http.request.uri.path, \"/api/\")"
       action      = "block"
 
       ratelimit = {
