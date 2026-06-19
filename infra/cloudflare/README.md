@@ -20,6 +20,7 @@ Terraform immediately.
 | `./zone/litomi.cc/rulesets/waf-custom` | `zone-litomi-cc-waf-custom`         | WAF custom rules phase              |
 | `./zone/litomi.cc/ssl-tls`             | `zone-litomi-cc-ssl-tls`            | SSL/TLS edge settings               |
 | `./zone/litomi.cc/managed-transforms`  | `zone-litomi-cc-managed-transforms` | Managed transforms                  |
+| `./zone/litomi.cc/settings`            | `zone-litomi-cc-settings`           | Speed, Scrape Shield, Security       |
 
 Each workspace should use VCS-driven runs with manual apply. Pull requests
 should produce speculative plans; merges to the production branch should require
