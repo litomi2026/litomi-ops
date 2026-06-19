@@ -187,11 +187,13 @@ locals {
 
   adult_gate_protected_path_prefixes = [
     # HTML 정적 콘텐츠
-    "/ranking/",
+    "/censor",
+    "/donation",
     "/notification",
-    "/@",
     "/posts/",
     "/post/",
+    "/ranking/",
+    "/@",
 
     # Cloudflare public cache 사용
     "/api/proxy/",
