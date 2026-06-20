@@ -55,7 +55,8 @@
    ```
 
 2. SSH tunnel을 foreground로 띄운다. 이 프로세스가 살아 있는 동안에만
-   `kubectl`이 동작한다. 종료할 때는 `Ctrl-C`로 끊는다.
+   `kubectl`이 동작한다. 종료할 때는 `Ctrl-C`로 끊는다(로컬 터널만 닫히므로
+   session 정리는 아래 "정리하는 법" 참고).
 
    ```sh
    ssh -i "$BASTION_SSH_KEY" -N \
@@ -72,3 +73,29 @@
    ```sh
    KUBECONFIG="$HOME/.kube/litomi-prod-seoul" kubectl get ns
    ```
+
+### Bastion tunnel 정리하는 법
+
+`Ctrl-C`로 SSH를 끊으면 로컬 터널만 닫히고, OCI Bastion session은
+TTL(10800초)이 만료될 때까지 `ACTIVE`로 남는다. 작업이 끝나면 session도
+명시적으로 삭제한다.
+
+```sh
+oci bastion session delete --session-id "$SESSION_ID" --force
+```
+
+같은 shell이 아니어서 `$SESSION_ID`가 없으면, display-name으로 남아 있는
+`ACTIVE` session을 찾아 지운다.
+
+```sh
+BASTION_ID="$(oci search resource structured-search \
+  --query-text "query all resources where displayName = '$BASTION_NAME'" \
+  --limit 1 --query 'data.items[0].identifier' --raw-output)"
+
+oci bastion session list \
+  --bastion-id "$BASTION_ID" \
+  --session-lifecycle-state ACTIVE --all \
+  --query "data[?\"display-name\"=='local-oke-api-tunnel'].id | join(' ', @)" \
+  --raw-output \
+  | xargs -n1 -I{} oci bastion session delete --session-id {} --force
+```
