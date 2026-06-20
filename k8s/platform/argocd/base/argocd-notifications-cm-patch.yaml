@@ -25,7 +25,6 @@ data:
         and app.status.sync.status == 'Synced'
         and app.status.health.status == 'Healthy'
         and app.status?.operationState.phase in ['Succeeded']
-        and app.status.sync.revision == app.status?.operationState.syncResult.revision
         and one(app.status.operationState.syncResult.resources, {
           .group == 'apps'
           and .kind == 'Deployment'
