@@ -16,7 +16,7 @@ configMapGenerator:
       - APP_ENV=prod
       - APP_ORIGIN=https://litomi.cc
       - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
-      - OTEL_RESOURCE_ATTRIBUTES=service.namespace=litomi,deployment.environment.name=prod
+      - OTEL_RESOURCE_ATTRIBUTES=service.namespace=litomi,deployment.environment.name=prod,k8s.cluster.name=litomi-prod
       - OTEL_SERVICE_NAME=litomi-api
       - OTEL_TRACES_SAMPLER=parentbased_traceidratio
       - OTEL_TRACES_SAMPLER_ARG=0.1
