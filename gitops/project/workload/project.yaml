@@ -12,6 +12,8 @@ spec:
       server: https://kubernetes.default.svc
     - namespace: litomi-api
       server: https://kubernetes.default.svc
+    - namespace: litomi-cataloger
+      server: https://kubernetes.default.svc
   sourceRepos:
     - https://github.com/litomi2026/litomi-ops.git
   clusterResourceWhitelist:
@@ -21,6 +23,9 @@ spec:
     - group: ""
       kind: Namespace
       name: litomi-api
+    - group: ""
+      kind: Namespace
+      name: litomi-cataloger
   namespaceResourceWhitelist:
     - group: ""
       kind: ConfigMap
@@ -52,5 +57,9 @@ spec:
       kind: PodDisruptionBudget
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
+    - group: batch
+      kind: CronJob
+    - group: batch
+      kind: Job
   orphanedResources:
     warn: true
