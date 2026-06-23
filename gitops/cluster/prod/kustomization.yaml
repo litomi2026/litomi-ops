@@ -22,4 +22,6 @@ resources:
   - platform-priorityclass-workload-standard.yaml
   - platform-storage.yaml
   - workload-litomi-api.yaml
+  - workload-litomi-cataloger.yaml
+  - workload-litomi-notifier.yaml
   - workload-litomi-web.yaml

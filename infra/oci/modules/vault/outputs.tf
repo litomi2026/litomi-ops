@@ -33,6 +33,26 @@ output "api_secret_name" {
   value       = var.api_secret_name
 }
 
+output "cataloger_secret_id" {
+  description = "Cataloger workload vault secret OCID."
+  value       = oci_vault_secret.cataloger.id
+}
+
+output "cataloger_secret_name" {
+  description = "Cataloger secret name."
+  value       = var.cataloger_secret_name
+}
+
+output "notifier_secret_id" {
+  description = "Notifier workload vault secret OCID."
+  value       = oci_vault_secret.notifier.id
+}
+
+output "notifier_secret_name" {
+  description = "Notifier secret name."
+  value       = var.notifier_secret_name
+}
+
 output "argocd_secret_id" {
   description = "Argo CD vault secret OCID."
   value       = oci_vault_secret.argocd.id

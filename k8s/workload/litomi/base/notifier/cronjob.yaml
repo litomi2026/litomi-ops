@@ -1,0 +1,58 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: litomi-notifier
+  labels:
+    app.kubernetes.io/name: litomi-notifier
+    app.kubernetes.io/part-of: litomi
+spec:
+  schedule: '0 * * * *'
+  timeZone: Asia/Seoul
+  # OKE에서 검증을 마치고 Cloud Run scheduler를 일시정지한 뒤 git에서 suspend를 해제한다.
+  suspend: true
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 600
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 300
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: litomi-notifier
+            app.kubernetes.io/part-of: litomi
+        spec:
+          restartPolicy: OnFailure
+          automountServiceAccountToken: false
+          serviceAccountName: litomi-notifier
+          priorityClassName: workload-standard
+          nodeSelector:
+            node-pool-role: workload
+          containers:
+            - name: notifier
+              image: ghcr.io/litomi2026/litomi-notifier:overlay-required
+              imagePullPolicy: IfNotPresent
+              envFrom:
+                - configMapRef:
+                    name: litomi-notifier-env
+                - secretRef:
+                    name: litomi-notifier-env
+              resources:
+                requests:
+                  cpu: 250m
+                  memory: 512Mi
+                limits:
+                  cpu: 1000m
+                  memory: 1Gi
+              securityContext:
+                allowPrivilegeEscalation: false
+                runAsNonRoot: true
+                runAsUser: 65532
+                runAsGroup: 65532
+                capabilities:
+                  drop:
+                    - ALL
+                seccompProfile:
+                  type: RuntimeDefault

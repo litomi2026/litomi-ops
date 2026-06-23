@@ -5,6 +5,8 @@ locals {
   )
   web_secret_name                    = "${local.resource_name_prefix}-web"
   api_secret_name                    = "${local.resource_name_prefix}-api"
+  cataloger_secret_name              = "${local.resource_name_prefix}-cataloger"
+  notifier_secret_name               = "${local.resource_name_prefix}-notifier"
   argocd_secret_name                 = "${local.resource_name_prefix}-argocd"
   cert_manager_secret_name           = "${local.resource_name_prefix}-cert-manager"
   grafana_k8s_monitoring_secret_name = "${local.resource_name_prefix}-grafana-cloud-k8s"
@@ -92,6 +94,8 @@ module "vault" {
   resource_name_prefix               = local.resource_name_prefix
   web_secret_name                    = local.web_secret_name
   api_secret_name                    = local.api_secret_name
+  cataloger_secret_name              = local.cataloger_secret_name
+  notifier_secret_name               = local.notifier_secret_name
   argocd_secret_name                 = local.argocd_secret_name
   cert_manager_secret_name           = local.cert_manager_secret_name
   grafana_k8s_monitoring_secret_name = local.grafana_k8s_monitoring_secret_name

@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: litomi-cataloger
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  project: workload
+  source:
+    repoURL: https://github.com/litomi2026/litomi-ops.git
+    targetRevision: main
+    path: k8s/workload/litomi/prod/cataloger
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: litomi-cataloger
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

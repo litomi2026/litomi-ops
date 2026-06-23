@@ -18,6 +18,16 @@ variable "api_secret_name" {
   type        = string
 }
 
+variable "cataloger_secret_name" {
+  description = "Vault secret name used by the cataloger workload."
+  type        = string
+}
+
+variable "notifier_secret_name" {
+  description = "Vault secret name used by the notifier workload."
+  type        = string
+}
+
 variable "argocd_secret_name" {
   description = "Vault secret name used by Argo CD."
   type        = string

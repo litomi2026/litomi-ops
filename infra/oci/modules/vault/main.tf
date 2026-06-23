@@ -36,6 +36,18 @@ locals {
     VAPID_PRIVATE_KEY            = "REPLACE_ME_VAPID_PRIVATE_KEY"
   }))
 
+  initial_cataloger_secret_content = base64encode(jsonencode({
+    CATALOG_POSTGRES_CERTIFICATE = "REPLACE_ME_CATALOG_POSTGRES_CERTIFICATE"
+    CATALOG_POSTGRES_URL         = "REPLACE_ME_CATALOG_POSTGRES_URL"
+  }))
+
+  initial_notifier_secret_content = base64encode(jsonencode({
+    APP_POSTGRES_CERTIFICATE = "REPLACE_ME_APP_POSTGRES_CERTIFICATE"
+    APP_POSTGRES_URL         = "REPLACE_ME_APP_POSTGRES_URL"
+    VAPID_PRIVATE_KEY        = "REPLACE_ME_VAPID_PRIVATE_KEY"
+    VAPID_PUBLIC_KEY         = "REPLACE_ME_VAPID_PUBLIC_KEY"
+  }))
+
   initial_argocd_secret_content = base64encode(jsonencode({
     CLOUDFLARE_ACCESS_ARGOCD_ISSUER        = "REPLACE_ME_CLOUDFLARE_ACCESS_ARGOCD_ISSUER"
     CLOUDFLARE_ACCESS_ARGOCD_CLIENT_ID     = "REPLACE_ME_CLOUDFLARE_ACCESS_ARGOCD_CLIENT_ID"
@@ -109,6 +121,50 @@ resource "oci_vault_secret" "api" {
 
   secret_content {
     content      = local.initial_api_secret_content
+    content_type = "BASE64"
+    name         = "initial-placeholder"
+    stage        = "CURRENT"
+  }
+
+  lifecycle {
+    # OCI Vault secret version은 부트스트랩/로테이션 절차가 CURRENT 값을 갱신한다.
+    # Terraform state에 실제 비밀값을 저장하지 않기 위한 예외이므로 GitOps drift로 보지 않는다.
+    ignore_changes = [secret_content]
+  }
+}
+
+resource "oci_vault_secret" "cataloger" {
+  compartment_id = var.compartment_id
+  description    = "Secret container for the cataloger workload. Secret values are managed out-of-band."
+  key_id         = oci_kms_key.this.id
+  secret_name    = var.cataloger_secret_name
+  vault_id       = oci_kms_vault.this.id
+  freeform_tags  = var.freeform_tags
+
+  secret_content {
+    content      = local.initial_cataloger_secret_content
+    content_type = "BASE64"
+    name         = "initial-placeholder"
+    stage        = "CURRENT"
+  }
+
+  lifecycle {
+    # OCI Vault secret version은 부트스트랩/로테이션 절차가 CURRENT 값을 갱신한다.
+    # Terraform state에 실제 비밀값을 저장하지 않기 위한 예외이므로 GitOps drift로 보지 않는다.
+    ignore_changes = [secret_content]
+  }
+}
+
+resource "oci_vault_secret" "notifier" {
+  compartment_id = var.compartment_id
+  description    = "Secret container for the notifier workload. Secret values are managed out-of-band."
+  key_id         = oci_kms_key.this.id
+  secret_name    = var.notifier_secret_name
+  vault_id       = oci_kms_vault.this.id
+  freeform_tags  = var.freeform_tags
+
+  secret_content {
+    content      = local.initial_notifier_secret_content
     content_type = "BASE64"
     name         = "initial-placeholder"
     stage        = "CURRENT"
