@@ -13,6 +13,11 @@ configMapGenerator:
     literals:
       - APP_ENV=prod
       - APP_ORIGIN=https://litomi.cc
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+      - OTEL_RESOURCE_ATTRIBUTES=service.namespace=litomi,deployment.environment.name=prod
+      - OTEL_SERVICE_NAME=litomi-web
+      - OTEL_TRACES_SAMPLER=parentbased_traceidratio
+      - OTEL_TRACES_SAMPLER_ARG=0.1
 images:
   - digest: sha256:352f994c9b07b1ff21f0f2cd015aa99484babccc13b2f268b556af3cab79fca4
     name: ghcr.io/litomi2026/litomi-web
