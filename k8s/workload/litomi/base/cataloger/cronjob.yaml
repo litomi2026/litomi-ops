@@ -6,10 +6,8 @@ metadata:
     app.kubernetes.io/name: litomi-cataloger
     app.kubernetes.io/part-of: litomi
 spec:
-  schedule: '0 5 * * *'
+  schedule: '30 5 * * *'
   timeZone: Asia/Seoul
-  # 이미지 digest 승격(CI 최초 1회) + 수동 검증 1회 후 git에서 suspend를 해제한다.
-  suspend: true
   concurrencyPolicy: Forbid
   startingDeadlineSeconds: 600
   successfulJobsHistoryLimit: 1
@@ -39,7 +37,7 @@ spec:
                     name: litomi-cataloger-env
               resources:
                 requests:
-                  cpu: 250m
+                  cpu: 100m
                   memory: 512Mi
                 limits:
                   cpu: 1000m
