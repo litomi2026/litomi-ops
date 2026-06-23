@@ -13,4 +13,4 @@ configMapGenerator:
       - APP_ORIGIN=https://litomi.cc
 images:
   - name: ghcr.io/litomi2026/litomi-notifier
-    digest: sha256:5c8b422e4c4524cce4de3b7ab8ff01126af61dcd50c37d105626e6c11cf1c68e
+    digest: sha256:d0e957a62df51459ab2966457900463147d1bdfffaea7cea218de041df74e68a
