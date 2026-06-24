@@ -25,6 +25,16 @@ destinations:
       type: basic
       usernameKey: username
       passwordKey: password
+  grafana-cloud-profiles:
+    type: pyroscope
+    url: https://profiles-prod-019.grafana.net
+    secret:
+      create: false
+      name: grafana-cloud-profiles-grafana-k8s-monitoring
+    auth:
+      type: basic
+      usernameKey: username
+      passwordKey: password
 
 clusterMetrics:
   enabled: true
@@ -70,7 +80,24 @@ applicationObservability:
   enabled: false
 
 profiling:
-  enabled: false
+  enabled: true
+  collector: alloy-profiles
+  destinations:
+    - grafana-cloud-profiles
+  # 런타임이 Bun(JSC)이라 pyroscope-nodejs SDK(V8/@datadog/pprof)는 동작 불가 → eBPF만 사용.
+  # JSC는 JS 프레임 심볼화가 제한적이므로 네이티브 핫스팟(sharp/zlib/TLS/GC) 위주로 보인다.
+  ebpf:
+    enabled: true
+    targetingScheme: all
+    namespaces:
+      - litomi-api
+      - litomi-web
+    # 네이티브(C++) 심볼 디맹글 — sharp/libvips 등 핫스팟 프레임 가독성용
+    demangle: full
+  java:
+    enabled: false
+  pprof:
+    enabled: false
 
 autoInstrumentation:
   enabled: false
@@ -147,7 +174,21 @@ collectors:
           memory: 256Mi
     controller:
       nodeSelector:
-        grafana.litomi.cc/paused: "true"
+        grafana.litomi.cc/paused: 'true'
+  alloy-profiles:
+    presets:
+      - daemonset
+    alloy:
+      resources:
+        requests:
+          cpu: 25m
+          memory: 128Mi
+        limits:
+          cpu: 200m
+          memory: 512Mi
+    controller:
+      nodeSelector:
+        node-pool-role: workload
 
 alloy-operator:
   priorityClassName: platform-standard
@@ -190,7 +231,7 @@ telemetryServices:
     deploy: true
     nodeSelector:
       kubernetes.io/os: linux
-      grafana.litomi.cc/paused: "true"
+      grafana.litomi.cc/paused: 'true'
     resources:
       requests:
         cpu: 5m
