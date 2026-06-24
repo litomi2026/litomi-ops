@@ -19,7 +19,7 @@ configMapGenerator:
       - OTEL_RESOURCE_ATTRIBUTES=service.namespace=litomi,deployment.environment.name=prod,k8s.cluster.name=litomi-prod
       - OTEL_SERVICE_NAME=litomi-api
       - OTEL_TRACES_SAMPLER=parentbased_traceidratio
-      - OTEL_TRACES_SAMPLER_ARG=0.1
+      - OTEL_TRACES_SAMPLER_ARG=0.5
 images:
   - digest: sha256:36c8558a2a01e56b5b1296ef7df264d92041e97c5ba199b2f04c2dd72271037a
     name: ghcr.io/litomi2026/litomi-api
