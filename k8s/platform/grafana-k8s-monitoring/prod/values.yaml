@@ -174,6 +174,8 @@ collectors:
           memory: 256Mi
   alloy-profiles:
     presets:
+      # eBPF 프로파일러는 root + hostPID + privileged가 있어야 tracefs 마운트/kallsyms 읽기가 가능.
+      - privileged
       - daemonset
     alloy:
       resources:
