@@ -4,7 +4,7 @@ metadata:
   name: grafana-k8s-monitoring-start
   namespace: grafana-k8s-monitoring
 spec:
-  schedule: '0 15 * * *'
+  schedule: '0 12 * * *'
   timeZone: Asia/Seoul
   concurrencyPolicy: Forbid
   startingDeadlineSeconds: 600
