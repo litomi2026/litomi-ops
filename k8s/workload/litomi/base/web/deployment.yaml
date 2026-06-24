@@ -43,6 +43,10 @@ spec:
           env:
             - name: PORT
               value: '3000'
+            - name: K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
           envFrom:
             - configMapRef:
                 name: litomi-web-env

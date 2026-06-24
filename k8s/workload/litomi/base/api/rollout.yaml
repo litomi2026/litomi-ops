@@ -58,6 +58,10 @@ spec:
               value: '3002'
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /etc/workload-identity/credential-configuration.json
+            - name: K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
           envFrom:
             - configMapRef:
                 name: litomi-api-env
