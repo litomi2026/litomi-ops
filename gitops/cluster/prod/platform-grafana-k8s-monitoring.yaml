@@ -29,40 +29,12 @@ spec:
     syncOptions:
       - ServerSideApply=true
       - RespectIgnoreDifferences=true
-  # 스케줄러 CronJob이 Grafana 수집을 15:00-03:00(GMT+9)에만 켜기 위해 아래 필드들을 의도적으로 변경한다.
+  # 스케줄러 CronJob은 host hours를 발생시키는 kube-state-metrics만 특정 시각에 켠다.
+  # host/container hours는 KSM 데이터로만 집계되고, 무료 3 hosts < 클러스터 4 노드라 KSM은 스케줄을 유지한다.
   ignoreDifferences:
-    # metrics/singleton Alloy collector는 replicas를 0 또는 1로 바꿔 일시정지/재개한다.
-    - group: collectors.grafana.com
-      kind: Alloy
-      name: grafana-k8s-monitoring-alloy-metrics
-      jqPathExpressions:
-        - .spec.controller.replicas
-    - group: collectors.grafana.com
-      kind: Alloy
-      name: grafana-k8s-monitoring-alloy-singleton
-      jqPathExpressions:
-        - .spec.controller.replicas
-    # log collector는 DaemonSet 기반 Alloy라 replicas로 끌 수 없다.
-    # 그래서 존재하지 않는 nodeSelector를 넣고 빼는 방식으로 일시정지/재개한다.
-    - group: collectors.grafana.com
-      kind: Alloy
-      name: grafana-k8s-monitoring-alloy-logs
-      jqPathExpressions:
-        - .spec.controller.nodeSelector["grafana.litomi.cc/paused"]
-    # 보조 Deployment도 동일하게 활성 시간대에만 replicas를 1로 유지한다.
+    # kube-state-metrics Deployment만 replicas를 0/1로 토글해 일시정지/재개한다.
     - group: apps
       kind: Deployment
       name: grafana-k8s-monitoring-kube-state-metrics
       jsonPointers:
         - /spec/replicas
-    - group: apps
-      kind: Deployment
-      name: grafana-k8s-monitoring-opencost
-      jsonPointers:
-        - /spec/replicas
-    # host-level DaemonSet도 replicas가 없으므로 동일한 paused nodeSelector 방식을 쓴다.
-    - group: apps
-      kind: DaemonSet
-      name: grafana-k8s-monitoring-node-exporter
-      jqPathExpressions:
-        - .spec.template.spec.nodeSelector["grafana.litomi.cc/paused"]

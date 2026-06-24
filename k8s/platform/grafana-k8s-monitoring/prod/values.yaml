@@ -139,7 +139,7 @@ collectors:
           operator: Equal
           value: platform
           effect: NoSchedule
-      replicas: 0
+      replicas: 1
   alloy-singleton:
     presets:
       - singleton
@@ -159,7 +159,7 @@ collectors:
           operator: Equal
           value: platform
           effect: NoSchedule
-      replicas: 0
+      replicas: 1
   alloy-logs:
     presets:
       - filesystem-log-reader
@@ -172,9 +172,6 @@ collectors:
         limits:
           cpu: 100m
           memory: 256Mi
-    controller:
-      nodeSelector:
-        grafana.litomi.cc/paused: 'true'
   alloy-profiles:
     presets:
       - daemonset
@@ -231,7 +228,6 @@ telemetryServices:
     deploy: true
     nodeSelector:
       kubernetes.io/os: linux
-      grafana.litomi.cc/paused: 'true'
     resources:
       requests:
         cpu: 5m
@@ -248,7 +244,7 @@ telemetryServices:
     opencost:
       exporter:
         defaultClusterId: litomi-prod
-        replicas: 0
+        replicas: 1
         resources:
           requests:
             cpu: 25m
