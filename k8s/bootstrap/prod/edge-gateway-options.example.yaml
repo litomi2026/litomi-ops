@@ -18,19 +18,12 @@ data:
         - IPv4
   deployment: |
     spec:
-      replicas: 2
+      replicas: 1
       template:
         spec:
           priorityClassName: platform-critical
           nodeSelector:
             node-pool-role: platform
-          topologySpreadConstraints:
-            - labelSelector:
-                matchLabels:
-                  gateway.networking.k8s.io/gateway-name: edge
-              maxSkew: 1
-              topologyKey: kubernetes.io/hostname
-              whenUnsatisfiable: DoNotSchedule
           tolerations:
             - key: node-pool-role
               operator: Equal
@@ -45,17 +38,3 @@ data:
                 limits:
                   cpu: 500m
                   memory: 512Mi
-  horizontalPodAutoscaler: |
-    spec:
-      minReplicas: 2
-      maxReplicas: 2
-      metrics:
-        - type: Resource
-          resource:
-            name: cpu
-            target:
-              type: Utilization
-              averageUtilization: 75
-  podDisruptionBudget: |
-    spec:
-      minAvailable: 1
