@@ -1,6 +1,4 @@
 replicas: 1
-podDisruptionBudget:
-  enabled: false
 resources:
   requests:
     cpu: 50m
