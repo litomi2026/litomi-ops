@@ -23,5 +23,6 @@ resources:
   - platform-storage.yaml
   - workload-litomi-api.yaml
   - workload-litomi-cataloger.yaml
+  - workload-litomi-chat.yaml
   - workload-litomi-notifier.yaml
   - workload-litomi-web.yaml

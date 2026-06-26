@@ -53,6 +53,16 @@ output "notifier_secret_name" {
   value       = var.notifier_secret_name
 }
 
+output "chat_secret_id" {
+  description = "Chat workload vault secret OCID."
+  value       = oci_vault_secret.chat.id
+}
+
+output "chat_secret_name" {
+  description = "Chat secret name."
+  value       = var.chat_secret_name
+}
+
 output "argocd_secret_id" {
   description = "Argo CD vault secret OCID."
   value       = oci_vault_secret.argocd.id

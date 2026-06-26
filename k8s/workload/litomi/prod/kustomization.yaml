@@ -5,3 +5,4 @@ resources:
   - api
   - cataloger
   - notifier
+  - chat
