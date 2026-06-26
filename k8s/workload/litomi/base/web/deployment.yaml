@@ -35,7 +35,7 @@ spec:
               app.kubernetes.io/name: litomi-web
           maxSkew: 1
           topologyKey: kubernetes.io/hostname
-          whenUnsatisfiable: DoNotSchedule
+          whenUnsatisfiable: ScheduleAnyway
       containers:
         - name: web
           image: ghcr.io/litomi2026/litomi-web:overlay-required

@@ -1,15 +1,7 @@
-replicas: 2
+replicas: 1
 podDisruptionBudget:
   enabled: true
-  minAvailable: 1
-topologySpreadConstraints:
-  - maxSkew: 1
-    topologyKey: oci.oraclecloud.com/fault-domain
-    whenUnsatisfiable: DoNotSchedule
-    labelSelector:
-      matchLabels:
-        app.kubernetes.io/name: metrics-server
-        app.kubernetes.io/instance: metrics-server
+  minAvailable: 0
 resources:
   requests:
     cpu: 50m
