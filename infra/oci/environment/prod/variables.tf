@@ -229,19 +229,19 @@ variable "node_pools" {
   }))
   default = {
     platform = {
-      size          = 2
+      size          = 1
       node_label    = "platform"
       shape         = "VM.Standard.A1.Flex"
-      ocpus         = 1
-      memory_in_gbs = 6
+      ocpus         = 2
+      memory_in_gbs = 12
       vault_access  = true
     }
     workload = {
-      size          = 2
+      size          = 1
       node_label    = "workload"
       shape         = "VM.Standard.A1.Flex"
-      ocpus         = 1
-      memory_in_gbs = 6
+      ocpus         = 2
+      memory_in_gbs = 12
       vault_access  = false
     }
   }
