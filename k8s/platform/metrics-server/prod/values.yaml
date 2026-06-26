@@ -1,7 +1,6 @@
 replicas: 1
 podDisruptionBudget:
-  enabled: true
-  minAvailable: 0
+  enabled: false
 resources:
   requests:
     cpu: 50m
