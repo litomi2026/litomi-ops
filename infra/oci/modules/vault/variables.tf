@@ -33,6 +33,11 @@ variable "chat_secret_name" {
   type        = string
 }
 
+variable "worker_secret_name" {
+  description = "Vault secret name used by the worker workload."
+  type        = string
+}
+
 variable "argocd_secret_name" {
   description = "Vault secret name used by Argo CD."
   type        = string

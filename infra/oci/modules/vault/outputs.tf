@@ -63,6 +63,16 @@ output "chat_secret_name" {
   value       = var.chat_secret_name
 }
 
+output "worker_secret_id" {
+  description = "Worker workload vault secret OCID."
+  value       = oci_vault_secret.worker.id
+}
+
+output "worker_secret_name" {
+  description = "Worker secret name."
+  value       = var.worker_secret_name
+}
+
 output "argocd_secret_id" {
   description = "Argo CD vault secret OCID."
   value       = oci_vault_secret.argocd.id
