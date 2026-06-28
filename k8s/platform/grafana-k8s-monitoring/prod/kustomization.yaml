@@ -3,8 +3,6 @@ kind: Kustomization
 resources:
   - ../base
   - external-secret.yaml
-  - schedule-rbac.yaml
-  - schedule-cronjobs.yaml
 patches:
   - path: namespace-patch.yaml
     target:
