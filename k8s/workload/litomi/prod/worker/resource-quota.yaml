@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: budget
+spec:
+  hard:
+    count/configmaps: "8"
+    count/secrets: "8"
+    limits.cpu: "2"
+    limits.memory: 2Gi
+    pods: "6"
+    requests.cpu: "500m"
+    requests.memory: 1Gi
+    services: "2"
