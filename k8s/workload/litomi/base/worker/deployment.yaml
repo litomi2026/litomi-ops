@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: litomi-worker
+  labels:
+    app.kubernetes.io/name: litomi-worker
+    app.kubernetes.io/part-of: litomi
+spec:
+  # A Kafka consumer's effective parallelism is capped by the topic's partition
+  # count: replicas > partitions leaves the surplus idle. Keep replicas <= the
+  # `chat.message` partition count (2 here assumes >= 2 partitions).
+  replicas: 2
+  minReadySeconds: 5
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: litomi-worker
+  # No surge: a surge pod would force an extra consumer-group rebalance and push
+  # the namespace over its CPU ResourceQuota.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: litomi-worker
+        app.kubernetes.io/part-of: litomi
+    spec:
+      automountServiceAccountToken: false
+      serviceAccountName: litomi-worker
+      priorityClassName: workload-standard
+      terminationGracePeriodSeconds: 30
+      nodeSelector:
+        node-pool-role: workload
+      topologySpreadConstraints:
+        - labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: litomi-worker
+          maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+      containers:
+        - name: worker
+          image: ghcr.io/litomi2026/litomi-worker:overlay-required
+          imagePullPolicy: IfNotPresent
+          env:
+            # The worker serves no traffic; this port exists only for kubelet probes.
+            - name: PORT
+              value: '3004'
+            - name: K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          envFrom:
+            - configMapRef:
+                name: litomi-worker-env
+            - secretRef:
+                name: litomi-worker-env
+          ports:
+            - containerPort: 3004
+              name: http
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 12
+          # Readiness mirrors the drain flag: once shutting down, /health returns
+          # 503. The worker has no Service, so this mainly gates rollout progress.
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
+          # Liveness is a bare TCP check on purpose: /health 503s while draining,
+          # so an httpGet liveness probe would restart a healthy pod mid-drain.
+          livenessProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 1000m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
