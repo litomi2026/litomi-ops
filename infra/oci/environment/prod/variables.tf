@@ -131,7 +131,7 @@ variable "node_image_id" {
 variable "node_boot_volume_size_in_gbs" {
   description = "Boot volume size in GB for OKE worker nodes."
   type        = number
-  default     = 50
+  default     = 100
 }
 
 variable "kubernetes_version" {
