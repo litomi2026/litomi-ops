@@ -172,6 +172,32 @@ variable "pod_redis_ports" {
   }
 }
 
+variable "pod_kafka_cidrs_ipv4" {
+  description = "Explicit IPv4 CIDR allowlist for pod Kafka egress via NAT."
+  type        = list(string)
+
+  validation {
+    condition = (
+      length(var.pod_kafka_cidrs_ipv4) > 0 &&
+      alltrue([for cidr in var.pod_kafka_cidrs_ipv4 : can(cidrnetmask(cidr))])
+    )
+    error_message = "pod_kafka_cidrs_ipv4 must contain at least one valid IPv4 CIDR block."
+  }
+}
+
+variable "pod_kafka_ports" {
+  description = "TCP ports allowed for pod Kafka egress via NAT."
+  type        = set(number)
+
+  validation {
+    condition = (
+      length(var.pod_kafka_ports) > 0 &&
+      alltrue([for port in var.pod_kafka_ports : port >= 1 && port <= 65535 && port == floor(port)])
+    )
+    error_message = "pod_kafka_ports must contain at least one valid TCP port number."
+  }
+}
+
 variable "freeform_tags" {
   description = "Freeform tags applied to network resources."
   type        = map(string)

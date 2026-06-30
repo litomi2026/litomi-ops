@@ -77,6 +77,24 @@ resource "oci_core_network_security_group_security_rule" "pod_egress_redis" {
   }
 }
 
+resource "oci_core_network_security_group_security_rule" "pod_egress_kafka" {
+  for_each = local.pod_kafka_egress_rules
+
+  network_security_group_id = oci_core_network_security_group.pod.id
+  direction                 = "EGRESS"
+  description               = "Pods to explicit Kafka TCP ${each.value.port} allowlist via NAT."
+  destination               = each.value.cidr
+  destination_type          = "CIDR_BLOCK"
+  protocol                  = "6"
+
+  tcp_options {
+    destination_port_range {
+      max = each.value.port
+      min = each.value.port
+    }
+  }
+}
+
 resource "oci_core_network_security_group_security_rule" "pod_egress_path_discovery" {
   network_security_group_id = oci_core_network_security_group.pod.id
   direction                 = "EGRESS"

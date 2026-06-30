@@ -73,6 +73,8 @@ module "network" {
   pod_postgresql_ports              = var.pod_postgresql_ports
   pod_redis_cidrs_ipv4              = var.pod_redis_cidrs_ipv4
   pod_redis_ports                   = var.pod_redis_ports
+  pod_kafka_cidrs_ipv4              = var.pod_kafka_cidrs_ipv4
+  pod_kafka_ports                   = var.pod_kafka_ports
   freeform_tags                     = local.freeform_tags
 }
 

@@ -29,4 +29,12 @@ locals {
       port = pair[1]
     }
   }
+
+  pod_kafka_egress_rules = {
+    for pair in setproduct(var.pod_kafka_cidrs_ipv4, var.pod_kafka_ports) :
+    "${pair[0]}:${pair[1]}" => {
+      cidr = pair[0]
+      port = pair[1]
+    }
+  }
 }
