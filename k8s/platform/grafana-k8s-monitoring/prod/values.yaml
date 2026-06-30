@@ -177,6 +177,10 @@ collectors:
         limits:
           cpu: 100m
           memory: 256Mi
+    # 앱이 전부 workload 노드에서 돌므로 로그 collector도 거기 고정한다.
+    controller:
+      nodeSelector:
+        node-pool-role: workload
   alloy-profiles:
     presets:
       # eBPF 프로파일러는 root + hostPID + privileged가 있어야 tracefs 마운트/kallsyms 읽기가 가능.
