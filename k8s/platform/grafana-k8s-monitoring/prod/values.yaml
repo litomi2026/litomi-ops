@@ -62,7 +62,12 @@ podLogsViaLoki:
   enabled: true
   collector: alloy-logs
   namespaces:
-    - litomi-prod
+    - litomi-api
+    - litomi-web
+    - litomi-chat
+    - litomi-chat-worker
+    - litomi-chat-push
+    - litomi-cataloger
 
 annotationAutodiscovery:
   enabled: false
