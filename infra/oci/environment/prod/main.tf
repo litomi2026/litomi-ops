@@ -8,7 +8,8 @@ locals {
   cataloger_secret_name              = "${local.resource_name_prefix}-cataloger"
   notifier_secret_name               = "${local.resource_name_prefix}-notifier"
   chat_secret_name                   = "${local.resource_name_prefix}-chat"
-  worker_secret_name                 = "${local.resource_name_prefix}-worker"
+  chat_worker_secret_name            = "${local.resource_name_prefix}-chat-worker"
+  chat_push_secret_name              = "${local.resource_name_prefix}-chat-push"
   argocd_secret_name                 = "${local.resource_name_prefix}-argocd"
   cert_manager_secret_name           = "${local.resource_name_prefix}-cert-manager"
   grafana_k8s_monitoring_secret_name = "${local.resource_name_prefix}-grafana-cloud-k8s"
@@ -99,7 +100,8 @@ module "vault" {
   cataloger_secret_name              = local.cataloger_secret_name
   notifier_secret_name               = local.notifier_secret_name
   chat_secret_name                   = local.chat_secret_name
-  worker_secret_name                 = local.worker_secret_name
+  chat_worker_secret_name            = local.chat_worker_secret_name
+  chat_push_secret_name              = local.chat_push_secret_name
   argocd_secret_name                 = local.argocd_secret_name
   cert_manager_secret_name           = local.cert_manager_secret_name
   grafana_k8s_monitoring_secret_name = local.grafana_k8s_monitoring_secret_name

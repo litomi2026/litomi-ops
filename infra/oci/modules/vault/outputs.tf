@@ -63,14 +63,24 @@ output "chat_secret_name" {
   value       = var.chat_secret_name
 }
 
-output "worker_secret_id" {
-  description = "Worker workload vault secret OCID."
-  value       = oci_vault_secret.worker.id
+output "chat_worker_secret_id" {
+  description = "chat-worker workload vault secret OCID."
+  value       = oci_vault_secret.chat_worker.id
 }
 
-output "worker_secret_name" {
-  description = "Worker secret name."
-  value       = var.worker_secret_name
+output "chat_worker_secret_name" {
+  description = "chat-worker secret name."
+  value       = var.chat_worker_secret_name
+}
+
+output "chat_push_secret_id" {
+  description = "chat-push workload vault secret OCID."
+  value       = oci_vault_secret.chat_push.id
+}
+
+output "chat_push_secret_name" {
+  description = "chat-push secret name."
+  value       = var.chat_push_secret_name
 }
 
 output "argocd_secret_id" {
