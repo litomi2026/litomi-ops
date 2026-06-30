@@ -14,6 +14,12 @@ spec:
       server: https://kubernetes.default.svc
     - namespace: litomi-cataloger
       server: https://kubernetes.default.svc
+    - namespace: litomi-chat
+      server: https://kubernetes.default.svc
+    - namespace: litomi-chat-worker
+      server: https://kubernetes.default.svc
+    - namespace: litomi-chat-push
+      server: https://kubernetes.default.svc
   sourceRepos:
     - https://github.com/litomi2026/litomi-ops.git
   clusterResourceWhitelist:
@@ -26,6 +32,15 @@ spec:
     - group: ""
       kind: Namespace
       name: litomi-cataloger
+    - group: ""
+      kind: Namespace
+      name: litomi-chat
+    - group: ""
+      kind: Namespace
+      name: litomi-chat-worker
+    - group: ""
+      kind: Namespace
+      name: litomi-chat-push
   namespaceResourceWhitelist:
     - group: ""
       kind: ConfigMap
