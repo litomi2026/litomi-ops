@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: litomi-worker
+  name: litomi-chat-push
   labels:
-    app.kubernetes.io/name: litomi-worker
+    app.kubernetes.io/name: litomi-chat-push
     app.kubernetes.io/part-of: litomi
     pod-security.kubernetes.io/enforce: restricted
     pod-security.kubernetes.io/enforce-version: v1.35

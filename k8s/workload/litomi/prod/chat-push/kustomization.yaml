@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: litomi-chat-push
+resources:
+  - ../../base/chat-push
+  - limit-range.yaml
+  - resource-quota.yaml
+generatorOptions:
+  disableNameSuffixHash: true
+configMapGenerator:
+  - name: litomi-chat-push-env
+    literals:
+      - APP_ENV=prod
+      - APP_ORIGIN=https://litomi.cc
+images:
+  - digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+    name: ghcr.io/litomi2026/litomi-chat-push
