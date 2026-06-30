@@ -232,8 +232,8 @@ variable "node_pools" {
       size          = 1
       node_label    = "platform"
       shape         = "VM.Standard.A1.Flex"
-      ocpus         = 2
-      memory_in_gbs = 6
+      ocpus         = 1
+      memory_in_gbs = 5
       vault_access  = true
     }
     workload = {
@@ -241,7 +241,7 @@ variable "node_pools" {
       node_label    = "workload"
       shape         = "VM.Standard.A1.Flex"
       ocpus         = 2
-      memory_in_gbs = 10
+      memory_in_gbs = 7
       vault_access  = false
     }
   }
