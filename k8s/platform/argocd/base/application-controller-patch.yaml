@@ -17,3 +17,9 @@ spec:
         - name: argocd-application-controller
           securityContext:
             allowPrivilegeEscalation: false
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              memory: 1Gi

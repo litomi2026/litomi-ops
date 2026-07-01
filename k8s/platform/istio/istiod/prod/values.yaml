@@ -9,11 +9,10 @@ seccompProfile:
   type: RuntimeDefault
 resources:
   requests:
-    cpu: 100m
-    memory: 512Mi
+    cpu: 40m
+    memory: 192Mi
   limits:
-    cpu: 500m
-    memory: 1Gi
+    memory: 192Mi
 nodeSelector:
   node-pool-role: platform
 tolerations:

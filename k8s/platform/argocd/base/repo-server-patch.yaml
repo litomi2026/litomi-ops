@@ -21,3 +21,10 @@ spec:
         - name: argocd-repo-server
           securityContext:
             allowPrivilegeEscalation: false
+          resources:
+            requests:
+              cpu: 60m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

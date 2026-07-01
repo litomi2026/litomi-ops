@@ -131,10 +131,9 @@ collectors:
     alloy:
       resources:
         requests:
-          cpu: 75m
-          memory: 192Mi
+          cpu: 40m
+          memory: 256Mi
         limits:
-          cpu: 300m
           memory: 512Mi
     controller:
       nodeSelector:
@@ -151,10 +150,9 @@ collectors:
     alloy:
       resources:
         requests:
-          cpu: 25m
-          memory: 64Mi
+          cpu: 15m
+          memory: 128Mi
         limits:
-          cpu: 150m
           memory: 192Mi
     controller:
       nodeSelector:
@@ -210,10 +208,9 @@ alloy-operator:
       effect: NoSchedule
   resources:
     requests:
-      cpu: 50m
-      memory: 96Mi
+      cpu: 35m
+      memory: 128Mi
     limits:
-      cpu: 500m
       memory: 192Mi
 
 telemetryServices:
@@ -230,10 +227,9 @@ telemetryServices:
         effect: NoSchedule
     resources:
       requests:
-        cpu: 25m
+        cpu: 20m
         memory: 64Mi
       limits:
-        cpu: 100m
         memory: 128Mi
   node-exporter:
     deploy: true
@@ -244,7 +240,6 @@ telemetryServices:
         cpu: 5m
         memory: 32Mi
       limits:
-        cpu: 100m
         memory: 128Mi
   windows-exporter:
     deploy: false
@@ -258,10 +253,9 @@ telemetryServices:
         replicas: 1
         resources:
           requests:
-            cpu: 25m
+            cpu: 15m
             memory: 128Mi
           limits:
-            cpu: 200m
             memory: 512Mi
       prometheus:
         existingSecretName: grafana-cloud-metrics-grafana-k8s-monitoring

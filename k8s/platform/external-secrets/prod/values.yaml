@@ -11,11 +11,10 @@ tolerations:
     effect: NoSchedule
 resources:
   requests:
-    cpu: 50m
-    memory: 96Mi
+    cpu: 25m
+    memory: 128Mi
   limits:
-    cpu: 500m
-    memory: 192Mi
+    memory: 128Mi
 webhook:
   priorityClassName: platform-critical
   nodeSelector:
@@ -27,11 +26,10 @@ webhook:
       effect: NoSchedule
   resources:
     requests:
-      cpu: 25m
+      cpu: 15m
       memory: 64Mi
     limits:
-      cpu: 150m
-      memory: 128Mi
+      memory: 64Mi
 certController:
   priorityClassName: platform-critical
   nodeSelector:
@@ -43,8 +41,7 @@ certController:
       effect: NoSchedule
   resources:
     requests:
-      cpu: 25m
-      memory: 64Mi
+      cpu: 10m
+      memory: 128Mi
     limits:
-      cpu: 150m
       memory: 128Mi

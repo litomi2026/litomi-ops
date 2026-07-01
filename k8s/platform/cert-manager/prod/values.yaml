@@ -21,26 +21,23 @@ global:
 replicaCount: 1
 resources:
   requests:
-    cpu: 50m
+    cpu: 20m
     memory: 96Mi
   limits:
-    cpu: 200m
-    memory: 192Mi
+    memory: 96Mi
 webhook:
   replicaCount: 1
   resources:
     requests:
-      cpu: 25m
+      cpu: 15m
       memory: 64Mi
     limits:
-      cpu: 150m
-      memory: 128Mi
+      memory: 64Mi
 cainjector:
   replicaCount: 1
   resources:
     requests:
-      cpu: 25m
-      memory: 64Mi
+      cpu: 10m
+      memory: 96Mi
     limits:
-      cpu: 150m
-      memory: 128Mi
+      memory: 96Mi
