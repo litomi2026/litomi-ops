@@ -1,6 +1,0 @@
-hostname     = "app.terraform.io"
-organization = "litomi"
-
-workspaces {
-  name = "oci-prod"
-}

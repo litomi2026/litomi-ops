@@ -5,15 +5,15 @@ terraform {
     organization = "litomi"
 
     workspaces {
-      project = "oci"
-      name    = "oci-prod"
+      project = "aiven"
+      name    = "aiven-prod"
     }
   }
 
   required_providers {
-    oci = {
-      source  = "oracle/oci"
-      version = "~> 8.0"
+    aiven = {
+      source  = "aiven/aiven"
+      version = "~> 4.0"
     }
   }
 }
