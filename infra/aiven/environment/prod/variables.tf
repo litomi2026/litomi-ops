@@ -15,15 +15,15 @@ variable "kafka_service_name" {
 }
 
 variable "kafka_replication" {
-  description = "Replication factor for chat topics. Match the Aiven Kafka plan's broker count (Aiven standard is 3)."
+  description = "Replication factor for chat topics. Must not exceed the Kafka cluster's broker count. 1 = single-node Aiven free plan (no redundancy); raise to 3 on a multi-node plan for durability/HA."
   type        = number
-  default     = 3
+  default     = 1
 }
 
 variable "kafka_min_insync_replicas" {
-  description = "min.insync.replicas for chat topics. Must be <= kafka_replication; 2 with RF 3 keeps producing safe while one broker is down."
+  description = "min.insync.replicas for chat topics. Must be <= kafka_replication. 1 = single-node free plan; use 2 with RF 3 to keep producing safely while one broker is down."
   type        = number
-  default     = 2
+  default     = 1
 }
 
 variable "chat_message_partitions" {
