@@ -5,20 +5,17 @@ provider "aiven" {
 locals {
   # Topic names are the external contract defined in litomi: packages/events/src/topics.ts.
   # Keep these strings in sync with that file (TOPIC_CHAT_MESSAGE / TOPIC_CHAT_PUSH_FANOUT).
+  # The Aiven free tier fixes retention/cleanup/min.insync, so only partitions + replication
+  # are set here; the rest inherit the Kafka service defaults. Add the config fields back on
+  # a paid plan (the module supports them as optional).
   topics = {
     "chat.message" = {
-      partitions          = var.chat_message_partitions
-      replication         = var.kafka_replication
-      retention_ms        = var.chat_message_retention_ms
-      cleanup_policy      = "delete"
-      min_insync_replicas = var.kafka_min_insync_replicas
+      partitions  = var.chat_message_partitions
+      replication = var.kafka_replication
     }
     "chat.push.fanout" = {
-      partitions          = var.chat_push_fanout_partitions
-      replication         = var.kafka_replication
-      retention_ms        = var.chat_push_fanout_retention_ms
-      cleanup_policy      = "delete"
-      min_insync_replicas = var.kafka_min_insync_replicas
+      partitions  = var.chat_push_fanout_partitions
+      replication = var.kafka_replication
     }
   }
 

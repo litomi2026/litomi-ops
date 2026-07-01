@@ -20,34 +20,16 @@ variable "kafka_replication" {
   default     = 2
 }
 
-variable "kafka_min_insync_replicas" {
-  description = "min.insync.replicas for chat topics. Must be <= kafka_replication. 1 keeps producing available during single-broker rolling maintenance on the 2-broker plan; use 2 with RF 3 for stronger durability."
-  type        = number
-  default     = 1
-}
-
 variable "chat_message_partitions" {
-  description = "Partitions for chat.message (key = streamId). Cannot be decreased later; increasing rehashes keys and breaks per-stream ordering."
+  description = "Partitions for chat.message (key = streamId). Capped at 2 by the current Aiven Kafka plan (max 2 partitions per topic). Cannot be decreased later; increasing rehashes keys and breaks per-stream ordering."
   type        = number
-  default     = 6
+  default     = 2
 }
 
 variable "chat_push_fanout_partitions" {
-  description = "Partitions for chat.push.fanout (key = artistId). Cannot be decreased later; increasing rehashes keys and breaks per-artist ordering."
+  description = "Partitions for chat.push.fanout (key = artistId). Capped at 2 by the current Aiven Kafka plan (max 2 partitions per topic). Cannot be decreased later; increasing rehashes keys and breaks per-artist ordering."
   type        = number
-  default     = 6
-}
-
-variable "chat_message_retention_ms" {
-  description = "Retention for chat.message. Messages are also persisted to CockroachDB, so Kafka is a transport/replay buffer (default 1 day)."
-  type        = number
-  default     = 86400000
-}
-
-variable "chat_push_fanout_retention_ms" {
-  description = "Retention for chat.push.fanout fan-out jobs (default 1 day)."
-  type        = number
-  default     = 86400000
+  default     = 2
 }
 
 variable "manage_service_users" {

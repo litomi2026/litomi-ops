@@ -1,6 +1,6 @@
 # Declarative Kafka topics. Aiven disables broker-side auto-create, so topics are the
-# source of truth for partitions/retention; partitions can only be increased, never
-# decreased, and increasing them rehashes key->partition (breaks per-key ordering).
+# source of truth for partitioning; partitions can only be increased, never decreased,
+# and increasing them rehashes key->partition (breaks per-key ordering).
 resource "aiven_kafka_topic" "this" {
   for_each = var.topics
 
@@ -10,10 +10,20 @@ resource "aiven_kafka_topic" "this" {
   partitions   = each.value.partitions
   replication  = each.value.replication
 
-  config {
-    cleanup_policy      = each.value.cleanup_policy
-    retention_ms        = tostring(each.value.retention_ms)
-    min_insync_replicas = tostring(each.value.min_insync_replicas)
+  # Only pin topic config when the caller sets a field. Constrained plans (e.g. the Aiven
+  # free tier, which fixes retention) reject custom config, so omit it and inherit the
+  # service defaults.
+  dynamic "config" {
+    for_each = anytrue([
+      each.value.retention_ms != null,
+      each.value.cleanup_policy != null,
+      each.value.min_insync_replicas != null,
+    ]) ? [true] : []
+    content {
+      cleanup_policy      = each.value.cleanup_policy
+      retention_ms        = each.value.retention_ms == null ? null : tostring(each.value.retention_ms)
+      min_insync_replicas = each.value.min_insync_replicas == null ? null : tostring(each.value.min_insync_replicas)
+    }
   }
 }
 

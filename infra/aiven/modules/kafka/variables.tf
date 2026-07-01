@@ -9,18 +9,18 @@ variable "service_name" {
 }
 
 variable "topics" {
-  description = "Kafka topics to manage, keyed by topic name."
+  description = "Kafka topics to manage, keyed by topic name. retention_ms/cleanup_policy/min_insync_replicas are optional; omit them to inherit the service defaults (required on the Aiven free tier, which fixes retention)."
   type = map(object({
     partitions          = number
     replication         = number
-    retention_ms        = number
-    cleanup_policy      = string
-    min_insync_replicas = number
+    retention_ms        = optional(number)
+    cleanup_policy      = optional(string)
+    min_insync_replicas = optional(number)
   }))
 
   validation {
-    condition     = alltrue([for t in values(var.topics) : t.partitions >= 1 && t.replication >= 1 && t.min_insync_replicas >= 1 && t.min_insync_replicas <= t.replication])
-    error_message = "Each topic needs partitions >= 1, replication >= 1, and 1 <= min_insync_replicas <= replication."
+    condition     = alltrue([for t in values(var.topics) : t.partitions >= 1 && t.replication >= 1 && (t.min_insync_replicas == null || (t.min_insync_replicas >= 1 && t.min_insync_replicas <= t.replication))])
+    error_message = "Each topic needs partitions >= 1, replication >= 1, and (if set) 1 <= min_insync_replicas <= replication."
   }
 }
 
