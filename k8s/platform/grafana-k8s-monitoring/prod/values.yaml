@@ -51,8 +51,7 @@ hostMetrics:
     enabled: false
 
 costMetrics:
-  enabled: true
-  collector: alloy-metrics
+  enabled: false
 
 clusterEvents:
   enabled: true
