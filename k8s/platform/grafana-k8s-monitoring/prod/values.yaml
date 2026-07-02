@@ -244,31 +244,6 @@ telemetryServices:
   windows-exporter:
     deploy: false
   opencost:
-    deploy: true
-    metricsSource: grafana-cloud-metrics
-    priorityClassName: platform-standard
-    opencost:
-      exporter:
-        defaultClusterId: litomi-prod
-        replicas: 1
-        resources:
-          requests:
-            cpu: 15m
-            memory: 128Mi
-          limits:
-            memory: 512Mi
-      prometheus:
-        existingSecretName: grafana-cloud-metrics-grafana-k8s-monitoring
-        username_key: username
-        password_key: password
-        external:
-          url: https://prometheus-prod-49-prod-ap-northeast-0.grafana.net/api/prom
-      nodeSelector:
-        node-pool-role: platform
-      tolerations:
-        - key: node-pool-role
-          operator: Equal
-          value: platform
-          effect: NoSchedule
+    deploy: false
   kepler:
     deploy: false
