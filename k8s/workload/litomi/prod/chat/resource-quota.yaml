@@ -6,7 +6,7 @@ spec:
   hard:
     count/configmaps: "8"
     count/secrets: "8"
-    limits.cpu: "2"
+    limits.cpu: "3"
     limits.memory: 2Gi
     pods: "6"
     requests.cpu: "500m"
