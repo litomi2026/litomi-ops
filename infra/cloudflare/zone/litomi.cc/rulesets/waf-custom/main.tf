@@ -134,6 +134,26 @@ locals {
     ")",
   ])
 
+  # Allow provider webhook endpoints
+  webhook_targets = [
+    {
+      method = "POST"
+      path   = "/api/v1/billing/portone/webhook"
+    },
+  ]
+
+  webhook_request_expression = format(
+    "(%s)",
+    join(" or ", [
+      for target in local.webhook_targets :
+      format(
+        "(http.request.uri.path eq \"%s\" and http.request.method eq \"%s\")",
+        target.path,
+        target.method,
+      )
+    ]),
+  )
+
   # Unexpected Next.js Server Action header
   malformed_next_action_expression = "(has_key(http.request.headers, \"next-action\"))"
 
@@ -177,8 +197,9 @@ locals {
   )
 
   corrupted_request_expression = format(
-    "(not %s and (%s))",
+    "(not %s and not %s and (%s))",
     local.public_request_expression,
+    local.webhook_request_expression,
     join(" or ", local.corrupted_request_conditions),
   )
 
