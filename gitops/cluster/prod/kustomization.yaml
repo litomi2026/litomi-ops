@@ -20,6 +20,7 @@ resources:
   - platform-priorityclass-platform-critical.yaml
   - platform-priorityclass-platform-standard.yaml
   - platform-priorityclass-workload-standard.yaml
+  - platform-reloader.yaml
   - platform-storage.yaml
   - workload-litomi-api.yaml
   - workload-litomi-cataloger.yaml

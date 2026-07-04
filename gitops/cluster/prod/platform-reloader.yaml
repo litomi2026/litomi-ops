@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: reloader
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: '0'
+spec:
+  project: platform
+  sources:
+    - repoURL: https://stakater.github.io/stakater-charts
+      chart: reloader
+      targetRevision: 2.2.14
+      helm:
+        releaseName: reloader
+        valueFiles:
+          - $values/k8s/platform/reloader/prod/values.yaml
+    - repoURL: https://github.com/litomi2026/litomi-ops.git
+      targetRevision: main
+      ref: values
+      path: k8s/platform/reloader/prod
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: reloader
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true

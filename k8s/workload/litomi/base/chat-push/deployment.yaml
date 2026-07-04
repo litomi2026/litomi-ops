@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: litomi-chat-push
+  annotations:
+    reloader.stakater.com/auto: 'true'
   labels:
     app.kubernetes.io/name: litomi-chat-push
     app.kubernetes.io/part-of: litomi

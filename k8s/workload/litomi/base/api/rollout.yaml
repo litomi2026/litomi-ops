@@ -2,6 +2,9 @@ apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
   name: litomi-api
+  annotations:
+    reloader.stakater.com/auto: 'true'
+    reloader.stakater.com/rollout-strategy: restart
   labels:
     app.kubernetes.io/name: litomi-api
     app.kubernetes.io/part-of: litomi
