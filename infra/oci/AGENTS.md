@@ -58,10 +58,16 @@
    `kubectl`이 동작한다. 종료할 때는 `Ctrl-C`로 끊는다(로컬 터널만 닫히므로
    session 정리는 아래 "정리하는 법" 참고).
 
+   session이 `SUCCEEDED`가 된 직후에는 SSH 인증이 아직 준비되지 않아
+   `Permission denied (publickey)`가 날 수 있다. 10~15초 기다렸다 재시도한다.
+   ssh-agent에 다른 키가 많으면 엉뚱한 키를 먼저 제시하다 거부당할 수 있으므로
+   `IdentitiesOnly=yes`로 지정한 키만 쓰게 한다.
+
    ```sh
    ssh -i "$BASTION_SSH_KEY" -N \
      -L "127.0.0.1:${LOCAL_API_PORT}:${TARGET_PRIVATE_IP}:${TARGET_PORT}" \
      -p 22 "${SESSION_ID}@host.bastion.ap-seoul-1.oci.oraclecloud.com" \
+     -o IdentitiesOnly=yes \
      -o ExitOnForwardFailure=yes \
      -o ServerAliveInterval=30 \
      -o ServerAliveCountMax=3 \
