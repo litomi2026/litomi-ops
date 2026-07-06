@@ -98,6 +98,15 @@ profiling:
       - litomi-web
     # 네이티브(C++) 심볼 디맹글 — sharp/libvips 등 핫스팟 프레임 가독성용
     demangle: full
+    # eBPF discovery는 service_name/namespace만 세팅하고, pod-logs와 달리 resource.opentelemetry.io/*
+    # 어노테이션을 라벨로 승격하는 labelmap이 없다(최신 차트도 동일). pod-logs가 내부에서 쓰는 것과
+    # 동일한 규칙을 넣어 deployment_environment_name 등 리소스 어노테이션을 프로파일 라벨로 승격 →
+    # App O11y trace↔profile 상관관계 정합. service.version 등 추가 리소스 속성도 자동 반영.
+    extraDiscoveryRules: |
+      rule {
+        action = "labelmap"
+        regex = "__meta_kubernetes_pod_annotation_resource_opentelemetry_io_(.+)"
+      }
   java:
     enabled: false
   pprof:
