@@ -44,3 +44,34 @@ output "bot_management_fight_mode_enabled" {
   description = "Whether Bot Fight Mode is enabled."
   value       = cloudflare_bot_management.default.fight_mode
 }
+
+# PortOne V2 webhook egress IP(s). Allow-listed so Bot Fight Mode does not issue a
+# managed challenge to server-to-server webhook delivery: PortOne sends from AWS
+# (ASN 16509, UA "AHC/*"), which fight_mode challenges, and the client cannot solve
+# it — so the callback is dropped at the edge before reaching the API. A "whitelist"
+# IP Access Rule bypasses Bot Fight Mode for these sources. PortOne notifies before
+# changing the IP. Docs: https://developers.portone.io/opi/ko/integration/webhook
+locals {
+  portone_webhook_ips = toset([
+    "52.78.5.241",
+  ])
+}
+
+resource "cloudflare_access_rule" "portone_webhook" {
+  for_each = local.portone_webhook_ips
+
+  zone_id = data.cloudflare_zone.this.zone_id
+  mode    = "whitelist"
+
+  configuration = {
+    target = "ip"
+    value  = each.value
+  }
+
+  notes = "PortOne V2 webhook ${each.value} - bypass Bot Fight Mode"
+}
+
+output "portone_webhook_allowed_ips" {
+  description = "Source IPs allow-listed (Bot Fight Mode bypass) for PortOne V2 webhooks."
+  value       = keys(cloudflare_access_rule.portone_webhook)
+}
