@@ -25,6 +25,10 @@ spec:
       labels:
         app.kubernetes.io/name: litomi-web
         app.kubernetes.io/part-of: litomi
+      annotations:
+        resource.opentelemetry.io/service.name: litomi-web
+        resource.opentelemetry.io/service.namespace: litomi
+        resource.opentelemetry.io/deployment.environment.name: prod
     spec:
       automountServiceAccountToken: false
       serviceAccountName: litomi-web
@@ -49,6 +53,14 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
+            - name: K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: K8S_NAMESPACE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
           envFrom:
             - configMapRef:
                 name: litomi-web-env
