@@ -13,6 +13,11 @@ output "vault_ocid" {
   value       = module.vault.vault_id
 }
 
+output "kms_key_ocid" {
+  description = "KMS key OCID consumed by the grafana-cloud workspace to encrypt the collector secret."
+  value       = module.vault.key_id
+}
+
 output "web_secret_name" {
   description = "Vault secret name for the web workload."
   value       = module.vault.web_secret_name
@@ -33,11 +38,6 @@ output "cert_manager_secret_name" {
   value       = module.vault.cert_manager_secret_name
 }
 
-output "grafana_k8s_monitoring_secret_name" {
-  description = "Vault secret name for Grafana Kubernetes Monitoring."
-  value       = module.vault.grafana_k8s_monitoring_secret_name
-}
-
 output "web_secret_id" {
   description = "Vault secret OCID for the web workload."
   value       = module.vault.web_secret_id
@@ -56,11 +56,6 @@ output "argocd_secret_id" {
 output "cert_manager_secret_id" {
   description = "Vault secret OCID for cert-manager."
   value       = module.vault.cert_manager_secret_id
-}
-
-output "grafana_k8s_monitoring_secret_id" {
-  description = "Vault secret OCID for Grafana Kubernetes Monitoring."
-  value       = module.vault.grafana_k8s_monitoring_secret_id
 }
 
 output "namespace_compartment_id" {

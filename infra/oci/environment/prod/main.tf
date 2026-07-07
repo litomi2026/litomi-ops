@@ -3,17 +3,16 @@ locals {
   private_key_value = var.private_key != null ? var.private_key : (
     var.private_key_path != null ? trimspace(file(pathexpand(var.private_key_path))) : null
   )
-  web_secret_name                    = "${local.resource_name_prefix}-web"
-  api_secret_name                    = "${local.resource_name_prefix}-api"
-  cataloger_secret_name              = "${local.resource_name_prefix}-cataloger"
-  notifier_secret_name               = "${local.resource_name_prefix}-notifier"
-  chat_secret_name                   = "${local.resource_name_prefix}-chat"
-  chat_worker_secret_name            = "${local.resource_name_prefix}-chat-worker"
-  chat_push_secret_name              = "${local.resource_name_prefix}-chat-push"
-  argocd_secret_name                 = "${local.resource_name_prefix}-argocd"
-  cert_manager_secret_name           = "${local.resource_name_prefix}-cert-manager"
-  grafana_k8s_monitoring_secret_name = "${local.resource_name_prefix}-grafana-cloud-k8s"
-  worker_tag_value                   = coalesce(var.worker_tag_value, "${local.resource_name_prefix}-oke-worker")
+  web_secret_name          = "${local.resource_name_prefix}-web"
+  api_secret_name          = "${local.resource_name_prefix}-api"
+  cataloger_secret_name    = "${local.resource_name_prefix}-cataloger"
+  notifier_secret_name     = "${local.resource_name_prefix}-notifier"
+  chat_secret_name         = "${local.resource_name_prefix}-chat"
+  chat_worker_secret_name  = "${local.resource_name_prefix}-chat-worker"
+  chat_push_secret_name    = "${local.resource_name_prefix}-chat-push"
+  argocd_secret_name       = "${local.resource_name_prefix}-argocd"
+  cert_manager_secret_name = "${local.resource_name_prefix}-cert-manager"
+  worker_tag_value         = coalesce(var.worker_tag_value, "${local.resource_name_prefix}-oke-worker")
   freeform_tags = {
     environment = var.environment_name
     managed-by  = "terraform"
@@ -95,19 +94,18 @@ module "tags" {
 module "vault" {
   source = "../../modules/vault"
 
-  compartment_id                     = module.compartments.workload_compartment_id
-  resource_name_prefix               = local.resource_name_prefix
-  web_secret_name                    = local.web_secret_name
-  api_secret_name                    = local.api_secret_name
-  cataloger_secret_name              = local.cataloger_secret_name
-  notifier_secret_name               = local.notifier_secret_name
-  chat_secret_name                   = local.chat_secret_name
-  chat_worker_secret_name            = local.chat_worker_secret_name
-  chat_push_secret_name              = local.chat_push_secret_name
-  argocd_secret_name                 = local.argocd_secret_name
-  cert_manager_secret_name           = local.cert_manager_secret_name
-  grafana_k8s_monitoring_secret_name = local.grafana_k8s_monitoring_secret_name
-  freeform_tags                      = local.freeform_tags
+  compartment_id           = module.compartments.workload_compartment_id
+  resource_name_prefix     = local.resource_name_prefix
+  web_secret_name          = local.web_secret_name
+  api_secret_name          = local.api_secret_name
+  cataloger_secret_name    = local.cataloger_secret_name
+  notifier_secret_name     = local.notifier_secret_name
+  chat_secret_name         = local.chat_secret_name
+  chat_worker_secret_name  = local.chat_worker_secret_name
+  chat_push_secret_name    = local.chat_push_secret_name
+  argocd_secret_name       = local.argocd_secret_name
+  cert_manager_secret_name = local.cert_manager_secret_name
+  freeform_tags            = local.freeform_tags
 }
 
 module "oke" {
