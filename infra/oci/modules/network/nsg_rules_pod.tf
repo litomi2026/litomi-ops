@@ -157,6 +157,23 @@ resource "oci_core_network_security_group_security_rule" "pod_egress_worker_kube
   }
 }
 
+# alloy-metrics(파드)가 platform 노드에 고정돼 있어, 워크로드 노드의 node-exporter를 크로스노드로 스크레이프한다.
+resource "oci_core_network_security_group_security_rule" "pod_egress_worker_node_exporter_9100" {
+  network_security_group_id = oci_core_network_security_group.pod.id
+  direction                 = "EGRESS"
+  description               = "Pods (alloy-metrics) to worker node-exporter for host metrics."
+  destination               = oci_core_network_security_group.worker.id
+  destination_type          = "NETWORK_SECURITY_GROUP"
+  protocol                  = "6"
+
+  tcp_options {
+    destination_port_range {
+      max = 9100
+      min = 9100
+    }
+  }
+}
+
 resource "oci_core_network_security_group_security_rule" "pod_ingress_api_all" {
   network_security_group_id = oci_core_network_security_group.pod.id
   direction                 = "INGRESS"

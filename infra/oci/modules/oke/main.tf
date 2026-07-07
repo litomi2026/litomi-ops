@@ -18,6 +18,24 @@ locals {
   worker_defined_tags = {
     "${var.worker_tag_namespace_name}.${var.worker_tag_key_name}" = var.worker_tag_value
   }
+
+  # OKE 기본 이미지는 부팅 시 루트 파일시스템을 부트볼륨(100GB)까지 자동 확장하지 않아
+  # 게스트 루트가 이미지 기본값(~35GB)에 머문다 → 커스텀 user_data를 주면 OKE 부트스트랩이 
+  # 자동 주입되지 않으므로 oke_init_script를 직접 받아 실행해야 한다.
+  node_cloud_init = <<-EOT
+    #!/usr/bin/env bash
+    set -uo pipefail
+    for i in $(seq 1 10); do
+      curl --fail --silent --show-error \
+        --retry 5 --retry-delay 3 --retry-connrefused \
+        -H "Authorization: Bearer Oracle" -L0 \
+        http://169.254.169.254/opc/v2/instance/metadata/oke_init_script \
+        -o /var/run/oke-init.sh && break
+      sleep 5
+    done
+    bash /var/run/oke-init.sh
+    /usr/libexec/oci-growfs -y || logger -t oke-growfs "oci-growfs failed"
+  EOT
 }
 
 resource "oci_core_network_security_group" "backend" {
@@ -82,6 +100,11 @@ resource "oci_containerengine_node_pool" "this" {
   node_shape         = each.value.shape
   ssh_public_key     = var.ssh_public_key
   freeform_tags      = var.freeform_tags
+
+  # 루트 파일시스템을 부트볼륨 전체로 확장(oci-growfs). OKE 부트스트랩 포함.
+  node_metadata = {
+    user_data = base64encode(local.node_cloud_init)
+  }
 
   lifecycle {
     precondition {
