@@ -24,12 +24,6 @@ variable "grafana_stack_slug" {
   nullable    = false
 }
 
-variable "grafana_stack_id" {
-  description = "Numeric ID of the existing Grafana Cloud stack, used as the import identifier."
-  type        = string
-  nullable    = false
-}
-
 variable "frontend_o11y_app_name" {
   description = "Frontend Observability (Faro) app name."
   type        = string

@@ -67,13 +67,6 @@ variable "grafana_collector_secret_name" {
   nullable    = false
 }
 
-variable "grafana_collector_secret_ocid" {
-  description = "OCID of the existing collector Vault secret, adopted via import. Read from the oci-prod state before releasing the module resource."
-  type        = string
-  nullable    = false
-  sensitive   = true
-}
-
 variable "freeform_tags" {
   description = "Freeform tags applied to the OCI Vault secret."
   type        = map(string)

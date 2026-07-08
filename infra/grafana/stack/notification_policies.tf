@@ -33,7 +33,7 @@ resource "grafana_notification_policy" "root" {
 
   policy {
     contact_point = grafana_contact_point.discord_warning.name
-    mute_timings   = [grafana_mute_timing.always.name]
+    mute_timings  = [grafana_mute_timing.always.name]
 
     matcher {
       label = "severity"

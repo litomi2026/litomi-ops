@@ -1,12 +1,6 @@
 # Delivers the Grafana Cloud collector credential into OCI Vault, where the
-# grafana-k8s-monitoring ExternalSecret reads it. The secret is adopted via import
-# on first apply (same name, no OCI pending-deletion collision, no collector gap);
-# the oci-prod workspace releases it from its state without destroying it.
-import {
-  to = oci_vault_secret.grafana_collector
-  id = var.grafana_collector_secret_ocid
-}
-
+# grafana-k8s-monitoring ExternalSecret reads it. Content comes from the
+# grafana-cloud workspace; this workspace never holds Grafana credentials.
 resource "oci_vault_secret" "grafana_collector" {
   compartment_id = var.compartment_id
   vault_id       = var.vault_ocid
