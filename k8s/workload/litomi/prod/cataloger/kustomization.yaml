@@ -7,4 +7,4 @@ resources:
   - resource-quota.yaml
 images:
   - name: ghcr.io/litomi2026/litomi-cataloger
-    digest: sha256:9c37cd81ac8ad3ced89f9f93811e0ea93005130f8d88ef65e3f88fa131f2d9bb
+    digest: sha256:88bd8b2b303b62c6ec012700bfd91bb044fc7cfba2eab4e95733b7bd73ef65eb
