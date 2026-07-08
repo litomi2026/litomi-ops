@@ -88,7 +88,7 @@ resource "cloudflare_dns_record" "proxy_cname" {
   type    = "CNAME"
   content = "ghs.googlehosted.com"
   ttl     = 1
-  proxied = false
+  proxied = true
 }
 
 resource "cloudflare_dns_record" "caa" {
