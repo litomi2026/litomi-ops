@@ -45,6 +45,13 @@ variable "upstream_image" {
   nullable    = false
 }
 
+variable "cache_keep_count" {
+  description = "Most-recent cached image versions the cleanup policy retains; older ones are evicted (re-fetchable from GHCR). Keeps the remote cache within the Artifact Registry 0.5 GB free tier."
+  type        = number
+  default     = 3
+  nullable    = false
+}
+
 variable "app_origin" {
   description = "Public site origin passed to the proxy as NEXT_PUBLIC_APP_ORIGIN."
   type        = string

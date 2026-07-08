@@ -36,6 +36,30 @@ resource "google_artifact_registry_repository" "ghcr" {
     }
   }
 
+  # Retain only the most recent cached versions to stay within the Artifact Registry
+  # free tier (0.5 GB, per billing account). Safe on a remote repo: a cleanup deletion
+  # only evicts the cache — Cloud Run re-fetches from GHCR on the next pull if needed.
+  # Set cleanup_policy_dry_run = true to preview deletions in logs without acting.
+  cleanup_policy_dry_run = false
+
+  cleanup_policies {
+    id     = "keep-recent"
+    action = "KEEP"
+
+    most_recent_versions {
+      keep_count = var.cache_keep_count
+    }
+  }
+
+  cleanup_policies {
+    id     = "delete-rest"
+    action = "DELETE"
+
+    condition {
+      tag_state = "ANY"
+    }
+  }
+
   depends_on = [google_project_service.artifactregistry]
 }
 
