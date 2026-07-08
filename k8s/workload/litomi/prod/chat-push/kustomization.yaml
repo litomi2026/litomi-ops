@@ -14,5 +14,5 @@ configMapGenerator:
       - APP_ORIGIN=https://litomi.cc
       - APP_POSTGRES_POOL_MAX=1
 images:
-  - digest: sha256:248d290aa27877c1fc22ae331c033ec74cecdcd0eff6041aeaab994576f84b0d
+  - digest: sha256:5ee5bb07a542dbfada9b9710b4aa261b05bfca856cf88a2f2c32e9c9495dd027
     name: ghcr.io/litomi2026/litomi-chat-push
