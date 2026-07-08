@@ -40,13 +40,13 @@ resource "cloudflare_zone_setting" "ssl" {
   value      = "strict"
 }
 
-# Replaced by the "Force HTTPS except ACME" dynamic redirect rule so that the
-# Cloud Run domain-mapping cert can renew over HTTP-01 through the proxy. Keeping
-# this "on" would 301 the ACME challenge to HTTPS and break renewal under Strict.
+# The Cloud Run proxy's domain-mapping cert is a Google Trust Services *wildcard*
+# (*.litomi.cc), which is DNS/ownership-validated (wildcards cannot use HTTP-01), so
+# forcing HTTPS does not interfere with its renewal. Keep the standard baseline on.
 resource "cloudflare_zone_setting" "always_use_https" {
   zone_id    = data.cloudflare_zone.this.zone_id
   setting_id = "always_use_https"
-  value      = "off"
+  value      = "on"
 }
 
 resource "cloudflare_zone_setting" "automatic_https_rewrites" {
