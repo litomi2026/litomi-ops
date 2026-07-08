@@ -112,6 +112,7 @@ resource "google_project_iam_member" "proxy_deployer" {
     "roles/iam.serviceAccountAdmin",
     "roles/iam.serviceAccountUser",
     "roles/serviceusage.serviceUsageAdmin",
+    "roles/artifactregistry.admin",
   ])
 
   project = var.project_id

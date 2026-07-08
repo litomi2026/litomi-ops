@@ -4,6 +4,12 @@ variable "project_id" {
   nullable    = false
 }
 
+variable "project_number" {
+  description = "GCP project number, used to grant the Cloud Run service agent read on the pull-through cache."
+  type        = string
+  nullable    = false
+}
+
 variable "region" {
   description = "Cloud Run region. The proxy stays VPC-unconnected so egress rotates across Google's dynamic IP pool."
   type        = string
@@ -18,10 +24,17 @@ variable "service_name" {
   nullable    = false
 }
 
-variable "image_repository" {
-  description = "GHCR image repository (without tag/digest). Must be a public package so Cloud Run can pull it without registry auth."
+variable "remote_repository_id" {
+  description = "Artifact Registry remote repository (pull-through cache for GHCR). Cloud Run cannot pull ghcr.io directly."
   type        = string
-  default     = "ghcr.io/litomi2026/litomi-proxy"
+  default     = "ghcr"
+  nullable    = false
+}
+
+variable "upstream_image" {
+  description = "GHCR image path without the ghcr.io host. Must be a public package so the cache can fetch it without upstream auth."
+  type        = string
+  default     = "litomi2026/litomi-proxy"
   nullable    = false
 }
 
