@@ -126,3 +126,20 @@ resource "google_cloud_run_v2_service_iam_member" "public_invoker" {
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
+
+# Custom domain mapping. Makes Cloud Run accept `proxy.litomi.cc` as a Host and
+# serve a Google-managed cert for it, so Cloudflare can front it (proxied CNAME to
+# ghs.googlehosted.com) with NO Host/SNI override — those are Enterprise-only on
+# Cloudflare. Requires a domain-mapping-supported region (var.region = Tokyo).
+resource "google_cloud_run_domain_mapping" "proxy" {
+  location = var.region
+  name     = var.custom_domain
+
+  metadata {
+    namespace = var.project_id
+  }
+
+  spec {
+    route_name = google_cloud_run_v2_service.proxy.name
+  }
+}

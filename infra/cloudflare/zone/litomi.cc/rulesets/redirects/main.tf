@@ -26,8 +26,8 @@ variable "domain" {
 
 resource "cloudflare_ruleset" "www_redirect" {
   zone_id     = data.cloudflare_zone.this.zone_id
-  name        = "WWW Redirect"
-  description = "Redirect www to root"
+  name        = "Dynamic Redirects"
+  description = "www→root and HTTPS enforcement"
   kind        = "zone"
   phase       = "http_request_dynamic_redirect"
 
@@ -45,6 +45,24 @@ resource "cloudflare_ruleset" "www_redirect" {
       }
       expression  = "http.host eq \"www.${var.domain}\""
       description = "Redirect www to root"
+      enabled     = true
+    },
+    {
+      action = "redirect"
+      action_parameters = {
+        from_value = {
+          status_code = 301
+          target_url = {
+            expression = "concat(\"https://\", http.host, http.request.uri.path)"
+          }
+          preserve_query_string = true
+        }
+      }
+      # Replaces the "Always Use HTTPS" zone setting, but exempts the ACME HTTP-01
+      # challenge path so the Cloud Run domain-mapping cert can renew over HTTP
+      # through the (proxied) origin — required to stay valid under Full (Strict).
+      expression  = "(not ssl) and (not starts_with(http.request.uri.path, \"/.well-known/acme-challenge/\"))"
+      description = "Force HTTPS except ACME HTTP-01 challenge"
       enabled     = true
     }
   ]

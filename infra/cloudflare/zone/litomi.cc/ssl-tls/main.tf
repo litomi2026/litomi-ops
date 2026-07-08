@@ -29,16 +29,24 @@ resource "cloudflare_universal_ssl_setting" "default" {
   enabled = true
 }
 
+# Full (Strict): Cloudflare validates the origin certificate (not just encrypts).
+# ⚠️ Before applying, confirm EVERY proxied origin serves a valid, non-expired,
+# hostname-matching cert (OKE edge via cert-manager, Vercel, R2, and the Cloud Run
+# proxy's Google-managed domain-mapping cert) — any origin with an invalid cert
+# returns 526 under strict.
 resource "cloudflare_zone_setting" "ssl" {
   zone_id    = data.cloudflare_zone.this.zone_id
   setting_id = "ssl"
-  value      = "full"
+  value      = "strict"
 }
 
+# Replaced by the "Force HTTPS except ACME" dynamic redirect rule so that the
+# Cloud Run domain-mapping cert can renew over HTTP-01 through the proxy. Keeping
+# this "on" would 301 the ACME challenge to HTTPS and break renewal under Strict.
 resource "cloudflare_zone_setting" "always_use_https" {
   zone_id    = data.cloudflare_zone.this.zone_id
   setting_id = "always_use_https"
-  value      = "on"
+  value      = "off"
 }
 
 resource "cloudflare_zone_setting" "automatic_https_rewrites" {

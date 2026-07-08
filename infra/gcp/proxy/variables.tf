@@ -11,9 +11,9 @@ variable "project_number" {
 }
 
 variable "region" {
-  description = "Cloud Run region. The proxy stays VPC-unconnected so egress rotates across Google's dynamic IP pool."
+  description = "Cloud Run region. Must be a region that supports domain mappings (asia-northeast3/Seoul does NOT; asia-northeast1/Tokyo does). VPC-unconnected so egress rotates across Google's dynamic IP pool."
   type        = string
-  default     = "asia-northeast3"
+  default     = "asia-northeast1"
   nullable    = false
 }
 
@@ -21,6 +21,13 @@ variable "service_name" {
   description = "Cloud Run service name."
   type        = string
   default     = "litomi-proxy"
+  nullable    = false
+}
+
+variable "custom_domain" {
+  description = "Custom domain mapped to the service. Cloudflare fronts it (proxied CNAME to ghs.googlehosted.com); the mapping makes Cloud Run accept this Host and serve a matching Google-managed cert."
+  type        = string
+  default     = "proxy.litomi.cc"
   nullable    = false
 }
 

@@ -82,6 +82,24 @@ resource "cloudflare_dns_record" "vercel2_cname" {
   proxied = true
 }
 
+
+
+# Fronts the Cloud Run proxy via a Cloud Run *domain mapping*: the mapping makes
+# Cloud Run accept `proxy.litomi.cc` and serve a matching Google-managed cert, so no
+# Host/SNI override is needed (those are Enterprise-only on Cloudflare). Keep proxied
+# for CF cache/WAF. NOTE: for the FIRST certificate provisioning, temporarily set
+# this record to DNS-only (gray) so Google can validate; flip back to proxied once
+# the managed cert is Active. Zone SSL mode is Full (non-strict), so a later renewal
+# hiccup under proxy does not break the connection.
+resource "cloudflare_dns_record" "proxy_cname" {
+  zone_id = data.cloudflare_zone.this.zone_id
+  name    = "proxy.${var.domain}"
+  type    = "CNAME"
+  content = "ghs.googlehosted.com"
+  ttl     = 1
+  proxied = true
+}
+
 resource "cloudflare_dns_record" "caa" {
   zone_id = data.cloudflare_zone.this.zone_id
   name    = var.domain
