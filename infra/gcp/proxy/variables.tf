@@ -100,3 +100,24 @@ variable "allow_unauthenticated" {
   default     = true
   nullable    = false
 }
+
+variable "otel_exporter_otlp_endpoint" {
+  description = "OTLP/HTTP traces endpoint (Grafana Cloud OTLP gateway). Same value OKE api/web use (Vault OTEL_EXPORTER_OTLP_ENDPOINT). Sensitive — set as an HCP Terraform workspace variable, never in git/tfvars. The SDK appends /v1/traces."
+  type        = string
+  sensitive   = true
+  nullable    = false
+}
+
+variable "otel_exporter_otlp_headers" {
+  description = "OTLP auth header, e.g. \"Authorization=Basic <base64(instanceID:token)>\". Sensitive — set as an HCP Terraform workspace variable, never in git/tfvars. Injected as a sensitive Cloud Run env var (redacted from plan output)."
+  type        = string
+  sensitive   = true
+  nullable    = false
+}
+
+variable "otel_traces_sampler_arg" {
+  description = "Head-based trace sampling ratio (parentbased_traceidratio). The proxy prioritizes CPU/instance-time, so it may run lower than the OKE apps' 0.5."
+  type        = string
+  default     = "0.5"
+  nullable    = false
+}

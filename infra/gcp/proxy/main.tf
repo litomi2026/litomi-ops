@@ -122,13 +122,38 @@ resource "google_cloud_run_v2_service" "proxy" {
       }
 
       env {
-        name  = "NODE_ENV"
-        value = "production"
+        name  = "NEXT_PUBLIC_APP_ORIGIN"
+        value = var.app_origin
       }
 
       env {
-        name  = "NEXT_PUBLIC_APP_ORIGIN"
-        value = var.app_origin
+        name  = "OTEL_EXPORTER_OTLP_ENDPOINT"
+        value = var.otel_exporter_otlp_endpoint
+      }
+
+      env {
+        name  = "OTEL_SERVICE_NAME"
+        value = var.service_name
+      }
+
+      env {
+        name  = "OTEL_RESOURCE_ATTRIBUTES"
+        value = "service.namespace=litomi,deployment.environment.name=prod"
+      }
+
+      env {
+        name  = "OTEL_TRACES_SAMPLER"
+        value = "parentbased_traceidratio"
+      }
+
+      env {
+        name  = "OTEL_TRACES_SAMPLER_ARG"
+        value = var.otel_traces_sampler_arg
+      }
+
+      env {
+        name  = "OTEL_EXPORTER_OTLP_HEADERS"
+        value = var.otel_exporter_otlp_headers
       }
     }
   }
