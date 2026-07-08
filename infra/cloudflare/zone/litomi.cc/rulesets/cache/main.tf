@@ -68,15 +68,10 @@ locals {
   ]
 
   respect_origin_hostnames = [
-    "anal.${var.domain}",
-    "anal-preview.${var.domain}",
     "argocd.${var.domain}",
-    "grafana.${var.domain}",
-    "stg.${var.domain}",
+    "proxy.${var.domain}",
     "vercel.${var.domain}",
-    "vercel-stg.${var.domain}",
     "vercel2.${var.domain}",
-    "vercel2-stg.${var.domain}",
   ]
 
   bypass_cache_path_prefixes = [
