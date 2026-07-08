@@ -27,4 +27,5 @@ resources:
   - workload-litomi-chat.yaml
   - workload-litomi-chat-push.yaml
   - workload-litomi-chat-worker.yaml
+  - workload-litomi-notifier.yaml
   - workload-litomi-web.yaml

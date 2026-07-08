@@ -8,9 +8,9 @@ import {
 }
 
 resource "oci_vault_secret" "grafana_collector" {
-  compartment_id = var.oci_compartment_id
-  vault_id       = var.oci_vault_ocid
-  key_id         = var.oci_kms_key_ocid
+  compartment_id = var.compartment_id
+  vault_id       = var.vault_ocid
+  key_id         = var.kms_key_ocid
   secret_name    = var.grafana_collector_secret_name
   description    = "Grafana Cloud collector credentials for grafana-k8s-monitoring. Content sourced from the grafana-cloud workspace."
   freeform_tags  = var.freeform_tags

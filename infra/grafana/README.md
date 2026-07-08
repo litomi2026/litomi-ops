@@ -95,15 +95,15 @@ Project-level variable set (`grafana` project):
 
 | Category  | Key                             | Sensitive | Notes |
 | --------- | ------------------------------- | --------- | ----- |
-| Terraform | `oci_region`                    | No        | From `oci-prod` |
-| Terraform | `oci_compartment_id`            | Yes       | `oci-prod` output `workload_compartment_id` |
-| Terraform | `oci_vault_ocid`                | Yes       | `oci-prod` output `vault_ocid` |
-| Terraform | `oci_kms_key_ocid`              | Yes       | `oci-prod` output `kms_key_ocid` |
+| Terraform | `region`                        | No        | From `oci-prod` |
+| Terraform | `compartment_id`                | Yes       | `oci-prod` output `workload_compartment_id` |
+| Terraform | `vault_ocid`                    | Yes       | `oci-prod` output `vault_ocid` |
+| Terraform | `kms_key_ocid`                  | Yes       | `oci-prod` output `kms_key_ocid` |
 | Terraform | `grafana_collector_secret_ocid` | Yes       | OCID of the existing secret, for import |
 
-Plus the OCI provider-credentials variable set (`oci_tenancy_ocid`,
-`oci_user_ocid`, `oci_fingerprint`, `oci_private_key`, `oci_private_key_password`),
-the same one `oci-prod` uses.
+Plus the OCI provider-credentials variable set (`tenancy_ocid`, `user_ocid`,
+`fingerprint`, `private_key`, `private_key_password`) — the same one `oci-prod`
+uses, since the variable names now match.
 
 `grafana-stack-prod` workspace variables:
 

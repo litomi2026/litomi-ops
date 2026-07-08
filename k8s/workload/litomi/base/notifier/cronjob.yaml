@@ -8,15 +8,13 @@ metadata:
 spec:
   schedule: '0 * * * *'
   timeZone: Asia/Seoul
-  # OKE에서 검증을 마치고 Cloud Run scheduler를 일시정지한 뒤 git에서 suspend를 해제한다.
-  suspend: true
   concurrencyPolicy: Forbid
   startingDeadlineSeconds: 600
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 3
   jobTemplate:
     spec:
-      activeDeadlineSeconds: 300
+      activeDeadlineSeconds: 600
       backoffLimit: 1
       template:
         metadata:
