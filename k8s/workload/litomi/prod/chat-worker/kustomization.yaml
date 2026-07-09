@@ -13,5 +13,5 @@ configMapGenerator:
       - APP_ENV=prod
       - APP_POSTGRES_POOL_MAX=1
 images:
-  - digest: sha256:6fc2459f62abce222e8477b548c91cec91b8ff5ebf380ee3494eb45ade6e0c43
+  - digest: sha256:b4c2c699c422aaeb4a6da1541e96724454fc63f800d90b31a48e8dfc100442cc
     name: ghcr.io/litomi2026/litomi-chat-worker
