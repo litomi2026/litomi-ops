@@ -70,7 +70,6 @@ locals {
   respect_origin_hostnames = [
     "argocd.${var.domain}",
     "proxy.${var.domain}",
-    "proxy2.${var.domain}",
   ]
 
   bypass_cache_path_prefixes = [

@@ -16,10 +16,6 @@ locals {
       host        = "proxy.litomi.cc"
       path_prefix = null
     },
-    {
-      host        = "proxy2.litomi.cc"
-      path_prefix = null
-    },
   ]
 
   initiator_protected_request_target_expression = format(

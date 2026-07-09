@@ -73,15 +73,6 @@ resource "cloudflare_dns_record" "proxy_cname" {
   proxied = true
 }
 
-resource "cloudflare_dns_record" "proxy2_cname" {
-  zone_id = data.cloudflare_zone.this.zone_id
-  name    = "proxy2.${var.domain}"
-  type    = "CNAME"
-  content = "ghs.googlehosted.com"
-  ttl     = 1
-  proxied = true
-}
-
 resource "cloudflare_dns_record" "caa" {
   zone_id = data.cloudflare_zone.this.zone_id
   name    = var.domain

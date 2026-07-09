@@ -237,7 +237,6 @@ locals {
   # Turnstile pre-clearance gate
   edge_proxy_hosts = [
     "proxy.litomi.cc",
-    "proxy2.litomi.cc",
   ]
 
   edge_proxy_host_expression_set = format("{%s}", join(" ", [
