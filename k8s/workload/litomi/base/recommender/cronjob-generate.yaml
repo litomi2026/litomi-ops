@@ -1,0 +1,66 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: litomi-recommender-generate
+  labels:
+    app.kubernetes.io/name: litomi-recommender
+    app.kubernetes.io/component: generate
+    app.kubernetes.io/part-of: litomi
+spec:
+  # Activation switch: flip to false once the subcommand-aware image digest has been promoted by CI.
+  suspend: true
+  # Runs after cataloger (05:30 KST) and the sync-index job (06:00 KST) have refreshed the catalog and search index.
+  schedule: '30 6 * * *'
+  timeZone: Asia/Seoul
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 3600
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 3600
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: litomi-recommender
+            app.kubernetes.io/component: generate
+            app.kubernetes.io/part-of: litomi
+        spec:
+          restartPolicy: OnFailure
+          automountServiceAccountToken: false
+          serviceAccountName: litomi-recommender
+          priorityClassName: workload-standard
+          nodeSelector:
+            node-pool-role: workload
+          containers:
+            - name: recommender
+              image: ghcr.io/litomi2026/litomi-recommender:overlay-required
+              imagePullPolicy: IfNotPresent
+              args:
+                - generate
+                - --active-days=30
+                - --item-limit=100
+                - --concurrency=2
+                - --max-users=5000
+                - --max-failure-ratio=0.05
+              envFrom:
+                - secretRef:
+                    name: litomi-recommender-env
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+                limits:
+                  cpu: 1000m
+                  memory: 512Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                runAsNonRoot: true
+                runAsUser: 65532
+                runAsGroup: 65532
+                capabilities:
+                  drop:
+                    - ALL
+                seccompProfile:
+                  type: RuntimeDefault
