@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: litomi-recommender
+resources:
+  - ../../base/recommender
+  - limit-range.yaml
+  - resource-quota.yaml
+images:
+  - name: ghcr.io/litomi2026/litomi-recommender
+    digest: sha256:3d822441202e6274236c1664ce69663bce1e6cdefebc5fac449b52ee389edb39

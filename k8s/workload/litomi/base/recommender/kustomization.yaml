@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: litomi-recommender
+resources:
+  - namespace.yaml
+  - serviceaccount.yaml
+  - external-secret.yaml
+  - cronjob-sync-index.yaml
+  - cronjob-generate.yaml

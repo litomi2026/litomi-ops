@@ -22,6 +22,8 @@ spec:
       server: https://kubernetes.default.svc
     - namespace: litomi-notifier
       server: https://kubernetes.default.svc
+    - namespace: litomi-recommender
+      server: https://kubernetes.default.svc
   sourceRepos:
     - https://github.com/litomi2026/litomi-ops.git
   clusterResourceWhitelist:
@@ -46,6 +48,9 @@ spec:
     - group: ""
       kind: Namespace
       name: litomi-notifier
+    - group: ""
+      kind: Namespace
+      name: litomi-recommender
   namespaceResourceWhitelist:
     - group: ""
       kind: ConfigMap
