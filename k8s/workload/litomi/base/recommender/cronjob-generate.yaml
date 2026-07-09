@@ -7,8 +7,6 @@ metadata:
     app.kubernetes.io/component: generate
     app.kubernetes.io/part-of: litomi
 spec:
-  # Activation switch: flip to false once the subcommand-aware image digest has been promoted by CI.
-  suspend: true
   # Runs after cataloger (05:30 KST) and the sync-index job (06:00 KST) have refreshed the catalog and search index.
   schedule: '30 6 * * *'
   timeZone: Asia/Seoul
