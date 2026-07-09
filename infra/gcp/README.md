@@ -1,164 +1,135 @@
 # GCP Infrastructure
 
-Google Cloud is managed through HCP Terraform in the `litomi` organization and
-the `gcp` project. The repository is the desired-state source; Cloud Console
-changes are break-glass only and must be reconciled back into Terraform
-immediately.
+The **source proxy** (`apps/proxy` in the `litomi` repo) on Cloud Run, managed by
+HCP Terraform (org `litomi`, project `gcp`). It runs VPC-unconnected so egress
+rotates across Google's dynamic IP pool — the manga sources block by IP. Deployed
+to two independent GCP accounts (separate IP pools / regions); the web app splits
+routes across `proxy.litomi.cc` and `proxy2.litomi.cc`.
 
-The only GCP workload is the **source proxy** (`apps/proxy` in the `litomi`
-repo): a Bun/Hono service that fans out to the manga sources. It runs on Cloud Run
-specifically so its **egress rotates across Google's dynamic IP pool** — the
-sources rate-limit/block by IP.
-
-It is deployed to **two independent GCP accounts** so their egress draws from
-separate IP pools (and separate regions), and the `litomi` web app spreads source
-traffic across both origins (`proxy.litomi.cc`, `proxy2.litomi.cc`). Adding an
-account is a new pair of workspaces + a runbook of out-of-band bootstrap steps —
-no module changes.
-
-> ⚠️ **Do not attach a Serverless VPC Connector, Direct VPC egress, or Cloud NAT.**
-> The moment egress is pinned to a static IP the sources block it. VPC-unconnected
-> (the default) is the whole point.
+> ⚠️ Do not attach a Serverless VPC Connector, Direct VPC egress, or Cloud NAT —
+> pinning egress to a static IP gets it blocked. VPC-unconnected is the point.
 
 ## Layout
 
 ```
 infra/gcp/
-  image.json          # shared immutable image digest, bumped by litomi CI (both proxies pin it)
+  image.json     # shared immutable image digest, bumped by litomi CI (all proxies pin it)
   modules/
-    identity/         # WIF pool + provider, bootstrap + proxy-deployer SAs, project IAM
-    proxy/            # Cloud Run service, runtime SA, GHCR pull-through cache, public invoker, domain mapping
-  project/            # account 1 identity root  → workspace gcp-project
-  proxy/              # account 1 proxy root      → workspace gcp-proxy      (Tokyo,  proxy.litomi.cc)
-  project-2/          # account 2 identity root  → workspace gcp-project-2
-  proxy-2/            # account 2 proxy root      → workspace gcp-proxy-2    (Taiwan, proxy2.litomi.cc)
+    identity/    # WIF pool + provider, bootstrap + proxy-deployer SAs, project IAM
+    proxy/       # Cloud Run service, runtime SA, GHCR pull-through cache, invoker, domain mapping
+  project/       # account 1 identity root  → workspace gcp-project
+  proxy/         # account 1 proxy root      → workspace gcp-proxy    (Tokyo,  proxy.litomi.cc)
+  project-2/     # account 2 identity root  → workspace gcp-project-2
+  proxy-2/       # account 2 proxy root      → workspace gcp-proxy-2  (Taiwan, proxy2.litomi.cc)
 ```
 
-Both accounts are thin roots over the same two modules; only the sensitive ids
-(project id/number, OTLP creds — HCP workspace variables) and a few literals
-(region, custom domain, workspace-trust names) differ. Non-secret per-account
-config lives in the root; secrets never touch this public repo.
+Both accounts are thin roots over the same two modules. `region`, `custom_domain`,
+sizing, and `allow_unauthenticated` are module defaults / root literals; only the
+sensitive ids and OTLP creds are workspace variables (this repo is public).
 
 ## Workspaces
 
-| Repository path | HCP Terraform workspace | Scope |
-| --------------- | ----------------------- | ----- |
-| `./project`     | `gcp-project`           | Account 1 WIF trust + deployer SAs (privileged bootstrap) |
-| `./proxy`       | `gcp-proxy`             | Account 1 Cloud Run proxy (Tokyo, `proxy.litomi.cc`) |
-| `./project-2`   | `gcp-project-2`         | Account 2 WIF trust + deployer SAs (privileged bootstrap) |
-| `./proxy-2`     | `gcp-proxy-2`           | Account 2 Cloud Run proxy (Taiwan, `proxy2.litomi.cc`) |
+| Path          | Workspace       | Working dir           | Scope                              |
+| ------------- | --------------- | --------------------- | ---------------------------------- |
+| `./project`   | `gcp-project`   | `infra/gcp/project`   | Account 1 WIF trust + deployer SAs |
+| `./proxy`     | `gcp-proxy`     | `infra/gcp/proxy`     | Account 1 Cloud Run proxy          |
+| `./project-2` | `gcp-project-2` | `infra/gcp/project-2` | Account 2 WIF trust + deployer SAs |
+| `./proxy-2`   | `gcp-proxy-2`   | `infra/gcp/proxy-2`   | Account 2 Cloud Run proxy          |
 
-Each workspace uses VCS-driven runs: pull requests produce speculative plans;
-merges to the production branch apply. The proxy image digest is promoted by the
-`litomi` CI as a PR to this repo (see "Image Promotion"), so with **auto-apply**
-on the `gcp-proxy*` workspaces proxy rollouts are hands-off (the same effect Argo
-CD self-heal gives the OKE workloads). Leave it on manual apply for an approval
-gate per rollout.
+VCS-driven: PRs plan, merges apply.
 
-The two `identity` (`project`/`project-2`) roots share the same module and are
-independent per account; renaming the module addresses is done with `moved` blocks
-so the first apply after the module extraction is address-only (zero resource
-churn — the speculative plan on the PR must show 0 to add/destroy).
+## Workspace variables
 
-## Provider Authentication
+Same across an account's two workspaces (put in a per-account variable set):
 
-Each workspace authenticates with **HCP Terraform dynamic provider credentials**
-(OIDC workload identity federation, no static keys). The `identity` module in each
-account owns the trust: a Workload Identity Pool + provider that trusts HCP
-Terraform's issuer, gated to this HCP organization, plus per-workspace deployer
-SAs. Each proxy/identity workspace impersonates its own scoped deployer SA via
-these `TFC_GCP_*` workspace environment variables:
+| Key                              | Category  | Value                                                         |
+| -------------------------------- | --------- | ------------------------------------------------------------- |
+| `project_id`                     | terraform | account's GCP project id                                      |
+| `project_number`                 | terraform | account's GCP project number                                  |
+| `TFC_GCP_PROVIDER_AUTH`          | env       | `true`                                                        |
+| `TFC_GCP_WORKLOAD_PROVIDER_NAME` | env       | identity workspace's `workload_identity_provider_name` output |
 
-| Env var | Value |
-| ------- | ----- |
-| `TFC_GCP_PROVIDER_AUTH` | `true` |
-| `TFC_GCP_WORKLOAD_PROVIDER_NAME` | the account's `workload_identity_provider_name` output |
-| `TFC_GCP_RUN_SERVICE_ACCOUNT_EMAIL` | the workspace's deployer SA (bootstrap SA for identity, proxy-deployer SA for proxy) |
+Per workspace (differs — keep out of the shared set):
 
-The `identity` workspace runs as the privileged bootstrap SA it also manages;
-`prevent_destroy` on the root-of-trust resources stops a bad plan from revoking
-its own access.
+| Key                                 | Category              | Value                                                                                 |
+| ----------------------------------- | --------------------- | ------------------------------------------------------------------------------------- |
+| `TFC_GCP_RUN_SERVICE_ACCOUNT_EMAIL` | env                   | identity ws → `tf-gcp-bootstrap@<project>...`, proxy ws → `tf-gcp-proxy@<project>...` |
+| `otel_exporter_otlp_endpoint`       | terraform (sensitive) | Grafana Cloud OTLP gateway — proxy ws only                                            |
+| `otel_exporter_otlp_headers`        | terraform (sensitive) | OTLP auth header — proxy ws only                                                      |
 
-### Bootstrapping a brand-new account (chicken-and-egg)
+## Bootstrap a new account
 
-The `identity` workspace federates against a pool it hasn't created yet on the
-very first run. Break-glass once, out of band, in the new account's project:
-create the WIF pool + provider and the bootstrap SA by hand (or with a temporary
-user credential), grant the bootstrap SA `roles/resourcemanager.projectIamAdmin`,
-`roles/iam.serviceAccountAdmin`, `roles/iam.workloadIdentityPoolAdmin`,
-`roles/serviceusage.serviceUsageAdmin`, and bind it to the identity workspace
-name. Then set the `TFC_GCP_*` vars and let the workspace adopt the resources
-(they carry `prevent_destroy`, so a matching import/adoption — not recreation — is
-expected). Account 1 is already past this.
+The identity workspace must federate against a WIF pool it hasn't created yet, so
+seed once out of band. If the account has **no org policy blocking SA keys** (bare
+account with no organization), the temp-key path is simplest:
 
-## Workspace Variables
+```bash
+gcloud config set project <PROJECT_ID>
+gcloud iam service-accounts create tf-seed --display-name="temp bootstrap"
+gcloud projects add-iam-policy-binding <PROJECT_ID> \
+  --member="serviceAccount:tf-seed@<PROJECT_ID>.iam.gserviceaccount.com" \
+  --role=roles/owner --condition=None
+gcloud iam service-accounts keys create /tmp/tf-seed.json \
+  --iam-account="tf-seed@<PROJECT_ID>.iam.gserviceaccount.com"
+```
 
-Per proxy workspace (`gcp-proxy`, `gcp-proxy-2`):
+On the `gcp-project-N` workspace:
 
-| Category  | Key | Sensitive | Notes |
-| --------- | --- | --------- | ----- |
-| Terraform | `project_id` | No* | Target GCP project id |
-| Terraform | `project_number` | No* | Target GCP project number |
-| Terraform | `otel_exporter_otlp_endpoint` | Yes | Grafana Cloud OTLP gateway |
-| Terraform | `otel_exporter_otlp_headers` | Yes | OTLP auth header |
+1. Set `project_id` / `project_number`, and env var `GOOGLE_CREDENTIALS` =
+   `jq -c . /tmp/tf-seed.json` output (sensitive, single line). Do **not** set the
+   `TFC_GCP_*` vars yet.
+2. Apply → creates the WIF pool/provider, `tf-gcp-bootstrap` + `tf-gcp-proxy` SAs,
+   and IAM.
+3. Remove `GOOGLE_CREDENTIALS`; add the `TFC_GCP_*` vars (identity SA =
+   `tf-gcp-bootstrap@...`). Plan must be a no-op.
+4. `gcloud iam service-accounts delete tf-seed@<PROJECT_ID>.iam.gserviceaccount.com --quiet`
 
-Per identity workspace (`gcp-project`, `gcp-project-2`): `project_id`,
-`project_number`.
+If keys are blocked, instead hand-create the WIF pool + provider + `tf-gcp-bootstrap`
+SA (roles: `resourcemanager.projectIamAdmin`, `iam.serviceAccountAdmin`,
+`iam.workloadIdentityPoolAdmin`, `serviceusage.serviceUsageAdmin`) and its
+`workloadIdentityUser` binding for workspace `gcp-project-N`, then apply with the
+`TFC_GCP_*` vars from the start.
 
-\* Not secret, but kept as workspace variables (not committed) because this repo is
-public. `region`, `custom_domain`, sizing, and `allow_unauthenticated` default in
-the modules / are set as literals in the roots; override only to diverge.
+## First proxy apply per account
 
-## Image Promotion (CI seam)
+`gcp-proxy-N` needs no key — it impersonates the `tf-gcp-proxy` SA the identity
+workspace created. Before/at apply:
 
-`litomi` CI builds and pushes `ghcr.io/litomi2026/litomi-proxy` (linux/amd64,
-GitHub Packages) on every `main` build, then opens a PR here bumping the **shared**
-`infra/gcp/image.json` `.digest`. Both proxy roots read that one file via
-`jsondecode(file("../image.json"))` and pin the container to the immutable digest,
-so every account stays in lockstep on the same build. It is a plain JSON file (not
-`*.tfvars`) on purpose so it survives the Terraform `.gitignore`. CI holds **no**
-GCP credentials; it only builds the image and promotes the digest.
+1. Set its variables (table above), with `TFC_GCP_RUN_SERVICE_ACCOUNT_EMAIL =
+tf-gcp-proxy@<PROJECT_ID>...` and the two OTLP secrets.
+2. **Verify the domain**: add `tf-gcp-proxy@<PROJECT_ID>.iam.gserviceaccount.com`
+   as an owner of the `litomi.cc` property in Google Search Console, or the domain
+   mapping fails `Caller is not authorized to administer the domain`.
+3. Ensure the hostname's Cloudflare `CNAME → ghs.googlehosted.com` is live (gray is
+   fine for cert issuance).
+4. Apply. If the Artifact Registry reader IAM fails with `service account does not
+exist` (Run service agent not propagated yet), re-apply.
 
-The GHCR package must be **Public** so each account's Artifact Registry
-pull-through cache can fetch it (Cloud Run has no native private-third-party
-registry auth). Set it once: GitHub → Packages → `litomi-proxy` → Package settings
-→ Change visibility → Public.
+The image is pinned from the shared `image.json`, so the first apply works without
+waiting for a new CI build.
+
+## Image promotion
+
+`litomi` CI builds `ghcr.io/litomi2026/litomi-proxy` (linux/amd64) on each `main`
+build and opens a PR here bumping `infra/gcp/image.json` `.digest`. Both proxy
+roots read that one file via `jsondecode(file("../image.json"))`, so all accounts
+stay on the same immutable digest. CI holds no GCP credentials.
+
+The GHCR package must be **Public** — each account's Artifact Registry pull-through
+cache fetches it (Cloud Run cannot pull `ghcr.io` directly, and has no private
+third-party registry auth). Set once: GitHub → Packages → `litomi-proxy` → Package
+settings → Change visibility → Public.
 
 ## Cloudflare
 
-Cloudflare fronts both proxies (see `infra/cloudflare`). Per proxy hostname:
+Per proxy hostname (in `infra/cloudflare`):
 
-- A proxied `CNAME` to `ghs.googlehosted.com` (`dns/main.tf`), so the Cloud Run
-  domain mapping serves a Google-managed cert and Cloudflare needs no Host/SNI
-  override (Enterprise-only).
-- Membership in the cache ruleset `respect_origin_hostnames` (`rulesets/cache`) so
-  Cloudflare — not the sources — absorbs the `/api/proxy/*` read traffic while
-  honoring the proxy's own cache-control.
-- SSL/TLS is `strict`; each account's domain mapping issues its own valid cert for
-  its hostname.
+- Proxied `CNAME → ghs.googlehosted.com` (`dns/main.tf`) — the domain mapping serves
+  a Google-managed cert, so Cloudflare needs no Host/SNI override.
+- In the cache ruleset `respect_origin_hostnames` (`rulesets/cache`) so Cloudflare
+  absorbs the `/api/proxy/*` reads.
+- SSL/TLS `strict`; each account's mapping issues its own cert.
 
-The Vercel edge-proxy hosts additionally sit behind a Turnstile pre-clearance WAF
-gate (`rulesets/waf-custom` `edge_proxy_host_expression_set`); the Cloud Run proxy
-hosts are intentionally **not** in that set. If you retire Vercel and want the same
-anti-abuse gate on `proxy*/…`, add both hostnames there — it is a UX/security
-tradeoff, not required for routing.
-
-## Operating Rules
-
-- Do not run GCP changes from local `.tfvars` or `.env` files.
-- Do not use local `terraform.tfstate` as an authority.
-- Do not edit Terraform-managed Cloud Run resources in the Console during normal
-  operations.
-- If a Console change is required for break-glass recovery, import or update
-  Terraform before the next normal apply.
-- Prefer adding a new GCP account as a new workspace pair over expanding a broad
-  shared state.
-
-## Hardening
-
-- **Public invoker**: `allow_unauthenticated` defaults to `true` (Cloudflare
-  fronts the service). If org policy `iam.allowedPolicyMemberDomains` (Domain
-  Restricted Sharing) blocks `allUsers`, either add an exception or set
-  `allow_unauthenticated = false`, switch `ingress` to
-  `INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER`, and put an authenticated token between
-  Cloudflare and Cloud Run.
+The Cloud Run hosts are intentionally not in the Vercel hosts' Turnstile WAF gate
+(`rulesets/waf-custom` `edge_proxy_host_expression_set`); add them there only if you
+want that anti-abuse gate (UX/security tradeoff, not required for routing).
