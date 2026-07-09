@@ -72,7 +72,6 @@ locals {
     "proxy.${var.domain}",
     "proxy2.${var.domain}",
     "vercel.${var.domain}",
-    "vercel2.${var.domain}",
   ]
 
   bypass_cache_path_prefixes = [

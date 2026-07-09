@@ -235,12 +235,21 @@ locals {
   ])
 
   # Turnstile pre-clearance gate
-  edge_proxy_host_expression_set = "{\"vercel.litomi.cc\" \"vercel-stg.litomi.cc\" \"vercel2.litomi.cc\" \"vercel2-stg.litomi.cc\"}"
+  edge_proxy_hosts = [
+    "vercel.litomi.cc",
+    "proxy.litomi.cc",
+    "proxy2.litomi.cc",
+  ]
+
+  edge_proxy_host_expression_set = format("{%s}", join(" ", [
+    for host in local.edge_proxy_hosts :
+    format("\"%s\"", host)
+  ]))
 
   edge_proxy_turnstile_expression = join(" ", [
     "(",
     format("http.host in %s", local.edge_proxy_host_expression_set),
-    "and starts_with(http.request.uri.path, \"/api/proxy/\")",
+    "and starts_with(http.request.uri.path, \"/api/\")",
     "and http.request.method ne \"OPTIONS\"",
     ")",
   ])

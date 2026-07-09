@@ -13,23 +13,15 @@ locals {
       path_prefix = null
     },
     {
-      host        = "img-stg.litomi.cc"
-      path_prefix = null
-    },
-    {
       host        = "vercel.litomi.cc"
       path_prefix = null
     },
     {
-      host        = "vercel-stg.litomi.cc"
+      host        = "proxy.litomi.cc"
       path_prefix = null
     },
     {
-      host        = "vercel2.litomi.cc"
-      path_prefix = null
-    },
-    {
-      host        = "vercel2-stg.litomi.cc"
+      host        = "proxy2.litomi.cc"
       path_prefix = null
     },
   ]
