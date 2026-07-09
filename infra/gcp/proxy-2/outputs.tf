@@ -14,6 +14,6 @@ output "runtime_service_account" {
 }
 
 output "domain_mapping_records" {
-  description = "DNS records the custom domain must serve (subdomain → CNAME ghs.googlehosted.com). Set the matching proxied record in Cloudflare."
+  description = "DNS records the custom domain must serve (proxy2 → CNAME ghs.googlehosted.com). Set the matching proxied record in Cloudflare."
   value       = module.proxy.domain_mapping_records
 }

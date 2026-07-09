@@ -1,7 +1,6 @@
-# Provider auth is injected as the HCP Terraform workspace environment variable
-# GOOGLE_CREDENTIALS (a service-account key JSON, sensitive) — never in code or
-# local tfvars. See README "Provider Authentication".
+# Auth via HCP Terraform dynamic credentials, impersonating the tf-gcp-proxy SA
+# (TFC_GCP_* workspace env vars). No key. See README "Provider Authentication".
+# Every resource sets its own location, so the provider needs no default region.
 provider "google" {
   project = var.project_id
-  region  = var.region
 }

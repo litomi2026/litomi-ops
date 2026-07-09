@@ -91,6 +91,18 @@ resource "cloudflare_dns_record" "proxy_cname" {
   proxied = true
 }
 
+# Account 2 Cloud Run proxy (asia-east1). Same domain-mapping target as proxy; the
+# mapping in account 2's project makes Cloud Run accept this Host and serve its own
+# Google-managed cert. Egress rotates on an independent IP pool from proxy.
+resource "cloudflare_dns_record" "proxy2_cname" {
+  zone_id = data.cloudflare_zone.this.zone_id
+  name    = "proxy2.${var.domain}"
+  type    = "CNAME"
+  content = "ghs.googlehosted.com"
+  ttl     = 1
+  proxied = false
+}
+
 resource "cloudflare_dns_record" "caa" {
   zone_id = data.cloudflare_zone.this.zone_id
   name    = var.domain

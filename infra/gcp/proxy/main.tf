@@ -1,194 +1,59 @@
-# ⚠️ This proxy exists for egress IP rotation. Do NOT attach a Serverless VPC
-#    Connector, Direct VPC egress, or Cloud NAT — the moment egress is pinned to a
-#    static IP the manga sources (hiyobi / k-hentai / …) block it. VPC-unconnected
-#    (the default) = Google's dynamic IP pool = rotation, matching the prior Vercel edge.
-
-resource "google_project_service" "run" {
-  project            = var.project_id
-  service            = "run.googleapis.com"
-  disable_on_destroy = false
-}
-
-resource "google_project_service" "artifactregistry" {
-  project            = var.project_id
-  service            = "artifactregistry.googleapis.com"
-  disable_on_destroy = false
-}
-
-# Cloud Run can only pull from gcr.io / *-docker.pkg.dev / docker.io — NOT ghcr.io.
-# This Artifact Registry remote repository is a pull-through cache for the public
-# GHCR package, so CI keeps pushing only to GHCR (zero GCP credentials in CI) and
-# Cloud Run pulls the same immutable digest via Artifact Registry.
-resource "google_artifact_registry_repository" "ghcr" {
-  project       = var.project_id
-  location      = var.region
-  repository_id = var.remote_repository_id
-  format        = "DOCKER"
-  mode          = "REMOTE_REPOSITORY"
-
-  remote_repository_config {
-    description = "Pull-through cache for ghcr.io/${var.upstream_image}"
-
-    docker_repository {
-      custom_repository {
-        uri = "https://ghcr.io"
-      }
-    }
-  }
-
-  # Retain only the most recent cached versions to stay within the Artifact Registry
-  # free tier (0.5 GB, per billing account). Safe on a remote repo: a cleanup deletion
-  # only evicts the cache — Cloud Run re-fetches from GHCR on the next pull if needed.
-  # Set cleanup_policy_dry_run = true to preview deletions in logs without acting.
-  cleanup_policy_dry_run = false
-
-  cleanup_policies {
-    id     = "keep-recent"
-    action = "KEEP"
-
-    most_recent_versions {
-      keep_count = var.cache_keep_count
-    }
-  }
-
-  cleanup_policies {
-    id     = "delete-rest"
-    action = "DELETE"
-
-    condition {
-      tag_state = "ANY"
-    }
-  }
-
-  depends_on = [google_project_service.artifactregistry]
-}
-
-# The Cloud Run service agent pulls the image; grant it read on the cache repo.
-resource "google_artifact_registry_repository_iam_member" "run_agent_reader" {
-  project    = var.project_id
-  location   = google_artifact_registry_repository.ghcr.location
-  repository = google_artifact_registry_repository.ghcr.repository_id
-  role       = "roles/artifactregistry.reader"
-  member     = "serviceAccount:service-${var.project_number}@serverless-robot-prod.iam.gserviceaccount.com"
-}
-
-# Dedicated least-privilege runtime identity instead of the default compute SA.
-# The proxy only makes outbound HTTP, so it is granted no roles.
-resource "google_service_account" "runtime" {
-  project      = var.project_id
-  account_id   = "${var.service_name}-runtime"
-  display_name = "litomi proxy Cloud Run runtime"
-}
-
+# Account 1 Cloud Run proxy (Tokyo, proxy.litomi.cc). Thin root over ../modules/proxy;
+# workspace gcp-proxy. Region and custom_domain use the module defaults.
 locals {
-  # Immutable image pin. `image.json` is bumped by the litomi CI promotion PR
-  # (`.digest`) and is a plain JSON file so it survives the *.tfvars .gitignore.
-  # Pulled through the Artifact Registry cache, not ghcr.io directly.
-  image_digest = jsondecode(file("${path.module}/image.json")).digest
-  image        = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.ghcr.repository_id}/${var.upstream_image}@${local.image_digest}"
+  # Immutable image pin, shared with every other proxy account so all stay in
+  # lockstep on the same digest. Bumped by the litomi CI promotion PR.
+  image_digest = jsondecode(file("${path.module}/../image.json")).digest
 }
 
-resource "google_cloud_run_v2_service" "proxy" {
-  project             = var.project_id
-  name                = var.service_name
-  location            = var.region
-  ingress             = "INGRESS_TRAFFIC_ALL"
-  deletion_protection = false
+module "proxy" {
+  source = "../modules/proxy"
 
-  template {
-    service_account                  = google_service_account.runtime.email
-    max_instance_request_concurrency = var.request_concurrency
-    timeout                          = var.request_timeout
+  project_id     = var.project_id
+  project_number = var.project_number
+  image_digest   = local.image_digest
 
-    scaling {
-      min_instance_count = 0
-      max_instance_count = var.max_instances
-    }
-
-    containers {
-      image = local.image
-
-      ports {
-        container_port = 8080
-      }
-
-      resources {
-        limits = {
-          cpu    = var.cpu_limit
-          memory = var.memory_limit
-        }
-        cpu_idle          = true
-        startup_cpu_boost = true
-      }
-
-      env {
-        name  = "NEXT_PUBLIC_APP_ORIGIN"
-        value = var.app_origin
-      }
-
-      env {
-        name  = "OTEL_EXPORTER_OTLP_ENDPOINT"
-        value = var.otel_exporter_otlp_endpoint
-      }
-
-      env {
-        name  = "OTEL_SERVICE_NAME"
-        value = var.service_name
-      }
-
-      env {
-        name  = "OTEL_RESOURCE_ATTRIBUTES"
-        value = "service.namespace=litomi,deployment.environment.name=prod"
-      }
-
-      env {
-        name  = "OTEL_TRACES_SAMPLER"
-        value = "parentbased_traceidratio"
-      }
-
-      env {
-        name  = "OTEL_TRACES_SAMPLER_ARG"
-        value = var.otel_traces_sampler_arg
-      }
-
-      env {
-        name  = "OTEL_EXPORTER_OTLP_HEADERS"
-        value = var.otel_exporter_otlp_headers
-      }
-    }
-  }
-
-  depends_on = [
-    google_project_service.run,
-    google_artifact_registry_repository_iam_member.run_agent_reader,
-  ]
+  otel_exporter_otlp_endpoint = var.otel_exporter_otlp_endpoint
+  otel_exporter_otlp_headers  = var.otel_exporter_otlp_headers
 }
 
-# Source proxy is called publicly from behind Cloudflare (same exposure as the
-# prior Vercel deployment). If an org policy blocks allUsers, see README hardening.
-resource "google_cloud_run_v2_service_iam_member" "public_invoker" {
-  count = var.allow_unauthenticated ? 1 : 0
-
-  project  = var.project_id
-  location = google_cloud_run_v2_service.proxy.location
-  name     = google_cloud_run_v2_service.proxy.name
-  role     = "roles/run.invoker"
-  member   = "allUsers"
+# Address-only moves from the pre-module layout. Safe to delete after the first apply.
+moved {
+  from = google_project_service.run
+  to   = module.proxy.google_project_service.run
 }
 
-# Custom domain mapping. Makes Cloud Run accept `proxy.litomi.cc` as a Host and
-# serve a Google-managed cert for it, so Cloudflare can front it (proxied CNAME to
-# ghs.googlehosted.com) with NO Host/SNI override — those are Enterprise-only on
-# Cloudflare. Requires a domain-mapping-supported region (var.region = Tokyo).
-resource "google_cloud_run_domain_mapping" "proxy" {
-  location = var.region
-  name     = var.custom_domain
+moved {
+  from = google_project_service.artifactregistry
+  to   = module.proxy.google_project_service.artifactregistry
+}
 
-  metadata {
-    namespace = var.project_id
-  }
+moved {
+  from = google_artifact_registry_repository.ghcr
+  to   = module.proxy.google_artifact_registry_repository.ghcr
+}
 
-  spec {
-    route_name = google_cloud_run_v2_service.proxy.name
-  }
+moved {
+  from = google_artifact_registry_repository_iam_member.run_agent_reader
+  to   = module.proxy.google_artifact_registry_repository_iam_member.run_agent_reader
+}
+
+moved {
+  from = google_service_account.runtime
+  to   = module.proxy.google_service_account.runtime
+}
+
+moved {
+  from = google_cloud_run_v2_service.proxy
+  to   = module.proxy.google_cloud_run_v2_service.proxy
+}
+
+moved {
+  from = google_cloud_run_v2_service_iam_member.public_invoker
+  to   = module.proxy.google_cloud_run_v2_service_iam_member.public_invoker
+}
+
+moved {
+  from = google_cloud_run_domain_mapping.proxy
+  to   = module.proxy.google_cloud_run_domain_mapping.proxy
 }
