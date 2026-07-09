@@ -236,7 +236,6 @@ locals {
 
   # Turnstile pre-clearance gate
   edge_proxy_hosts = [
-    "vercel.litomi.cc",
     "proxy.litomi.cc",
     "proxy2.litomi.cc",
   ]

@@ -13,10 +13,6 @@ locals {
       path_prefix = null
     },
     {
-      host        = "vercel.litomi.cc"
-      path_prefix = null
-    },
-    {
       host        = "proxy.litomi.cc"
       path_prefix = null
     },
