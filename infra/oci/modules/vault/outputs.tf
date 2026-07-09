@@ -53,6 +53,16 @@ output "notifier_secret_name" {
   value       = var.notifier_secret_name
 }
 
+output "recommender_secret_id" {
+  description = "Recommender workload vault secret OCID."
+  value       = oci_vault_secret.recommender.id
+}
+
+output "recommender_secret_name" {
+  description = "Recommender secret name."
+  value       = var.recommender_secret_name
+}
+
 output "chat_secret_id" {
   description = "Chat workload vault secret OCID."
   value       = oci_vault_secret.chat.id

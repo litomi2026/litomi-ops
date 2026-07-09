@@ -37,4 +37,12 @@ locals {
       port = pair[1]
     }
   }
+
+  pod_opensearch_egress_rules = {
+    for pair in setproduct(var.pod_opensearch_cidrs_ipv4, var.pod_opensearch_ports) :
+    "${pair[0]}:${pair[1]}" => {
+      cidr = pair[0]
+      port = pair[1]
+    }
+  }
 }

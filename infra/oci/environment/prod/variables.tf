@@ -350,3 +350,29 @@ variable "pod_kafka_ports" {
     error_message = "pod_kafka_ports must contain at least one valid TCP port number."
   }
 }
+
+variable "pod_opensearch_cidrs_ipv4" {
+  description = "IPv4 CIDRs allowed for pod OpenSearch egress via NAT."
+  type        = list(string)
+
+  validation {
+    condition = (
+      length(var.pod_opensearch_cidrs_ipv4) > 0 &&
+      alltrue([for cidr in var.pod_opensearch_cidrs_ipv4 : can(cidrnetmask(cidr))])
+    )
+    error_message = "pod_opensearch_cidrs_ipv4 must contain at least one valid IPv4 CIDR block."
+  }
+}
+
+variable "pod_opensearch_ports" {
+  description = "TCP ports allowed for pod OpenSearch egress via NAT."
+  type        = set(number)
+
+  validation {
+    condition = (
+      length(var.pod_opensearch_ports) > 0 &&
+      alltrue([for port in var.pod_opensearch_ports : port >= 1 && port <= 65535 && port == floor(port)])
+    )
+    error_message = "pod_opensearch_ports must contain at least one valid TCP port number."
+  }
+}

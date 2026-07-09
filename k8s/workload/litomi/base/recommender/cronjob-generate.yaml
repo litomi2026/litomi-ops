@@ -39,8 +39,8 @@ spec:
               imagePullPolicy: IfNotPresent
               args:
                 - generate
-                - --active-days=30
-                - --item-limit=100
+                - --active-days=14
+                - --item-limit=50
                 - --concurrency=2
                 - --max-users=5000
                 - --max-failure-ratio=0.05

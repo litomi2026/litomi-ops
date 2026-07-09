@@ -7,6 +7,7 @@ locals {
   api_secret_name          = "${local.resource_name_prefix}-api"
   cataloger_secret_name    = "${local.resource_name_prefix}-cataloger"
   notifier_secret_name     = "${local.resource_name_prefix}-notifier"
+  recommender_secret_name  = "${local.resource_name_prefix}-recommender"
   chat_secret_name         = "${local.resource_name_prefix}-chat"
   chat_worker_secret_name  = "${local.resource_name_prefix}-chat-worker"
   chat_push_secret_name    = "${local.resource_name_prefix}-chat-push"
@@ -74,6 +75,8 @@ module "network" {
   pod_redis_ports                   = var.pod_redis_ports
   pod_kafka_cidrs_ipv4              = var.pod_kafka_cidrs_ipv4
   pod_kafka_ports                   = var.pod_kafka_ports
+  pod_opensearch_cidrs_ipv4         = var.pod_opensearch_cidrs_ipv4
+  pod_opensearch_ports              = var.pod_opensearch_ports
   freeform_tags                     = local.freeform_tags
 }
 
@@ -100,6 +103,7 @@ module "vault" {
   api_secret_name          = local.api_secret_name
   cataloger_secret_name    = local.cataloger_secret_name
   notifier_secret_name     = local.notifier_secret_name
+  recommender_secret_name  = local.recommender_secret_name
   chat_secret_name         = local.chat_secret_name
   chat_worker_secret_name  = local.chat_worker_secret_name
   chat_push_secret_name    = local.chat_push_secret_name

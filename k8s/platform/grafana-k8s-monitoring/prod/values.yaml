@@ -68,6 +68,7 @@ podLogsViaLoki:
     - litomi-chat-push
     - litomi-cataloger
     - litomi-notifier
+    - litomi-recommender
 
 annotationAutodiscovery:
   enabled: false
