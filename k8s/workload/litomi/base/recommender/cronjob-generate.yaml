@@ -16,7 +16,7 @@ spec:
   failedJobsHistoryLimit: 3
   jobTemplate:
     spec:
-      activeDeadlineSeconds: 3600
+      activeDeadlineSeconds: 5400
       backoffLimit: 1
       template:
         metadata:
@@ -39,19 +39,24 @@ spec:
                 - generate
                 - --active-days=14
                 - --item-limit=50
-                - --concurrency=2
+                - --concurrency=5
                 - --max-users=5000
                 - --max-failure-ratio=0.05
+              env:
+                - name: APP_POSTGRES_POOL_MAX
+                  value: '5'
+                - name: CATALOG_POSTGRES_POOL_MAX
+                  value: '5'
               envFrom:
                 - secretRef:
                     name: litomi-recommender-env
               resources:
                 requests:
                   cpu: 100m
-                  memory: 512Mi
+                  memory: 128Mi
                 limits:
                   cpu: 1000m
-                  memory: 1Gi
+                  memory: 256Mi
               securityContext:
                 allowPrivilegeEscalation: false
                 runAsNonRoot: true
