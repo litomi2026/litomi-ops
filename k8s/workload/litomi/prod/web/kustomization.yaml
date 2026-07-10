@@ -19,5 +19,5 @@ configMapGenerator:
       - OTEL_TRACES_SAMPLER=parentbased_traceidratio
       - OTEL_TRACES_SAMPLER_ARG=0.5
 images:
-  - digest: sha256:34e50dfc9ddb6835a3f3059103919c8a7a9915be56bafd084e5e8eaa9959b67a
+  - digest: sha256:e8069c18c2ee88866d607d354dd47412c05cdd3db73a3ebca2b8581c0b93dbfc
     name: ghcr.io/litomi2026/litomi-web
