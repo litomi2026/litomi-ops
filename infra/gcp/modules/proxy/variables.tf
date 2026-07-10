@@ -101,7 +101,7 @@ variable "cpu_limit" {
 variable "memory_limit" {
   description = "Per-instance memory limit."
   type        = string
-  default     = "512Mi"
+  default     = "256Mi"
   nullable    = false
 }
 
