@@ -14,5 +14,5 @@ configMapGenerator:
       - APP_ENV=prod
       - APP_ORIGIN=https://litomi.cc
 images:
-  - digest: sha256:5cefa1ba1c2a4563191c9ad4bb6cb677c5abfbcd489bd173115fa0a8f6dc6150
+  - digest: sha256:4ba63013373894342bb48058962a62ec9c87bfe82b77aaf567457289a4aba003
     name: ghcr.io/litomi2026/litomi-chat
